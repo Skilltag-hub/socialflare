@@ -37,6 +37,15 @@ export default function Lanyard({
   fov = 20,
   transparent = true,
 }: LanyardProps) {
+  // Mobile group position: [0, 2.5, 15], Desktop: [1.65, 4.5, 3]
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 640);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+  const groupPosition: [number, number, number] = isMobile ? [0, 2.5, 15] : [1.65, 4.5, 3];
   return (
     <div className="relative z-0 w-full h-screen flex justify-center items-center transform scale-100 origin-center">
       <Canvas
@@ -48,7 +57,7 @@ export default function Lanyard({
       >
         <ambientLight intensity={Math.PI} />
         <Physics gravity={gravity} timeStep={1 / 60}>
-          <Band />
+          <Band groupPosition={groupPosition} />
         </Physics>
         <Environment blur={0.75}>
           <Lightformer
@@ -88,9 +97,10 @@ export default function Lanyard({
 interface BandProps {
   maxSpeed?: number;
   minSpeed?: number;
+  groupPosition?: [number, number, number];
 }
 
-function Band({ maxSpeed = 50, minSpeed = 0 }: BandProps) {
+function Band({ maxSpeed = 50, minSpeed = 0, groupPosition = [1.65, 4.5, 3] }: BandProps & { groupPosition?: [number, number, number] }) {
   // Using "any" for refs since the exact types depend on Rapier's internals
   const band = useRef<any>(null);
   const fixed = useRef<any>(null);
@@ -105,7 +115,7 @@ function Band({ maxSpeed = 50, minSpeed = 0 }: BandProps) {
   const dir = new THREE.Vector3();
 
   const segmentProps: any = {
-    type: "dynamic" as RigidBodyProps["type"],
+    type: "dynamic",
     canSleep: true,
     colliders: false,
     angularDamping: 4,
@@ -202,17 +212,17 @@ function Band({ maxSpeed = 50, minSpeed = 0 }: BandProps) {
 
   return (
     <>
-      <group position={[1.65, 4.5, 3]}>
+      <group position={groupPosition}>
         <RigidBody
           ref={fixed}
           {...segmentProps}
-          type={"fixed" as RigidBodyProps["type"]}
+          type="fixed"
         />
         <RigidBody
           position={[0.5, 0, 0]}
           ref={j1}
           {...segmentProps}
-          type={"dynamic" as RigidBodyProps["type"]}
+          type="dynamic"
         >
           <BallCollider args={[0.1]} />
         </RigidBody>
@@ -220,7 +230,7 @@ function Band({ maxSpeed = 50, minSpeed = 0 }: BandProps) {
           position={[1, 0, 0]}
           ref={j2}
           {...segmentProps}
-          type={"dynamic" as RigidBodyProps["type"]}
+          type="dynamic"
         >
           <BallCollider args={[0.1]} />
         </RigidBody>
@@ -228,7 +238,7 @@ function Band({ maxSpeed = 50, minSpeed = 0 }: BandProps) {
           position={[1.5, 0, 0]}
           ref={j3}
           {...segmentProps}
-          type={"dynamic" as RigidBodyProps["type"]}
+          type="dynamic"
         >
           <BallCollider args={[0.1]} />
         </RigidBody>
@@ -236,11 +246,7 @@ function Band({ maxSpeed = 50, minSpeed = 0 }: BandProps) {
           position={[2, 0, 0]}
           ref={card}
           {...segmentProps}
-          type={
-            dragged
-              ? ("kinematicPosition" as RigidBodyProps["type"])
-              : ("dynamic" as RigidBodyProps["type"])
-          }
+          type={dragged ? "kinematicPosition" : "dynamic"}
         >
           <CuboidCollider args={[0.8, 1.125, 0.01]} />
           <group
@@ -281,7 +287,9 @@ function Band({ maxSpeed = 50, minSpeed = 0 }: BandProps) {
         </RigidBody>
       </group>
       <mesh ref={band} position={[0,0,0]}>
+        {/* @ts-ignore */}
         <meshLineGeometry />
+        {/* @ts-ignore */}
         <meshLineMaterial
           color="white"
           depthTest={false}

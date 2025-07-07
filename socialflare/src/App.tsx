@@ -16,14 +16,14 @@ const languages = [
   { code: "RU", label: "Russian" },
 ];
 
-function LanguageDropdown() {
+function LanguageDropdown({ className = "" }) {
   const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState(languages[0]);
 
   return (
     <div className="relative">
       <button
-        className="rounded-4xl px-4 bg-inherit text-[#ADFF00] p-1 font-poppins border border-[#ADFF00] shadow transition-colors duration-200 hover:bg-[#ADFF0038] hover:border-[#ADFF00] flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-[#ADFF00]"
+        className={`rounded-4xl px-4 bg-inherit text-[#ADFF00] p-1 font-poppins border border-[#ADFF00] shadow transition-colors duration-200 hover:bg-[#ADFF0038] hover:border-[#ADFF00] flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-[#ADFF00] ${className}`}
         onClick={() => setOpen((o) => !o)}
         onBlur={() => setOpen(false)}
       >
@@ -73,17 +73,15 @@ const App = () => {
         <div className="grid-fade-bg" />
 
         {/* Top nav */}
-        <div className="absolute top-[15vh] left-[10vw] flex gap-2 z-10">
-          <button className="rounded-4xl px-6 text-[#ADFF00] p-1 font-poppins border border-[#ADFF00] bg-transparent transition-colors duration-200 hover:bg-[#ADFF0038] hover:border-[#ADFF00] focus:outline-none focus:ring-2 focus:ring-[#ADFF00]">
+        <div className="absolute top-[15vh] left-0 w-full flex flex-row items-center justify-center gap-2 z-10 px-2 sm:left-[10vw] sm:w-auto sm:justify-start">
+          <button className="rounded-3xl px-3 py-1 text-xs h-8 sm:text-base sm:h-auto text-[#ADFF00] font-poppins border border-[#ADFF00] bg-transparent transition-colors duration-200 hover:bg-[#ADFF0038] hover:border-[#ADFF00] focus:outline-none focus:ring-2 focus:ring-[#ADFF00]">
             For Talent
           </button>
-          <button className="rounded-4xl px-6 text-[#ADFF00] p-1 font-poppins border border-[#ADFF00] bg-transparent transition-colors duration-200 hover:bg-[#ADFF0038] hover:border-[#ADFF00] flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-[#ADFF00]">
+          <button className="rounded-3xl px-3 py-1 text-xs h-8 sm:text-base sm:h-auto text-[#ADFF00] font-poppins border border-[#ADFF00] bg-transparent transition-colors duration-200 hover:bg-[#ADFF0038] hover:border-[#ADFF00] flex items-center gap-1 sm:gap-2 focus:outline-none focus:ring-2 focus:ring-[#ADFF00]">
             For Companies
-            <img src="/forcompaniessvg.svg" alt="icon" className="w-4 h-4" />
+            <img src="/forcompaniessvg.svg" alt="icon" className="w-3 h-3 sm:w-4 sm:h-4" />
           </button>
-        </div>
-        <div className="absolute top-[15vh] right-[10vw] z-10">
-          <LanguageDropdown />
+          <LanguageDropdown className="rounded-3xl px-4 py-1 text-xs h-8 sm:text-base sm:h-auto min-w-[64px] sm:min-w-0 text-[#ADFF00] font-poppins border border-[#ADFF00] bg-transparent transition-colors duration-200 hover:bg-[#ADFF0038] hover:border-[#ADFF00] focus:outline-none focus:ring-2 focus:ring-[#ADFF00]" />
         </div>
 
         {/* Join & Video */}
@@ -109,81 +107,83 @@ const App = () => {
         </div>
 
         {/* Flying banners */}
-        <FlyingBanner
-          style={{ position: "absolute", top: "30%", left: "50%" }}
-          className="float-animate-y float-delay-0"
-          title="10k+ Micro Gigs"
-          avatars={[
-            "/avatars/avatar1.png",
-            "/avatars/avatar2.png",
-            "/avatars/avatar3.png",
-            "/avatars/avatar4.png",
-          ]}
-          extra={<div className="w-5 h-5 bg-black rounded-full ml-1" />}
-        />
-        <FlyingBanner
-          style={{ position: "absolute", bottom: "18%", left: "65%" }}
-          className="float-animate-x float-delay-1"
-          title="10k+ Skill Tags"
-          avatars={[
-            "/avatars/avatar1.png",
-            "/avatars/avatar2.png",
-            "/avatars/avatar3.png",
-            "/avatars/avatar4.png",
-          ]}
-          extra={<div className="w-5 h-5 bg-black rounded-full ml-1" />}
-        />
-        <FlyingBanner
-          style={{ position: "absolute", top: "22%", right: "15%" }}
-          className="float-animate-y float-delay-2"
-          title={
-            <span>
-              <span className="font-bold">₹10L</span>
-              <br />
-              Disbursed
-            </span>
-          }
-          avatars={[]}
-        />
+        <div className="hidden sm:block">
+          <FlyingBanner
+            style={{ position: "absolute", top: "30%", left: "50%" }}
+            className="float-animate-y float-delay-0"
+            title="10k+ Micro Gigs"
+            avatars={[
+              "/avatars/avatar1.png",
+              "/avatars/avatar2.png",
+              "/avatars/avatar3.png",
+              "/avatars/avatar4.png",
+            ]}
+            extra={<div className="w-5 h-5 bg-black rounded-full ml-1" />}
+          />
+          <FlyingBanner
+            style={{ position: "absolute", bottom: "18%", left: "65%" }}
+            className="float-animate-x float-delay-1"
+            title="10k+ Skill Tags"
+            avatars={[
+              "/avatars/avatar1.png",
+              "/avatars/avatar2.png",
+              "/avatars/avatar3.png",
+              "/avatars/avatar4.png",
+            ]}
+            extra={<div className="w-5 h-5 bg-black rounded-full ml-1" />}
+          />
+          <FlyingBanner
+            style={{ position: "absolute", top: "22%", right: "15%" }}
+            className="float-animate-y float-delay-2"
+            title={
+              <span>
+                <span className="font-bold">₹10L</span>
+                <br />
+                Disbursed
+              </span>
+            }
+            avatars={[]}
+          />
+        </div>
 
         {/* Trusted by + Gallery intro */}
         <div className="relative z-10 -mt-2">
-          <div className="mx-auto w-[80vw] max-w-[60vw] bg-[#F6F9FF] rounded-t-4xl px-8 py-6 relative z-20">
+          <div className="mx-auto w-full sm:w-[80vw] sm:max-w-[60vw] bg-[#F6F9FF] rounded-none sm:rounded-t-4xl px-2 sm:px-8 py-4 sm:py-6 relative z-20">
             <TrustedBy />
           </div>
-          <div className="w-full bg-[#F6F9FF] rounded-t-4xl">
-            <div className="mx-auto max-w-[1100px] px-8 py-12">
-              <div className="h-[15vh]"></div>
+          <div className="w-full bg-[#F6F9FF] rounded-none sm:rounded-t-4xl">
+            <div className="mx-auto max-w-[1100px] px-2 sm:px-8 py-6 sm:py-12">
+              <div className="h-8 sm:h-[15vh]"></div>
               <h2
-                className="text-4xl font-poppins text-center font-bold mb-4"
+                className="text-2xl sm:text-4xl font-poppins text-center font-bold mb-2 sm:mb-4"
                 style={{ color: "#1F2E47" }}
               >
                 Browse All Skill Gigs
               </h2>
               <p
-                className="text-center text-lg font-poppins font-light"
+                className="text-center text-sm sm:text-lg font-poppins font-light"
                 style={{ color: "#1F2E47" }}
               >
                 Claim Your Free, Sharable Skill Tag.
               </p>
               <p
-                className="text-center text-lg font-poppins font-light"
+                className="text-center text-sm sm:text-lg font-poppins font-light"
                 style={{ color: "#1F2E47" }}
               >
                 Start In Seconds, Start Looking For Gigs At Your Own Pace.
               </p>
-              <div className="p-6 flex justify-center">
+              <div className="p-2 sm:p-6 flex justify-center">
                 <div
                   className="relative flex justify-center items-center"
-                  style={{ minHeight: 340 }}
+                  style={{ minHeight: 200 }}
                 >
                   <div
                     className="absolute"
                     style={{
                       left: "50%",
                       top: "50%",
-                      width: 600,
-                      height: 420,
+                      width: 320,
+                      height: 220,
                       transform: "translate(-50%, -50%)",
                       zIndex: 0,
                       pointerEvents: "none",
@@ -197,7 +197,7 @@ const App = () => {
                       randomRotation={false}
                       sensitivity={180}
                       sendToBackOnClick={false}
-                      cardDimensions={{ width: 400, height: 300 }}
+                      cardDimensions={{ width: 220, height: 140 }}
                       cardsData={images}
                     />
                     <div className="absolute left-1/2 -translate-x-1/2 -bottom-8 flex items-center justify-center">
@@ -239,16 +239,13 @@ const App = () => {
                   </div>
                 </div>
               </div>
-              <div className="flex flex-row items-center justify-center gap-16 mt-16 w-full max-w-[1100px] mx-auto">
-                <div className="text-left max-w-[30vw] text-5xl font-poppins font-bold text-[#1F2E47] leading-tight">
-                  100+ Verified
-                  <br />
-                  Skilled Talent!
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-16 mt-8 sm:mt-16 w-full max-w-[1100px] mx-auto">
+                <div className="text-center sm:text-left max-w-full sm:max-w-[30vw] text-lg sm:text-5xl font-poppins font-bold text-[#1F2E47] leading-tight">
+                  100+ Verified Skilled Talent!
                 </div>
-                <div className="flex flex-col items-start gap-6 w-[28vw] min-w-[320px]">
-                  <div className="text-[#1F2E47] text-lg font-poppins font-normal">
-                    A dynamic group of innovators who ignite ideas and
-                    transform them into impactful work!
+                <div className="flex flex-col items-center sm:items-start gap-2 sm:gap-6 w-full sm:w-[28vw] min-w-[180px] sm:min-w-[320px]">
+                  <div className="text-[#1F2E47] text-sm sm:text-lg font-poppins font-normal">
+                    A dynamic group of innovators who ignite ideas and transform them into impactful work!
                   </div>
                   <div className="flex items-center justify-center">
                     <div
