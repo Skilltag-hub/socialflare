@@ -20,13 +20,7 @@ const TrustedBy = () => (
           className="w-16 h-8 object-contain grayscale opacity-70"
         />
       ))}
-    </div>
-
-    {/* Right side: count */}
-    <div className="flex flex-col items-end">
-      <span className="font-bold text-black text-xl">125k<sup>+</sup></span>
-      <span className="text-xs text-black/60">Companies</span>
-    </div>
+    </div>  
   </div>
 );
 

@@ -73,37 +73,44 @@ const App = () => {
         <div className="grid-fade-bg" />
 
         {/* Top nav */}
-        <div className="absolute top-[15vh] left-0 w-full flex flex-row items-center justify-center gap-2 z-10 px-2 sm:left-[10vw] sm:w-auto sm:justify-start">
-          <button className="rounded-3xl px-3 py-1 text-xs h-8 sm:text-base sm:h-auto text-[#ADFF00] font-poppins border border-[#ADFF00] bg-transparent transition-colors duration-200 hover:bg-[#ADFF0038] hover:border-[#ADFF00] focus:outline-none focus:ring-2 focus:ring-[#ADFF00]">
-            For Talent
-          </button>
-          <button className="rounded-3xl px-3 py-1 text-xs h-8 sm:text-base sm:h-auto text-[#ADFF00] font-poppins border border-[#ADFF00] bg-transparent transition-colors duration-200 hover:bg-[#ADFF0038] hover:border-[#ADFF00] flex items-center gap-1 sm:gap-2 focus:outline-none focus:ring-2 focus:ring-[#ADFF00]">
-            For Companies
-            <img src="/forcompaniessvg.svg" alt="icon" className="w-3 h-3 sm:w-4 sm:h-4" />
-          </button>
-          <LanguageDropdown className="rounded-3xl px-4 py-1 text-xs h-8 sm:text-base sm:h-auto min-w-[64px] sm:min-w-0 text-[#ADFF00] font-poppins border border-[#ADFF00] bg-transparent transition-colors duration-200 hover:bg-[#ADFF0038] hover:border-[#ADFF00] focus:outline-none focus:ring-2 focus:ring-[#ADFF00]" />
-        </div>
-
-        {/* Join & Video */}
-        <div className="absolute left-[20vh] top-[70vh] flex items-center gap-8 z-20">
-          <div className="bg-[#ADFF0038] rounded-full p-2">
-            <div className="bg-[#ADFF00] rounded-full px-6 py-2 font-poppins font-semibold text-black flex items-center gap-2 shadow">
-              Join the waitlist
-              <FaArrowRight className="rotate-315" />
+        <div>
+          <div className="absolute top-[15vh] left-0 w-full flex flex-row items-center justify-center gap-2 z-10 px-2 sm:left-[10vw] sm:w-auto sm:justify-start">
+            <button className="rounded-3xl px-3 py-1 text-xs h-8 sm:text-base sm:h-auto text-[#ADFF00] font-poppins border border-[#ADFF00] bg-transparent transition-colors duration-200 hover:bg-[#ADFF0038] hover:border-[#ADFF00] focus:outline-none focus:ring-2 focus:ring-[#ADFF00]">
+              For Talent
+            </button>
+            <button className="rounded-3xl px-3 py-1 text-xs h-8 sm:text-base sm:h-auto text-[#ADFF00] font-poppins border border-[#ADFF00] bg-transparent transition-colors duration-200 hover:bg-[#ADFF0038] hover:border-[#ADFF00] flex items-center gap-1 sm:gap-2 focus:outline-none focus:ring-2 focus:ring-[#ADFF00]">
+              For Companies
+              <img src="/forcompaniessvg.svg" alt="icon" className="w-3 h-3 sm:w-4 sm:h-4" />
+            </button>
+            <div className="sm:hidden">
+              <LanguageDropdown className="rounded-3xl px-4 py-1 text-xs h-8 min-w-[64px] text-[#ADFF00] font-poppins border border-[#ADFF00] bg-transparent transition-colors duration-200 hover:bg-[#ADFF0038] hover:border-[#ADFF00] focus:outline-none focus:ring-2 focus:ring-[#ADFF00]" />
             </div>
           </div>
-          <button className="rounded-full bg-[#1A2B0A] w-14 h-14 flex items-center justify-center border-2 border-[#4B8000] shadow-lg">
-            <FaPlay className="text-[#ADFF00] text-xl" />
-          </button>
-          <span className="text-white font-poppins text-lg">Watch Video</span>
+          <div className="hidden sm:block absolute top-[15vh] right-[10vw] z-10">
+            <LanguageDropdown className="rounded-3xl px-4 py-1 text-base h-auto min-w-[64px] text-[#ADFF00] font-poppins border border-[#ADFF00] bg-transparent transition-colors duration-200 hover:bg-[#ADFF0038] hover:border-[#ADFF00] focus:outline-none focus:ring-2 focus:ring-[#ADFF00]" />
+          </div>
         </div>
 
-        {/* Lanyard & Headline */}
+        {/* Lanyard & Headline + Waitlist/Video (responsive) */}
         <Lanyard position={[0, 0, 15]} gravity={[0, -40, 0]} />
-        <div className="absolute top-[35vh] left-[20vh] max-w-[40vw] text-white text-6xl font-black font-poppins">
-          100+ GIG-JOB<br />
-          DROPS EVERY<br />
-          FRIDAY, 5 PM
+        <div className="absolute top-[75vh] sm:top-[35vh] left-0 sm:left-[10vw] z-20 w-full sm:w-auto flex flex-col items-center sm:items-start">
+          <div className="w-full max-w-[95vw] sm:max-w-[45Dvw] px-2 sm:px-0 flex flex-col sm:block items-center sm:items-start justify-center gap-2 sm:gap-0">
+            <div className="text-white text-lg sm:text-6xl font-black font-poppins text-center sm:text-left mb-2 sm:mb-0">
+              100+ GIG-JOB DROPS EVERY FRIDAY, 5 PM
+            </div>
+            <div className="flex flex-row items-center justify-center sm:justify-start gap-2 sm:gap-8 mt-2 sm:mt-8">
+              <div className="bg-[#ADFF0038] rounded-full p-1 sm:p-2">
+                <div className="bg-[#ADFF00] rounded-full px-3 py-1 sm:px-6 sm:py-2 font-poppins font-semibold text-black flex items-center gap-2 shadow text-xs sm:text-base">
+                  Join the waitlist
+                  <FaArrowRight className="rotate-315" />
+                </div>
+              </div>
+              <button className="rounded-full bg-[#1A2B0A] w-8 h-8 sm:w-14 sm:h-14 flex items-center justify-center border-2 border-[#4B8000] shadow-lg">
+                <FaPlay className="text-[#ADFF00] text-base sm:text-xl" />
+              </button>
+              <span className="text-white font-poppins text-xs sm:text-lg">Watch Video</span>
+            </div>
+          </div>
         </div>
 
         {/* Flying banners */}
@@ -265,63 +272,63 @@ const App = () => {
       </div>
 
       {/* ——— GOT A GIG BANNER ——— */}
-      <div className="w-full flex justify-center py-12 bg-transparent">
-        <div className="w-full max-w-[900px] rounded-3xl bg-black shadow-xl border border-[#222] flex flex-col md:flex-row items-center justify-between px-10 py-8 gap-6">
-          <h3 className="text-xl md:text-2xl font-bold text-[#ADFF00] text-center md:text-left">
+      <div className="w-full flex justify-center py-6 sm:py-12 bg-transparent">
+        <div className="w-full max-w-[340px] sm:max-w-[900px] rounded-2xl sm:rounded-3xl bg-black shadow-xl border border-[#222] flex flex-col md:flex-row items-center justify-between px-4 py-4 sm:px-10 sm:py-8 gap-4 sm:gap-6">
+          <h3 className="text-base sm:text-xl md:text-2xl font-bold text-[#ADFF00] text-center md:text-left">
             Got a Gig to be completed?
           </h3>
-          <button className="px-7 py-3 bg-[#181F13] text-[#ADFF00] rounded-full border-2 border-[#ADFF00] font-semibold flex items-center gap-2 shadow-md hover:scale-105 transition-transform duration-150">
+          <button className="px-4 py-2 sm:px-7 sm:py-3 bg-[#181F13] text-[#ADFF00] rounded-full border-2 border-[#ADFF00] font-semibold flex items-center gap-2 shadow-md hover:scale-105 transition-transform duration-150 text-sm sm:text-base">
             Post a Gig <FaArrowRight className="text-[#ADFF00]" />
           </button>
         </div>
       </div>
 
       {/* ——— FULL-WIDTH FOOTER ——— */}
-      <div className="w-full bg-[#F6F9FF] pt-12 pb-6 px-2 md:px-8 font-poppins text-[#1F2E47] text-xs md:text-sm">
-        <div className="max-w-[1100px] mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12 items-start">
+      <div className="w-full bg-[#F6F9FF] pt-8 sm:pt-12 pb-4 sm:pb-6 px-2 md:px-8 font-poppins text-[#1F2E47] text-xs md:text-sm">
+        <div className="max-w-full sm:max-w-[1100px] mx-auto grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-12 items-start">
           {/* Left: Catalog + Logo */}
-          <div className="flex flex-col gap-4 md:gap-6">
+          <div className="flex flex-col gap-3 sm:gap-6 items-center sm:items-start">
             <div>
-              <div className="uppercase text-[10px] md:text-xs tracking-[0.2em] text-[#1F2E47]/50 mb-1 md:mb-2 font-medium">
+              <div className="uppercase text-[10px] sm:text-xs tracking-[0.2em] text-[#1F2E47]/50 mb-1 sm:mb-2 font-medium text-center sm:text-left">
                 CATALOG
               </div>
-              <div className="flex flex-col gap-1 md:gap-2 text-base md:text-lg font-semibold">
-                <div className="flex items-center gap-3 md:gap-4">
+              <div className="flex flex-col gap-1 sm:gap-2 text-base sm:text-lg font-semibold">
+                <div className="flex flex-wrap justify-center sm:justify-start items-center gap-2 sm:gap-4">
                   <span className="hover:text-[#ADFF00] transition-colors cursor-pointer">Features</span>
                   <span className="text-[#E6EAF1]">/</span>
                   <span className="hover:text-[#ADFF00] transition-colors cursor-pointer">Pricing</span>
                   <span className="text-[#E6EAF1]">/</span>
                   <span className="hover:text-[#ADFF00] transition-colors cursor-pointer">Product</span>
                 </div>
-                <div className="flex items-center gap-3 md:gap-4">
+                <div className="flex flex-wrap justify-center sm:justify-start items-center gap-2 sm:gap-4">
                   <span className="hover:text-[#ADFF00] transition-colors cursor-pointer">Contact</span>
                   <span className="text-[#E6EAF1]">/</span>
                   <span className="hover:text-[#ADFF00] transition-colors cursor-pointer">Document</span>
                 </div>
               </div>
             </div>
-            <div className="text-lg md:text-2xl font-extrabold tracking-tight mt-2 md:mt-4 text-[#1F2E47] opacity-80">SOCIALFLARE</div>
+            <div className="text-lg sm:text-2xl font-extrabold tracking-tight mt-2 sm:mt-4 text-[#1F2E47] opacity-80 text-center sm:text-left">SOCIALFLARE</div>
           </div>
 
           {/* Center: Contact & Location */}
-          <div className="flex flex-col gap-6 md:gap-10 border-l border-r border-[#E6EAF1] px-4 md:px-8">
+          <div className="flex flex-col gap-4 sm:gap-10 border-l-0 sm:border-l border-r-0 sm:border-r border-[#E6EAF1] px-0 sm:px-8 items-center sm:items-start">
             <div>
-              <div className="text-xs md:text-base font-bold mb-1 md:mb-2 tracking-wide text-[#1F2E47]">Contact Us</div>
-              <div className="text-xs md:text-base font-normal mb-1 text-[#1F2E47]/80">+1 (999) 888-77-66</div>
-              <div className="text-xs md:text-base font-normal text-[#1F2E47]/80">hello@nskalastd.com</div>
+              <div className="text-xs sm:text-base font-bold mb-1 sm:mb-2 tracking-wide text-[#1F2E47] text-center sm:text-left">Contact Us</div>
+              <div className="text-xs sm:text-base font-normal mb-1 text-[#1F2E47]/80 text-center sm:text-left">+1 (999) 888-77-66</div>
+              <div className="text-xs sm:text-base font-normal text-[#1F2E47]/80 text-center sm:text-left">hello@nskalastd.com</div>
             </div>
             <div>
-              <div className="text-xs md:text-base font-bold mb-1 md:mb-2 tracking-wide text-[#1F2E47]">Location</div>
-              <div className="text-xs md:text-base font-normal text-[#1F2E47]/80">
+              <div className="text-xs sm:text-base font-bold mb-1 sm:mb-2 tracking-wide text-[#1F2E47] text-center sm:text-left">Location</div>
+              <div className="text-xs sm:text-base font-normal text-[#1F2E47]/80 text-center sm:text-left">
                 483920, Indonesia,<br />Lampung 22/2/5, Office 4
               </div>
             </div>
           </div>
 
           {/* Right: Languages */}
-          <div className="flex flex-col items-end gap-2 md:gap-4">
-            <div className="text-[10px] md:text-xs font-medium text-[#1F2E47]/60">Languages</div>
-            <div className="flex gap-2 md:gap-4 text-xs md:text-sm">
+          <div className="flex flex-col items-center sm:items-end gap-2 sm:gap-4">
+            <div className="text-[10px] sm:text-xs font-medium text-[#1F2E47]/60">Languages</div>
+            <div className="flex gap-2 sm:gap-4 text-xs sm:text-sm flex-wrap justify-center sm:justify-end">
               {languages.map((lang) => (
                 <button
                   key={lang.code}
