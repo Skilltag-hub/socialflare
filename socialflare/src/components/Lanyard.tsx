@@ -1,6 +1,6 @@
 /* eslint-disable react/no-unknown-property */
-import cardGLB from "../public/card.glb"
-import lanyard from "../public/lanyard.png"
+import cardGLB from "../../public/card.glb"
+import lanyard from "../../public/lanyard.png"
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { Canvas, extend, useFrame } from "@react-three/fiber";
@@ -17,7 +17,6 @@ import {
   RigidBody,
   useRopeJoint,
   useSphericalJoint,
-  RigidBodyProps,
 } from "@react-three/rapier";
 import { MeshLineGeometry, MeshLineMaterial } from "meshline";
 import * as THREE from "three";
@@ -33,7 +32,7 @@ interface LanyardProps {
 }
 
 export default function Lanyard({
-  position = [0, 0, 30],
+  position = [2, 5, 30],
   gravity = [0, -40, 0],
   fov = 20,
   transparent = true,
@@ -203,7 +202,7 @@ function Band({ maxSpeed = 50, minSpeed = 0 }: BandProps) {
 
   return (
     <>
-      <group position={[3, 4, 0]}>
+      <group position={[1.65, 4.5, 3]}>
         <RigidBody
           ref={fixed}
           {...segmentProps}
