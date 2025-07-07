@@ -150,6 +150,9 @@ const App = () => {
         <div className="relative z-10 -mt-2">
           <div className="mx-auto w-full sm:w-[80vw] sm:max-w-[60vw] bg-[#F6F9FF] rounded-none sm:rounded-t-4xl px-2 sm:px-8 py-4 sm:py-6 relative z-20">
             <TrustedBy />
+            <div className="w-full flex justify-center mt-2">
+              <span className="text-[#1F2E47] text-base sm:text-lg font-semibold text-center">125k+ companies</span>
+            </div>
           </div>
           <div className="w-full bg-[#F6F9FF] rounded-none sm:rounded-t-4xl">
             <div className="mx-auto max-w-[1100px] px-2 sm:px-8 py-6 sm:py-12">
@@ -197,45 +200,9 @@ const App = () => {
                       randomRotation={false}
                       sensitivity={180}
                       sendToBackOnClick={false}
-                      cardDimensions={{ width: 220, height: 140 }}
+                      cardDimensions={{ width: 280, height: 180 }}
                       cardsData={images}
                     />
-                    <div className="absolute left-1/2 -translate-x-1/2 -bottom-8 flex items-center justify-center">
-                      <div
-                        className="rounded-full p-[2px] bg-white/30 backdrop-blur-md"
-                        style={{
-                          boxShadow: "0 0 0 4px rgba(173,255,0,0.15)",
-                        }}
-                      >
-                        <button
-                          className="px-4 py-1 rounded-full border-2 flex items-center gap-2"
-                          style={{
-                            background: "#ADFF00",
-                            borderColor: "#ADFF00",
-                            color: "#1F2E47",
-                            fontWeight: 600,
-                            fontFamily: "Poppins, sans-serif",
-                            fontSize: "1rem",
-                            boxShadow: "0 2px 16px #ADFF0033",
-                            zIndex: 20,
-                          }}
-                        >
-                          View All Jobs
-                          <svg
-                            width="16"
-                            height="16"
-                            fill="none"
-                            stroke="#1F2E47"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            viewBox="0 0 24 24"
-                          >
-                            <path d="M5 12h14M13 6l6 6-6 6" />
-                          </svg>
-                        </button>
-                      </div>
-                    </div>
                   </div>
                 </div>
               </div>
@@ -244,7 +211,7 @@ const App = () => {
                   100+ Verified Skilled Talent!
                 </div>
                 <div className="flex flex-col items-center sm:items-start gap-2 sm:gap-6 w-full sm:w-[28vw] min-w-[180px] sm:min-w-[320px]">
-                  <div className="text-[#1F2E47] text-sm sm:text-lg font-poppins font-normal">
+                  <div className="text-[#1F2E47] text-sm sm:text-lg font-poppins font-normal text-center sm:text-left">
                     A dynamic group of innovators who ignite ideas and transform them into impactful work!
                   </div>
                   <div className="flex items-center justify-center">
