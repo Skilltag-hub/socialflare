@@ -74,11 +74,11 @@ const App = () => {
 
         {/* Top nav */}
         <div>
-          <div className="absolute top-[15vh] left-0 w-full flex flex-row items-center justify-center gap-2 z-10 px-2 sm:left-[10vw] sm:w-auto sm:justify-start">
-            <button className="rounded-3xl px-3 py-1 text-xs h-8 sm:text-base sm:h-auto text-[#ADFF00] font-poppins border border-[#ADFF00] bg-transparent transition-colors duration-200 hover:bg-[#ADFF0038] hover:border-[#ADFF00] focus:outline-none focus:ring-2 focus:ring-[#ADFF00]">
+          <div className="absolute top-[8vh] sm:top-[15vh] left-0 w-full flex flex-row items-center justify-center gap-2 z-10 px-2 sm:left-[10vw] sm:w-auto sm:justify-start">
+            <button className="rounded-3xl px-3 sm:px-6 py-1 text-xs h-8 sm:text-base sm:h-auto text-[#ADFF00] font-poppins border border-[#ADFF00] bg-transparent transition-colors duration-200 hover:bg-[#ADFF0038] hover:border-[#ADFF00] focus:outline-none focus:ring-2 focus:ring-[#ADFF00]">
               For Talent
             </button>
-            <button className="rounded-3xl px-3 py-1 text-xs h-8 sm:text-base sm:h-auto text-[#ADFF00] font-poppins border border-[#ADFF00] bg-transparent transition-colors duration-200 hover:bg-[#ADFF0038] hover:border-[#ADFF00] flex items-center gap-1 sm:gap-2 focus:outline-none focus:ring-2 focus:ring-[#ADFF00]">
+            <button className="rounded-3xl px-3 sm:px-6 py-1 text-xs h-8 sm:text-base sm:h-auto text-[#ADFF00] font-poppins border border-[#ADFF00] bg-transparent transition-colors duration-200 hover:bg-[#ADFF0038] hover:border-[#ADFF00] flex items-center gap-1 sm:gap-2 focus:outline-none focus:ring-2 focus:ring-[#ADFF00]">
               For Companies
               <img src="/forcompaniessvg.svg" alt="icon" className="w-3 h-3 sm:w-4 sm:h-4" />
             </button>

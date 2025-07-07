@@ -45,7 +45,7 @@ export default function Lanyard({
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
-  const groupPosition: [number, number, number] = isMobile ? [0, 4.5, 0] : [1.65, 4.5, 3];
+  const groupPosition: [number, number, number] = isMobile ? [0, 4.6, 0] : [1.65, 4.5, 3];
   return (
     <div className="relative z-0 w-full h-screen flex justify-center items-center transform scale-100 origin-center">
       <Canvas
