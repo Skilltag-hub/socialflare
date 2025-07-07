@@ -301,71 +301,69 @@ const App = () => {
       </div>
 
       {/* ——— GOT A GIG BANNER ——— */}
-      <div className="bg-black py-8">
-        <div className="max-w-[1100px] mx-auto px-12 flex items-center justify-between">
-          <h3 className="text-3xl font-bold text-[#ADFF00]">
+      <div className="w-full flex justify-center py-12 bg-transparent">
+        <div className="w-full max-w-[900px] rounded-3xl bg-black shadow-xl border border-[#222] flex flex-col md:flex-row items-center justify-between px-10 py-8 gap-6">
+          <h3 className="text-xl md:text-2xl font-bold text-[#ADFF00] text-center md:text-left">
             Got a Gig to be completed?
           </h3>
-          <button className="px-6 py-2 bg-[#ADFF00] text-black rounded-full border border-black font-semibold flex items-center gap-2">
-            Post a Gig <FaArrowRight />
+          <button className="px-7 py-3 bg-[#181F13] text-[#ADFF00] rounded-full border-2 border-[#ADFF00] font-semibold flex items-center gap-2 shadow-md hover:scale-105 transition-transform duration-150">
+            Post a Gig <FaArrowRight className="text-[#ADFF00]" />
           </button>
         </div>
       </div>
 
       {/* ——— FULL-WIDTH FOOTER ——— */}
-      <div className="w-full bg-[#F6F9FF] pt-24 pb-16 px-12 font-poppins text-[#1F2E47] text-lg">
-        <div className="max-w-[1100px] mx-auto grid grid-cols-3 gap-8">
+      <div className="w-full bg-[#F6F9FF] pt-12 pb-6 px-2 md:px-8 font-poppins text-[#1F2E47] text-xs md:text-sm">
+        <div className="max-w-[1100px] mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12 items-start">
           {/* Left: Catalog + Logo */}
-          <div className="flex flex-col gap-8">
+          <div className="flex flex-col gap-4 md:gap-6">
             <div>
-              <div className="uppercase text-sm tracking-[0.2em] text-[#1F2E47]/60 mb-4 font-medium">
+              <div className="uppercase text-[10px] md:text-xs tracking-[0.2em] text-[#1F2E47]/50 mb-1 md:mb-2 font-medium">
                 CATALOG
               </div>
-              <div className="flex flex-col gap-2 text-2xl font-semibold">
-                <div className="flex items-center gap-6">
-                  <span className="hover:text-[#1F2E47] transition-colors">Features</span>
+              <div className="flex flex-col gap-1 md:gap-2 text-base md:text-lg font-semibold">
+                <div className="flex items-center gap-3 md:gap-4">
+                  <span className="hover:text-[#ADFF00] transition-colors cursor-pointer">Features</span>
                   <span className="text-[#E6EAF1]">/</span>
-                  <span className="hover:text-[#1F2E47] transition-colors">Pricing</span>
+                  <span className="hover:text-[#ADFF00] transition-colors cursor-pointer">Pricing</span>
                   <span className="text-[#E6EAF1]">/</span>
-                  <span className="hover:text-[#1F2E47] transition-colors">Product</span>
+                  <span className="hover:text-[#ADFF00] transition-colors cursor-pointer">Product</span>
                 </div>
-                <div className="flex items-center gap-6">
-                  <span className="hover:text-[#1F2E47] transition-colors">Contact</span>
+                <div className="flex items-center gap-3 md:gap-4">
+                  <span className="hover:text-[#ADFF00] transition-colors cursor-pointer">Contact</span>
                   <span className="text-[#E6EAF1]">/</span>
-                  <span className="hover:text-[#1F2E47] transition-colors">Document</span>
+                  <span className="hover:text-[#ADFF00] transition-colors cursor-pointer">Document</span>
                 </div>
               </div>
             </div>
-            <div className="text-3xl font-extrabold">SOCIALFLARE</div>
+            <div className="text-lg md:text-2xl font-extrabold tracking-tight mt-2 md:mt-4 text-[#1F2E47] opacity-80">SOCIALFLARE</div>
           </div>
 
           {/* Center: Contact & Location */}
-          <div className="flex flex-col gap-16">
+          <div className="flex flex-col gap-6 md:gap-10 border-l border-r border-[#E6EAF1] px-4 md:px-8">
             <div>
-              <div className="text-2xl font-bold mb-4">Contact Us</div>
-              <div className="text-2xl font-normal mb-2">+1 (999) 888-77-66</div>
-              <div className="text-2xl font-normal">hello@nskalastd.com</div>
+              <div className="text-xs md:text-base font-bold mb-1 md:mb-2 tracking-wide text-[#1F2E47]">Contact Us</div>
+              <div className="text-xs md:text-base font-normal mb-1 text-[#1F2E47]/80">+1 (999) 888-77-66</div>
+              <div className="text-xs md:text-base font-normal text-[#1F2E47]/80">hello@nskalastd.com</div>
             </div>
             <div>
-              <div className="text-2xl font-bold mb-4">Location</div>
-              <div className="text-2xl font-normal">
-                483920, Indonesia,
-                <br />
-                Lampung 22/2/5, Office 4
+              <div className="text-xs md:text-base font-bold mb-1 md:mb-2 tracking-wide text-[#1F2E47]">Location</div>
+              <div className="text-xs md:text-base font-normal text-[#1F2E47]/80">
+                483920, Indonesia,<br />Lampung 22/2/5, Office 4
               </div>
             </div>
           </div>
 
           {/* Right: Languages */}
-          <div className="flex flex-col items-end gap-2">
-            <div className="text-sm font-medium">Languages</div>
-            <div className="flex gap-4 text-base">
+          <div className="flex flex-col items-end gap-2 md:gap-4">
+            <div className="text-[10px] md:text-xs font-medium text-[#1F2E47]/60">Languages</div>
+            <div className="flex gap-2 md:gap-4 text-xs md:text-sm">
               {languages.map((lang) => (
                 <button
                   key={lang.code}
-                  className={`${
-                    lang.code === "EN" ? "text-[#2563eb] font-bold underline" : "hover:text-[#1F2E47]"
-                  }`}
+                  className={`$ {
+                    lang.code === "EN" ? "text-[#2563eb] font-bold underline" : "hover:text-[#ADFF00] transition-colors" 
+                  } px-2 py-1 rounded focus:outline-none focus:ring-1 focus:ring-[#ADFF00]`}
                 >
                   {lang.code}
                 </button>
