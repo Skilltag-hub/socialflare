@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { ChevronLeft, ChevronRight, ArrowRight } from "lucide-react"
-import { Button } from "../components/ui/Button"
+import { Button } from "../components/ui/button"
 
 // Profile card data structure:
 // { id: number, name: string, role: string, avatar: string, trending: boolean }
@@ -12,43 +12,43 @@ const profiles = [
     id: 1,
     name: "Daniel Lee",
     role: "Graphic Designer",
-    avatar: "/placeholder.svg?height=40&width=40",
+    avatar: "https://images.unsplash.com/photo-1751076547690-09952d86c2ce?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHx0b3BpYy1mZWVkfDN8dG93SlpGc2twR2d8fGVufDB8fHx8fA%3D%3D",
     trending: true,
   },
   {
     id: 2,
     name: "Emily Taylor",
     role: "Social Media Manager",
-    avatar: "/placeholder.svg?height=40&width=40",
+    avatar: "https://images.unsplash.com/photo-1738680722152-88b45b3310ab?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHx0b3BpYy1mZWVkfDEwfHRvd0paRnNrcEdnfHxlbnwwfHx8fHw%3D",
     trending: true,
   },
   {
     id: 3,
     name: "Sarah Collins",
     role: "Social Media Analyst",
-    avatar: "/placeholder.svg?height=40&width=40",
+    avatar: "https://images.unsplash.com/photo-1742201587774-f44fe79556f9?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHx0b3BpYy1mZWVkfDJ8dG93SlpGc2twR2d8fGVufDB8fHx8fA%3D%3D",
     trending: true,
   },
   {
     id: 4,
     name: "Mike Johnson",
     role: "UI/UX Designer",
-    avatar: "/placeholder.svg?height=40&width=40",
+    avatar: "https://unsplash.com/photos/a-skater-pauses-in-a-skate-park-EKY-fxdPa54",
     trending: true,
   },
-  { id: 5, name: "Lisa Chen", role: "Content Creator", avatar: "/placeholder.svg?height=40&width=40", trending: true },
+  { id: 5, name: "Lisa Chen", role: "Content Creator", avatar: "https://images.unsplash.com/photo-1751132901281-82f7fbda1786?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHx0b3BpYy1mZWVkfDEyfHRvd0paRnNrcEdnfHxlbnwwfHx8fHw%3D", trending: true },
   {
     id: 6,
     name: "Alex Rivera",
     role: "Brand Strategist",
-    avatar: "/placeholder.svg?height=40&width=40",
+    avatar: "https://images.unsplash.com/photo-1751076547690-09952d86c2ce?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHx0b3BpYy1mZWVkfDN8dG93SlpGc2twR2d8fGVufDB8fHx8fA%3D%3D",
     trending: true,
   },
   {
     id: 7,
     name: "Jordan Smith",
     role: "Marketing Director",
-    avatar: "/placeholder.svg?height=40&width=40",
+    avatar: "https://images.unsplash.com/photo-1738680722152-88b45b3310ab?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHx0b3BpYy1mZWVkfDEwfHRvd0paRnNrcEdnfHxlbnwwfHx8fHw%3D",
     trending: true,
   },
 ]
@@ -60,13 +60,13 @@ export default function CircularGallery() {
   const nextSlide = () => {
     if (isAnimating) return
     setIsAnimating(true)
-    setCurrentIndex(prev => (prev + 1) % profiles.length)
+    setCurrentIndex((prev) => (prev + 1) % profiles.length)
   }
 
   const prevSlide = () => {
     if (isAnimating) return
     setIsAnimating(true)
-    setCurrentIndex(prev => (prev - 1 + profiles.length) % profiles.length)
+    setCurrentIndex((prev) => (prev - 1 + profiles.length) % profiles.length)
   }
 
   const goToSlide = (index) => {
@@ -82,7 +82,7 @@ export default function CircularGallery() {
 
   const getCardStyle = (index) => {
     const totalCards = profiles.length
-    const visibleCards = 5 // Number of cards visible at once
+    const visibleCards = 5 // Show 5 cards for smoother transitions
 
     // Calculate the position relative to current index
     let position = (index - currentIndex + totalCards) % totalCards
@@ -92,27 +92,37 @@ export default function CircularGallery() {
       position = position - totalCards
     }
 
-    // Only show cards within the visible range
-    if (Math.abs(position) > Math.floor(visibleCards / 2)) {
-      return { display: "none" }
-    }
-
     const isCenter = position === 0
+    const isVisible = Math.abs(position) <= 1 // Only center and immediate neighbors are fully visible
+    const isTransitioning = Math.abs(position) === 2 // Cards that are transitioning in/out
 
-    // Linear horizontal spacing like a normal carousel
-    const spacing = window.innerWidth < 640 ? 180 : window.innerWidth < 1024 ? 220 : 260 // Horizontal spacing between cards
+    // Linear horizontal spacing
+    const spacing = window.innerWidth < 640 ? 200 : window.innerWidth < 1024 ? 240 : 280
     const x = position * spacing
 
-    // Position side cards lower than center card (down-center-down pattern)
-    const y = Math.abs(position) <= 1 ? (isCenter ? 0 : 30) : 40 // Outer cards positioned slightly lower
+    // Position side cards lower than center card
+    const y = isCenter ? 0 : 30
 
-    // Rotate cards away from center (outward rotation)
-    const rotation = position * 5
+    // Rotate cards away from center
+    const rotation = position * 8
 
     // Scale and styling based on position
-    const scale = isCenter ? 1.05 : Math.max(0.9, 1 - Math.abs(position) * 0.05)
-    const zIndex = isCenter ? 20 : 10 - Math.abs(position)
-    const opacity = Math.max(0.7, 1 - Math.abs(position) * 0.1)
+    let scale, opacity, zIndex
+
+    if (isVisible) {
+      // Main 3 visible cards
+      scale = isCenter ? 1.1 : 0.95
+      opacity = isCenter ? 1 : 0.8
+      zIndex = isCenter ? 20 : 10 - Math.abs(position)
+    } else if (isTransitioning) {
+      // Cards transitioning in/out - smaller and completely transparent
+      scale = 0.7
+      opacity = 0 // Changed from 0.3 to 0
+      zIndex = 5
+    } else {
+      // Completely hidden cards
+      return { display: "none" }
+    }
 
     return {
       transform: `translate(${x}px, ${y}px) scale(${scale}) rotate(${rotation}deg)`,
@@ -124,7 +134,7 @@ export default function CircularGallery() {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-white p-2 sm:p-4">
-      <div className="relative w-full max-w-sm sm:max-w-3xl lg:max-w-5xl xl:max-w-6xl">
+      <div className="relative w-full max-w-sm sm:max-w-4xl lg:max-w-6xl xl:max-w-7xl">
         {/* Navigation Buttons */}
         <Button
           variant="outline"
@@ -150,7 +160,7 @@ export default function CircularGallery() {
         <div className="relative h-[320px] sm:h-[360px] lg:h-[400px] xl:h-[440px] flex items-center justify-center overflow-hidden px-4">
           {profiles.map((profile, index) => {
             const style = getCardStyle(index)
-            const isCenter = (index - currentIndex + profiles.length) % profiles.length === 2
+            const isCenter = (index - currentIndex + profiles.length) % profiles.length === 0
 
             return (
               <div
