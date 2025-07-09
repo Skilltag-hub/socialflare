@@ -1,57 +1,15 @@
 // src/App.tsx
-import React, { useState } from "react";
-import { FaChevronDown, FaPlay, FaArrowRight } from "react-icons/fa";
+import React, { useRef } from "react";
+import { FaPlay, FaArrowRight } from "react-icons/fa";
 import { Routes, Route, useNavigate } from 'react-router-dom';
 // @ts-expect-error: FlyingBanner is a JS component without a type declaration
 import FlyingBanner from "./components/FlyingBanner";
 import Lanyard from "./components/Lanyard";
-import TrustedBy from "./components/TrustedBy";
 import Stack from './components/Stack';
+// @ts-expect-error: CircularGallery is a JS component without a type declaration
 import CircularGallery from './components/CircularGallery.jsx';
 import WaitlistForm from './components/WaitlistForm';
 import AdminPage from './components/AdminPage';
-
-const languages = [
-  { code: "EN", label: "English" },
-  { code: "FR", label: "French" },
-  { code: "ES", label: "Spanish" },
-  { code: "DE", label: "German" },
-  { code: "RU", label: "Russian" },
-];
-
-function LanguageDropdown({ className = "" }) {
-  const [open, setOpen] = useState(false);
-  const [selected, setSelected] = useState(languages[0]);
-
-  return (
-    <div className="relative">
-      <button
-        className={`rounded-4xl px-4 bg-inherit text-[#ADFF00] p-1 font-poppins border border-[#ADFF00] shadow transition-colors duration-200 hover:bg-[#ADFF0038] hover:border-[#ADFF00] flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-[#ADFF00] ${className}`}
-        onClick={() => setOpen((o) => !o)}
-        onBlur={() => setOpen(false)}
-      >
-        {selected.code}
-        <FaChevronDown />
-      </button>
-      {open && (
-        <div className="absolute right-0 mt-2 bg-black rounded shadow z-20">
-          {languages.map((lang) => (
-            <div
-              key={lang.code}
-              className="px-4 py-2 cursor-pointer hover:bg-[#ADFF0038] transition-colors duration-200 text-[#ADFF00] font-poppins"
-              onMouseDown={() => {
-                setSelected(lang);
-                setOpen(false);
-              }}
-            >
-              {lang.code}
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
 
 const images = [
   { id: 1, img: "https://images.unsplash.com/photo-1519125323398-675f0ddb6308?q=80&w=500&auto=format" },
@@ -70,6 +28,15 @@ const galleryItems = [
 
 const App = () => {
   const navigate = useNavigate();
+  // For Stack navigation
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const stackRef = useRef<any>(null);
+  const handleStackLeft = () => {
+    if (stackRef.current && stackRef.current.prevCard) stackRef.current.prevCard();
+  };
+  const handleStackRight = () => {
+    if (stackRef.current && stackRef.current.nextCard) stackRef.current.nextCard();
+  };
   return (
     <Routes>
       <Route path="/" element={
@@ -88,12 +55,6 @@ const App = () => {
                   For Companies
                   <img src="/forcompaniessvg.svg" alt="icon" className="w-3 h-3 sm:w-4 sm:h-4" />
                 </button>
-                <div className="sm:hidden">
-                  <LanguageDropdown className="rounded-3xl px-4 py-1 text-xs h-8 min-w-[64px] text-[#ADFF00] font-poppins border border-[#ADFF00] bg-transparent transition-colors duration-200 hover:bg-[#ADFF0038] hover:border-[#ADFF00] focus:outline-none focus:ring-2 focus:ring-[#ADFF00]" />
-                </div>
-              </div>
-              <div className="hidden sm:block absolute top-[15vh] right-[10vw] z-10">
-                <LanguageDropdown className="rounded-3xl px-4 py-1 text-base h-auto min-w-[64px] text-[#ADFF00] font-poppins border border-[#ADFF00] bg-transparent transition-colors duration-200 hover:bg-[#ADFF0038] hover:border-[#ADFF00] focus:outline-none focus:ring-2 focus:ring-[#ADFF00]" />
               </div>
             </div>
 
@@ -114,7 +75,7 @@ const App = () => {
                       <FaArrowRight className="rotate-315" />
                     </div>
                   </div>
-                  <button className="rounded-full bg-[#1A2B0A] w-8 h-8 sm:w-14 sm:h-14 flex items-center justify-center border-2 border-[#4B8000] shadow-lg">
+                  <button className="rounded-full bg-[#1A2B0A] w-8 h-8 sm:w-14 sm:h-14 flex items-center justify-center border-2 border-[#4B8000] shadow-lg" onClick={() => window.alert('Coming soon')}>
                     <FaPlay className="text-[#ADFF00] text-base sm:text-xl" />
                   </button>
                   <span className="text-white font-poppins text-xs sm:text-lg">Watch Video</span>
@@ -164,15 +125,9 @@ const App = () => {
 
             {/* Trusted by + Gallery intro */}
             <div className="relative z-10 -mt-2">
-              <div className="mx-auto w-full sm:w-[80vw] sm:max-w-[60vw] bg-[#F6F9FF] rounded-none sm:rounded-t-4xl px-2 sm:px-8 py-4 sm:py-6 relative z-20">
-                <TrustedBy />
-                <div className="w-full flex justify-center mt-2">
-                  <span className="text-[#1F2E47] text-base sm:text-lg font-semibold text-center">125k+ companies</span>
-                </div>
-              </div>
               <div className="w-full bg-[#F6F9FF] rounded-none sm:rounded-t-4xl">
-                <div className="mx-auto max-w-[1100px] px-2 sm:px-8 py-6 sm:py-12">
-                  <div className="h-8 sm:h-[15vh]"></div>
+                <div className="mx-auto max-w-[1100px] px-2 sm:px-8 pt-2 pb-4 sm:pt-4 sm:pb-8">
+                  <div className="h-4 sm:h-[8vh]"></div>
                   <h2
                     className="text-2xl sm:text-4xl font-poppins text-center font-bold mb-2 sm:mb-4"
                     style={{ color: "#1F2E47" }}
@@ -194,14 +149,14 @@ const App = () => {
                   <div className="p-2 sm:p-6 flex justify-center">
                     <div
                       className="relative flex justify-center items-center"
-                      style={{ minHeight: 200 }}
+                      style={{ minHeight: 220 }}
                     >
                       <div
                         className="absolute"
                         style={{
                           left: "50%",
                           top: "50%",
-                          width: 320,
+                          width: 340,
                           height: 220,
                           transform: "translate(-50%, -50%)",
                           zIndex: 0,
@@ -211,15 +166,18 @@ const App = () => {
                           filter: "blur(16px)",
                         }}
                       />
+                      <button onClick={handleStackLeft} className="absolute left-0 z-20 bg-[#ADFF00] text-black rounded-full w-8 h-8 flex items-center justify-center shadow hover:scale-110 transition-transform">&#8592;</button>
                       <div className="relative z-10">
                         <Stack
+                          ref={stackRef}
                           randomRotation={false}
                           sensitivity={180}
                           sendToBackOnClick={false}
-                          cardDimensions={{ width: 280, height: 180 }}
+                          cardDimensions={{ width: 340, height: 220 }}
                           cardsData={images}
                         />
                       </div>
+                      <button onClick={handleStackRight} className="absolute right-0 z-20 bg-[#ADFF00] text-black rounded-full w-8 h-8 flex items-center justify-center shadow hover:scale-110 transition-transform">&#8594;</button>
                     </div>
                   </div>
                   <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-16 mt-8 sm:mt-16 w-full max-w-[1100px] mx-auto">
@@ -249,6 +207,7 @@ const App = () => {
                               boxShadow: "0 2px 16px #ADFF0033", 
                               zIndex: 20,
                             }}
+                            onClick={() => window.alert('Coming soon')}
                           >
                             View All Jobs
                             <svg
@@ -286,7 +245,7 @@ const App = () => {
               <h3 className="text-base sm:text-xl md:text-2xl font-bold text-[#ADFF00] text-center md:text-left">
                 Got a Gig to be completed?
               </h3>
-              <button className="px-4 py-2 sm:px-7 sm:py-3 bg-[#181F13] text-[#ADFF00] rounded-full border-2 border-[#ADFF00] font-semibold flex items-center gap-2 shadow-md hover:scale-105 transition-transform duration-150 text-sm sm:text-base">
+              <button className="px-4 py-2 sm:px-7 sm:py-3 bg-[#181F13] text-[#ADFF00] rounded-full border-2 border-[#ADFF00] font-semibold flex items-center gap-2 shadow-md hover:scale-105 transition-transform duration-150 text-sm sm:text-base" onClick={() => window.alert('Coming soon')}>
                 Post a Gig <FaArrowRight className="text-[#ADFF00]" />
               </button>
             </div>
@@ -294,7 +253,7 @@ const App = () => {
 
           {/* ——— FULL-WIDTH FOOTER ——— */}
           <div className="w-full bg-[#F6F9FF] pt-8 sm:pt-12 pb-4 sm:pb-6 px-2 md:px-8 font-poppins text-[#1F2E47] text-xs md:text-sm">
-            <div className="max-w-full sm:max-w-[1100px] mx-auto grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-12 items-start">
+            <div className="max-w-full sm:max-w-[1100px] mx-auto grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-12 items-start">
               {/* Left: Catalog + Logo */}
               <div className="flex flex-col gap-3 sm:gap-6 items-center sm:items-start">
                 <div>
@@ -305,14 +264,7 @@ const App = () => {
                     <div className="flex flex-wrap justify-center sm:justify-start items-center gap-2 sm:gap-4">
                       <span className="hover:text-[#ADFF00] transition-colors cursor-pointer">Features</span>
                       <span className="text-[#E6EAF1]">/</span>
-                      <span className="hover:text-[#ADFF00] transition-colors cursor-pointer">Pricing</span>
-                      <span className="text-[#E6EAF1]">/</span>
                       <span className="hover:text-[#ADFF00] transition-colors cursor-pointer">Product</span>
-                    </div>
-                    <div className="flex flex-wrap justify-center sm:justify-start items-center gap-2 sm:gap-4">
-                      <span className="hover:text-[#ADFF00] transition-colors cursor-pointer">Contact</span>
-                      <span className="text-[#E6EAF1]">/</span>
-                      <span className="hover:text-[#ADFF00] transition-colors cursor-pointer">Document</span>
                     </div>
                   </div>
                 </div>
@@ -333,28 +285,13 @@ const App = () => {
                   </div>
                 </div>
               </div>
-
-              {/* Right: Languages */}
-              <div className="flex flex-col items-center sm:items-end gap-2 sm:gap-4">
-                <div className="text-[10px] sm:text-xs font-medium text-[#1F2E47]/60">Languages</div>
-                <div className="flex gap-2 sm:gap-4 text-xs sm:text-sm flex-wrap justify-center sm:justify-end">
-                  {languages.map((lang) => (
-                    <button
-                      key={lang.code}
-                      className={`$ {
-                        lang.code === "EN" ? "text-[#2563eb] font-bold underline" : "hover:text-[#ADFF00] transition-colors" 
-                      } px-2 py-1 rounded focus:outline-none focus:ring-1 focus:ring-[#ADFF00]`}
-                    >
-                      {lang.code}
-                    </button>
-                  ))}
-                </div>
-              </div>
             </div>
           </div>
         </>
       } />
-      <Route path="/waitlist" element={<WaitlistForm />} />
+      <Route path="/waitlist" element={
+        <div className="min-h-screen bg-black"><WaitlistForm /></div>
+      } />
       <Route path="/admin" element={<AdminPage />} />
     </Routes>
   );

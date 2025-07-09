@@ -1,5 +1,5 @@
 import { motion, useMotionValue, useTransform } from "framer-motion";
-import { useState } from "react";
+import { useState, useImperativeHandle, forwardRef } from "react";
 import "./Stack.css";
 
 interface CardRotateProps {
@@ -50,14 +50,19 @@ interface StackProps {
   animationConfig?: { stiffness: number; damping: number };
 }
 
-export default function Stack({
+export interface StackHandle {
+  nextCard: () => void;
+  prevCard: () => void;
+}
+
+const Stack = forwardRef<StackHandle, StackProps>(function Stack({
   randomRotation = false,
   sensitivity = 200,
   cardDimensions = { width: 208, height: 208 },
   cardsData = [],
   animationConfig = { stiffness: 260, damping: 20 },
   sendToBackOnClick = false
-}: StackProps) {
+}, ref) {
   const [cards, setCards] = useState(
     cardsData.length
       ? cardsData
@@ -78,6 +83,30 @@ export default function Stack({
       return newCards;
     });
   };
+
+  // Move top card to back
+  const nextCard = () => {
+    setCards((prev) => {
+      if (prev.length < 2) return prev;
+      const newCards = [...prev];
+      const top = newCards.pop();
+      if (top) newCards.unshift(top);
+      return newCards;
+    });
+  };
+
+  // Move bottom card to front
+  const prevCard = () => {
+    setCards((prev) => {
+      if (prev.length < 2) return prev;
+      const newCards = [...prev];
+      const bottom = newCards.shift();
+      if (bottom) newCards.push(bottom);
+      return newCards;
+    });
+  };
+
+  useImperativeHandle(ref, () => ({ nextCard, prevCard }), []);
 
   return (
     <div
@@ -129,4 +158,5 @@ export default function Stack({
       })}
     </div>
   );
-}
+});
+export default Stack;
