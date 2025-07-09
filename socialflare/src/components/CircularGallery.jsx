@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { ChevronLeft, ChevronRight, ArrowRight } from "lucide-react"
-import { Button } from "../components/ui/Buttonutton"
+import { Button } from "../components/ui/Button"
 
 // Profile card data structure:
 // { id: number, name: string, role: string, avatar: string, trending: boolean }
