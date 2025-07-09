@@ -9,6 +9,7 @@ import TrustedBy from "./components/TrustedBy";
 import Stack from './components/Stack';
 import CircularGallery from './components/CircularGallery.jsx';
 import WaitlistForm from './components/WaitlistForm';
+import AdminPage from './components/AdminPage';
 
 const languages = [
   { code: "EN", label: "English" },
@@ -354,6 +355,7 @@ const App = () => {
         </>
       } />
       <Route path="/waitlist" element={<WaitlistForm />} />
+      <Route path="/admin" element={<AdminPage />} />
     </Routes>
   );
 };

@@ -6,7 +6,9 @@ const years = [
   'Second Year',
   'Third Year',
   'Fourth Year',
-  'Other',
+  'Final Year',
+  'PostGraduate',
+  'Other'
 ];
 
 const languages = [
@@ -157,7 +159,7 @@ const WaitlistForm: React.FC = () => {
       <div id="waitlist-form" className="w-full flex flex-col items-center justify-center mt-0">
         <form
           onSubmit={handleSubmit}
-          className="w-full max-w-2xl bg-white rounded-3xl shadow-xl p-8 grid grid-cols-1 sm:grid-cols-2 gap-6 mt-12"
+          className="w-full max-w-2xl bg-white rounded-3xl shadow-xl p-4 sm:p-8 grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mt-8 sm:mt-12"
           style={{ boxShadow: '0 8px 32px rgba(31,46,71,0.10)' }}
         >
           <div className="flex flex-col col-span-1">
@@ -169,7 +171,7 @@ const WaitlistForm: React.FC = () => {
               onChange={handleChange}
               placeholder="Your full name"
               required
-              className="rounded-lg border border-gray-200 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#4ade80] bg-[#f8fafc]"
+              className="rounded-lg border border-gray-200 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#4ade80] bg-[#f8fafc] w-full"
             />
           </div>
           <div className="flex flex-col col-span-1">
@@ -181,7 +183,7 @@ const WaitlistForm: React.FC = () => {
               onChange={handleChange}
               placeholder="Your college name"
               required
-              className="rounded-lg border border-gray-200 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#4ade80] bg-[#f8fafc]"
+              className="rounded-lg border border-gray-200 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#4ade80] bg-[#f8fafc] w-full"
             />
           </div>
           <div className="flex flex-col col-span-1">
@@ -191,7 +193,7 @@ const WaitlistForm: React.FC = () => {
               value={form.year}
               onChange={handleChange}
               required
-              className="rounded-lg border border-gray-200 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#4ade80] bg-[#f8fafc]"
+              className="rounded-lg border border-gray-200 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#4ade80] bg-[#f8fafc] w-full"
             >
               <option value="">Select year</option>
               {years.map((y) => (
@@ -208,10 +210,10 @@ const WaitlistForm: React.FC = () => {
               onChange={handleChange}
               placeholder="e.g., Computer Science"
               required
-              className="rounded-lg border border-gray-200 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#4ade80] bg-[#f8fafc]"
+              className="rounded-lg border border-gray-200 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#4ade80] bg-[#f8fafc] w-full"
             />
           </div>
-          <div className="flex flex-col col-span-2">
+          <div className="flex flex-col col-span-1 sm:col-span-2">
             <label className="font-semibold mb-1 text-[#1F2E47]">Email Address *</label>
             <input
               type="email"
@@ -220,10 +222,10 @@ const WaitlistForm: React.FC = () => {
               onChange={handleChange}
               placeholder="your.email@college.edu"
               required
-              className="rounded-lg border border-gray-200 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#4ade80] bg-[#f8fafc]"
+              className="rounded-lg border border-gray-200 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#4ade80] bg-[#f8fafc] w-full"
             />
           </div>
-          <div className="col-span-2 mt-2">
+          <div className="col-span-1 sm:col-span-2 mt-2">
             <button
               type="submit"
               className="w-full py-3 rounded-xl text-[#1F2E47] font-semibold text-lg shadow-md transition-all bg-gradient-to-r from-[#ADFF00] to-[#4ade80] hover:from-[#bfff3c] hover:to-[#22d3ee] disabled:opacity-60 disabled:cursor-not-allowed"
@@ -232,8 +234,8 @@ const WaitlistForm: React.FC = () => {
               {submitting ? 'Submitting...' : 'Join StudentGigs'}
             </button>
           </div>
-          {success && <div className="col-span-2 text-green-600 text-center font-semibold mt-2">{success}</div>}
-          {error && <div className="col-span-2 text-red-600 text-center font-semibold mt-2">{error}</div>}
+          {success && <div className="col-span-1 sm:col-span-2 text-green-600 text-center font-semibold mt-2">{success}</div>}
+          {error && <div className="col-span-1 sm:col-span-2 text-red-600 text-center font-semibold mt-2">{error}</div>}
         </form>
       </div>
 
