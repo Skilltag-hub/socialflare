@@ -7,7 +7,12 @@ export default defineConfig({
   assetsInclude: ['**/*.glb'],
   build: {
     rollupOptions: {
-      external: ['mongodb'], // Add any other node modules used in /api here
+      input: {
+        main: 'index.html',
+      },
+      external: ['mongodb'],
     },
   },
+  // Exclude /api from Vite's build
+  publicDir: 'public',
 });
