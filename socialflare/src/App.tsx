@@ -12,18 +12,17 @@ import WaitlistForm from './components/WaitlistForm';
 import AdminPage from './components/AdminPage';
 
 const images = [
-  { id: 1, img: "https://images.unsplash.com/photo-1519125323398-675f0ddb6308?q=80&w=500&auto=format" },
-  { id: 2, img: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=500&auto=format" },
-  { id: 3, img: "https://images.unsplash.com/photo-1465101046530-73398c7f28ca?q=80&w=500&auto=format" },
-  { id: 4, img: "https://images.unsplash.com/photo-1572120360610-d971b9d7767c?q=80&w=500&auto=format" },
+  { id: 1, img: "/stack/1.jpg" },
+  { id: 2, img: "/stack/2.avif" },
+  { id: 3, img: "/stack/3.avif" },
+  { id: 4, img: "/stack/png2.avif" },
+  { id: 5, img: "/stack/png1.png" },
 ];
 
 const galleryItems = [
-  { image: "https://picsum.photos/seed/1/800/600", text: "Daniel Lee\nGraphic Designer" },
-  { image: "https://picsum.photos/seed/2/800/600", text: "Emily Taylor\nSocial Media Manager" },
-  { image: "https://picsum.photos/seed/3/800/600", text: "Sarah Collins\nSocial Media Analyst" },
-  { image: "https://picsum.photos/seed/4/800/600", text: "Michael Chen\nUX Designer" },
-  { image: "https://picsum.photos/seed/5/800/600", text: "Jessica Wong\nContent Creator" },
+  { image: "/profiles/1.avif", text: "Daniel Lee\nGraphic Designer" },
+  { image: "/profiles/2.avif", text: "Emily Taylor\nSocial Media Manager" },
+  { image: "/profiles/3.jpeg", text: "Sarah Collins\nSocial Media Analyst" },
 ];
 
 const App = () => {
@@ -35,7 +34,7 @@ const App = () => {
     if (stackRef.current && stackRef.current.prevCard) stackRef.current.prevCard();
   };
   const handleStackRight = () => {
-    if (stackRef.current && stackRef.current.nextCard) stackRef.current.nextCard();
+    if (stackRef.current && stackRef.current.prevCard) stackRef.current.prevCard();
   };
   return (
     <Routes>
@@ -152,12 +151,10 @@ const App = () => {
                       style={{ minHeight: 220 }}
                     >
                       <div
-                        className="absolute"
+                        className="absolute w-[340px] h-[220px] sm:w-[480px] sm:h-[320px]"
                         style={{
                           left: "50%",
                           top: "50%",
-                          width: 340,
-                          height: 220,
                           transform: "translate(-50%, -50%)",
                           zIndex: 0,
                           pointerEvents: "none",
@@ -175,6 +172,7 @@ const App = () => {
                           sendToBackOnClick={false}
                           cardDimensions={{ width: 340, height: 220 }}
                           cardsData={images}
+                          responsive={true}
                         />
                       </div>
                       <button onClick={handleStackRight} className="absolute right-0 z-20 bg-[#ADFF00] text-black rounded-full w-8 h-8 flex items-center justify-center shadow hover:scale-110 transition-transform">&#8594;</button>

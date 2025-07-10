@@ -12,43 +12,21 @@ const profiles = [
     id: 1,
     name: "Daniel Lee",
     role: "Graphic Designer",
-    avatar: "https://images.unsplash.com/photo-1751076547690-09952d86c2ce?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHx0b3BpYy1mZWVkfDN8dG93SlpGc2twR2d8fGVufDB8fHx8fA%3D%3D",
+    avatar: "/profiles/1.avif",
     trending: true,
   },
   {
     id: 2,
     name: "Emily Taylor",
     role: "Social Media Manager",
-    avatar: "https://images.unsplash.com/photo-1738680722152-88b45b3310ab?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHx0b3BpYy1mZWVkfDEwfHRvd0paRnNrcEdnfHxlbnwwfHx8fHw%3D",
+    avatar: "/profiles/2.avif",
     trending: true,
   },
   {
     id: 3,
-    name: "Sarah Collins",
-    role: "Social Media Analyst",
-    avatar: "https://images.unsplash.com/photo-1742201587774-f44fe79556f9?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHx0b3BpYy1mZWVkfDJ8dG93SlpGc2twR2d8fGVufDB8fHx8fA%3D%3D",
-    trending: true,
-  },
-  {
-    id: 4,
-    name: "Mike Johnson",
-    role: "UI/UX Designer",
-    avatar: "https://unsplash.com/photos/a-skater-pauses-in-a-skate-park-EKY-fxdPa54",
-    trending: true,
-  },
-  { id: 5, name: "Lisa Chen", role: "Content Creator", avatar: "https://images.unsplash.com/photo-1751132901281-82f7fbda1786?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHx0b3BpYy1mZWVkfDEyfHRvd0paRnNrcEdnfHxlbnwwfHx8fHw%3D", trending: true },
-  {
-    id: 6,
-    name: "Alex Rivera",
-    role: "Brand Strategist",
-    avatar: "https://images.unsplash.com/photo-1751076547690-09952d86c2ce?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHx0b3BpYy1mZWVkfDN8dG93SlpGc2twR2d8fGVufDB8fHx8fA%3D%3D",
-    trending: true,
-  },
-  {
-    id: 7,
-    name: "Jordan Smith",
-    role: "Marketing Director",
-    avatar: "https://images.unsplash.com/photo-1738680722152-88b45b3310ab?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHx0b3BpYy1mZWVkfDEwfHRvd0paRnNrcEdnfHxlbnwwfHx8fHw%3D",
+    name: "Siddharth T S",
+    role: "Web Developer",
+    avatar: "/profiles/3.jpeg",
     trending: true,
   },
 ]
@@ -175,7 +153,7 @@ export default function CircularGallery() {
                   {/* Image Area */}
                   <div className="relative flex-1 bg-gray-400 overflow-hidden">
                     <img
-                      src="/placeholder.svg?height=208&width=256"
+                      src={profile.avatar}
                       alt={`${profile.name} profile`}
                       className="w-full h-full object-cover"
                     />

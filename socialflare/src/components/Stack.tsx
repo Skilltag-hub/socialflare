@@ -47,7 +47,7 @@ interface StackProps {
   cardDimensions?: { width: number; height: number };
   sendToBackOnClick?: boolean;
   cardsData?: { id: number; img: string }[];
-  animationConfig?: { stiffness: number; damping: number };
+  responsive?: boolean;
 }
 
 export interface StackHandle {
@@ -60,8 +60,8 @@ const Stack = forwardRef<StackHandle, StackProps>(function Stack({
   sensitivity = 200,
   cardDimensions = { width: 208, height: 208 },
   cardsData = [],
-  animationConfig = { stiffness: 260, damping: 20 },
-  sendToBackOnClick = false
+  sendToBackOnClick = false,
+  responsive = false
 }, ref) {
   const [cards, setCards] = useState(
     cardsData.length
@@ -110,10 +110,10 @@ const Stack = forwardRef<StackHandle, StackProps>(function Stack({
 
   return (
     <div
-      className="stack-container"
+      className={`stack-container ${responsive ? 'w-[340px] h-[220px] sm:w-[480px] sm:h-[320px]' : ''}`}
       style={{
-        width: cardDimensions.width,
-        height: cardDimensions.height,
+        width: responsive ? undefined : cardDimensions.width,
+        height: responsive ? undefined : cardDimensions.height,
         perspective: 600,
       }}
     >
@@ -129,7 +129,7 @@ const Stack = forwardRef<StackHandle, StackProps>(function Stack({
             sensitivity={sensitivity}
           >
             <motion.div
-              className="card"
+              className={`card ${responsive ? 'w-[340px] h-[220px] sm:w-[480px] sm:h-[320px]' : ''}`}
               onClick={() => sendToBackOnClick && sendToBack(card.id)}
               animate={{
                 rotateZ: (cards.length - index - 1) * 4 + randomRotate,
@@ -138,13 +138,13 @@ const Stack = forwardRef<StackHandle, StackProps>(function Stack({
               }}
               initial={false}
               transition={{
-                type: "spring",
-                stiffness: animationConfig.stiffness,
-                damping: animationConfig.damping,
+                type: "tween",
+                duration: 0.6,
+                ease: "easeInOut",
               }}
               style={{
-                width: cardDimensions.width,
-                height: cardDimensions.height,
+                width: responsive ? undefined : cardDimensions.width,
+                height: responsive ? undefined : cardDimensions.height,
               }}
             >
               <img
