@@ -266,7 +266,7 @@ const App = () => {
                     </div>
                   </div>
                 </div>
-                <div className="text-lg sm:text-2xl font-extrabold tracking-tight mt-2 sm:mt-4 text-[#1F2E47] opacity-80 text-center sm:text-left">SOCIALFLARE</div>
+                <div className="text-lg sm:text-2xl font-extrabold tracking-tight mt-2 sm:mt-4 text-[#1F2E47] opacity-80 text-center sm:text-left">SkillTag</div>
               </div>
 
               {/* Center: Contact & Location */}
