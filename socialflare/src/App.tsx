@@ -273,13 +273,12 @@ const App = () => {
               <div className="flex flex-col gap-4 sm:gap-10 border-l-0 sm:border-l border-r-0 sm:border-r border-[#E6EAF1] px-0 sm:px-8 items-center sm:items-start">
                 <div>
                   <div className="text-xs sm:text-base font-bold mb-1 sm:mb-2 tracking-wide text-[#1F2E47] text-center sm:text-left">Contact Us</div>
-                  <div className="text-xs sm:text-base font-normal mb-1 text-[#1F2E47]/80 text-center sm:text-left">+1 (999) 888-77-66</div>
-                  <div className="text-xs sm:text-base font-normal text-[#1F2E47]/80 text-center sm:text-left">hello@nskalastd.com</div>
+                  <div className="text-xs sm:text-base font-normal text-[#1F2E47]/80 text-center sm:text-left">skilltag.hub@gmail.com</div>
                 </div>
                 <div>
                   <div className="text-xs sm:text-base font-bold mb-1 sm:mb-2 tracking-wide text-[#1F2E47] text-center sm:text-left">Location</div>
                   <div className="text-xs sm:text-base font-normal text-[#1F2E47]/80 text-center sm:text-left">
-                    483920, Indonesia,<br />Lampung 22/2/5, Office 4
+                    Hyderabad, India
                   </div>
                 </div>
               </div>
