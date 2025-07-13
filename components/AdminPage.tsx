@@ -11,7 +11,7 @@ interface WaitlistEntry {
 }
 
 const ADMIN_USER = 'skilltag';
-const ADMIN_PASS = 'adminflare123';
+const ADMIN_PASS = 'skilltag123';
 
 const AdminPage: React.FC = () => {
   const [username, setUsername] = useState('');
