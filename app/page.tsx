@@ -12,8 +12,8 @@ import TrustedBy from '../components/TrustedBy';
 import FloatingLogos from '../components/FloatingLogos.jsx';
 
 const animatedItems = [
-  'Graphic Designer', 'Video Editor', 'Web Developer', 'SEO Content Creator', '',
-  'Item 6', 'Item 7', 'Item 8', 'Item 9', 'Item 10'
+  'Graphic Designer', 'Video Editor', 'Web Developer', 'SEO Content Creator', 'AI Intern',
+  'UI/UX Assistant', 'Virtual Assistant', 'Data Analysis Intern', 'Presentation Designer', '3D Visualiser'
 ];
 
 
