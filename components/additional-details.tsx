@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { Upload } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/Button";
 import { Label } from "@/components/ui/label";
 import {
   Select,
