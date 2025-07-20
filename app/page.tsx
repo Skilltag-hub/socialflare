@@ -336,7 +336,7 @@ export default function HomePage() {
                     <div className="w-full max-w-2xl mx-auto z-20">
                       <AnimatedList
                         items={animatedItems}
-                        onItemSelect={(item, index) => console.log(item, index)}
+                        onItemSelect={(item: string, index: number) => console.log(item, index)}
                         showGradients={true}
                         enableArrowNavigation={true}
                         displayScrollbar={true}
