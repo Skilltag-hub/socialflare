@@ -8,16 +8,15 @@ const companyLogos = [
 ];
 
 const TrustedBy = () => (
-  <div className="flex bg-[#F6F9FF] justify-between items-center w-full">
-    {/* Left side: label + logos */}
-    <div className="flex items-center gap-6">
-      <span className="font-semibold text-black/80 text-sm">Trusted by.</span>
+  <div className="mx-auto w-full max-w-[100vw] sm:max-w-[60vw] bg-[#F6F9FF] px-2 sm:px-4 py-3 flex justify-center items-center rounded-none sm:rounded-t-xl shadow-md">
+    <div className="flex flex-wrap items-center gap-3 sm:gap-6 justify-center w-full">
+      <span className="font-semibold text-black/80 text-xs sm:text-sm">Trusted by.</span>
       {companyLogos.map((src, i) => (
         <img
           key={i}
           src={src}
           alt={`Company ${i + 1}`}
-          className="w-16 h-8 object-contain grayscale opacity-70"
+          className="w-12 h-6 sm:w-16 sm:h-8 object-contain grayscale opacity-70"
         />
       ))}
     </div>  
