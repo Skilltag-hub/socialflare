@@ -1,0 +1,26 @@
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import clientPromise from "@/lib/mongodb";
+
+export async function POST(req: Request) {
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.email) {
+    return new Response("Unauthorized", { status: 401 });
+  }
+  const details = await req.json();
+  console.log(details);
+  const client = await clientPromise;
+  const db = client.db("waitlist");
+  console.log(session.user.email);
+  console.log(db);
+  const result = await db
+    .collection("users")
+    .updateOne({ email: session.user.email }, { $set: { ...details } });
+  console.log(
+    "Matched:",
+    result.matchedCount,
+    "Modified:",
+    result.modifiedCount
+  );
+  return new Response("Details updated", { status: 200 });
+}
