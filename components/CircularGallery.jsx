@@ -113,7 +113,7 @@ export default function CircularGallery() {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-white p-2 sm:p-4">
+    <div className="flex flex-col items-center justify-center min-h-screen p-2 sm:p-4" style={{ background: 'transparent' }}>
       <div className="relative w-full max-w-sm sm:max-w-4xl lg:max-w-6xl xl:max-w-7xl">
         {/* Navigation Buttons */}
         <Button

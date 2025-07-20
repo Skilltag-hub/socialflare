@@ -67,12 +67,12 @@ body {
 
 @keyframes floatY {
   0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-20px); }
+  50% { transform: translateY(-24px); }
 }
 
 @keyframes floatX {
   0%, 100% { transform: translateX(0px); }
-  50% { transform: translateX(15px); }
+  50% { transform: translateX(18px); }
 }
 
 .rotate-315 {
