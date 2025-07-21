@@ -237,7 +237,7 @@ export default function AdditionalDetails() {
           </div>
         </form>
         {/* ...footer... */}
-        <div className="mt-8 pt-6 border-t border-gray-200">
+        <div className="mt-8 pt-6 border-t border-gray-200 font-sans font-bold">
           <div className="flex justify-center space-x-6 text-sm text-gray-600">
             <Link href="/support" className="hover:text-gray-900">
               Support

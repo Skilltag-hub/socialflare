@@ -116,7 +116,7 @@ export default function SetPin() {
           </form>
         </div>
         <div className="mt-8 pt-6 border-t border-gray-200">
-          <div className="flex justify-center space-x-6 text-sm text-gray-600">
+          <div className="flex justify-center space-x-6 text-sm text-gray-600 font-sans font-bold">
             <a href="/support" className="hover:text-gray-900">
               Support
             </a>

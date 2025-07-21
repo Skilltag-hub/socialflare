@@ -2,20 +2,28 @@
 
 import React, { useState } from "react";
 import { FaPlay, FaArrowRight } from "react-icons/fa";
-import { useRouter } from 'next/navigation';
+import { useRouter } from "next/navigation";
 import FlyingBanner from "../components/FlyingBanner";
 import Lanyard from "../components/Lanyard";
-import Stack from '../components/Stack';
-import CircularGallery from '../components/CircularGallery.jsx';
-import AnimatedList from '../components/AnimatedList.jsx';
-import TrustedBy from '../components/TrustedBy';
-import FloatingLogos from '../components/FloatingLogos.jsx';
+import Stack from "../components/Stack";
+import CircularGallery from "../components/CircularGallery.jsx";
+import AnimatedList from "../components/AnimatedList.jsx";
+import TrustedBy from "../components/TrustedBy";
+import FloatingLogos from "../components/FloatingLogos.jsx";
+import TransitionLink from "@/components/TransitionLink";
 
 const animatedItems = [
-  'Graphic Designer', 'Video Editor', 'Web Developer', 'SEO Content Creator', 'AI Intern',
-  'UI/UX Assistant', 'Virtual Assistant', 'Data Analysis Intern', 'Presentation Designer', '3D Visualiser'
+  "Graphic Designer",
+  "Video Editor",
+  "Web Developer",
+  "SEO Content Creator",
+  "AI Intern",
+  "UI/UX Assistant",
+  "Virtual Assistant",
+  "Data Analysis Intern",
+  "Presentation Designer",
+  "3D Visualiser",
 ];
-
 
 const images = [
   { id: 1, img: "/stack/1.jpg" },
@@ -27,13 +35,15 @@ const images = [
 
 export default function HomePage() {
   const router = useRouter();
-  const [tab, setTab] = useState<'talent' | 'companies'>('talent');
+  const [tab, setTab] = useState<"talent" | "companies">("talent");
   const stackRef = React.useRef<any>(null);
   const handleStackLeft = () => {
-    if (stackRef.current && stackRef.current.prevCard) stackRef.current.prevCard();
+    if (stackRef.current && stackRef.current.prevCard)
+      stackRef.current.prevCard();
   };
   const handleStackRight = () => {
-    if (stackRef.current && stackRef.current.prevCard) stackRef.current.prevCard();
+    if (stackRef.current && stackRef.current.prevCard)
+      stackRef.current.prevCard();
   };
 
   return (
@@ -42,43 +52,63 @@ export default function HomePage() {
         {/* Top nav with tabs */}
         <div className="absolute top-[8vh] sm:top-[15vh] left-0 w-full flex flex-row items-center justify-center gap-2 z-10 px-2 sm:left-[10vw] sm:w-auto sm:justify-start">
           <button
-            className={`rounded-3xl px-3 sm:px-6 py-1 text-xs h-8 sm:text-base sm:h-auto font-poppins border border-[#ADFF00] bg-transparent transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-[#ADFF00] ${tab === 'talent' ? 'bg-[#ADFF0038] text-[#ADFF00]' : 'text-[#ADFF00] hover:bg-[#ADFF0038]'}`}
-            onClick={() => setTab('talent')}
+            className={`rounded-3xl px-3 sm:px-6 py-1 text-xs h-8 sm:text-base sm:h-auto font-poppins border border-[#ADFF00] bg-transparent transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-[#ADFF00] ${
+              tab === "talent"
+                ? "bg-[#ADFF0038] text-[#ADFF00]"
+                : "text-[#ADFF00] hover:bg-[#ADFF0038]"
+            }`}
+            onClick={() => setTab("talent")}
           >
             For Talent
           </button>
           <button
-            className={`rounded-3xl px-3 sm:px-6 py-1 text-xs h-8 sm:text-base sm:h-auto font-poppins border border-[#ADFF00] bg-transparent transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-[#ADFF00] flex items-center gap-1 sm:gap-2 ${tab === 'companies' ? 'bg-[#ADFF0038] text-[#ADFF00]' : 'text-[#ADFF00] hover:bg-[#ADFF0038]'}`}
-            onClick={() => setTab('companies')}
+            className={`rounded-3xl px-3 sm:px-6 py-1 text-xs h-8 sm:text-base sm:h-auto font-poppins border border-[#ADFF00] bg-transparent transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-[#ADFF00] flex items-center gap-1 sm:gap-2 ${
+              tab === "companies"
+                ? "bg-[#ADFF0038] text-[#ADFF00]"
+                : "text-[#ADFF00] hover:bg-[#ADFF0038]"
+            }`}
+            onClick={() => setTab("companies")}
           >
             For Companies
-            <img src="/forcompaniessvg.svg" alt="icon" className="w-3 h-3 sm:w-4 sm:h-4" />
+            <img
+              src="/forcompaniessvg.svg"
+              alt="icon"
+              className="w-3 h-3 sm:w-4 sm:h-4"
+            />
           </button>
         </div>
 
-        {tab === 'talent' ? (
+        {tab === "talent" ? (
           <>
             {/* Lanyard & Headline + Waitlist/Video (responsive) */}
             <Lanyard position={[0, 0, 15]} gravity={[0, -40, 0]} />
             <div className="absolute top-[75vh] sm:top-[35vh] left-0 sm:left-[10vw] z-20 w-full sm:w-auto flex flex-col items-center sm:items-start">
-              <div className="w-full max-w-[95vw] sm:max-w-[45Dvw] px-2 sm:px-0 flex flex-col sm:block items-center sm:items-start justify-center gap-2 sm:gap-0">
-                <div className="text-white text-lg sm:text-6xl font-black font-poppins text-center sm:text-left mb-2 sm:mb-0">
-                  100+ GIG-JOB DROPS EVERY FRIDAY, 5 PM
+              <div className="w-full max-w-[95vw] sm:max-w-[45vw] px-2 sm:px-0 flex flex-col sm:block items-center sm:items-start justify-center gap-2 sm:gap-0">
+                <div className="text-white text-lg sm:text-6xl font-poppins text-center sm:text-left mb-2 sm:mb-0 font-extrabold">
+                  100+ GIG-JOBS<span>{""}</span>
+                  <br />
+                  DROP EVERY FRIDAY,
+                  <br />5 PM
                 </div>
                 <div className="flex flex-row items-center justify-center sm:justify-start mt-2 sm:mt-8 gap-x-4">
                   <div className="bg-[#ADFF0038] rounded-full p-1 sm:p-2">
-                    <div
+                    <TransitionLink
                       className="bg-[#ADFF00] rounded-full px-3 py-1 sm:px-6 sm:py-2 font-poppins font-semibold text-black flex items-center gap-2 shadow text-xs sm:text-base cursor-pointer"
-                      onClick={() => router.push('/waitlist')}
+                      href="/login"
                     >
                       Join the waitlist
                       <FaArrowRight className="rotate-315" />
-                    </div>
+                    </TransitionLink>
                   </div>
-                  <button className="rounded-full bg-[#1A2B0A] w-8 h-8 sm:w-14 sm:h-14 flex items-center justify-center border-2 border-[#4B8000] shadow-lg" onClick={() => window.alert('Coming soon')}>
+                  <button
+                    className="rounded-full bg-[#1A2B0A] w-8 h-8 sm:w-14 sm:h-14 flex items-center justify-center border-2 border-[#4B8000] shadow-lg"
+                    onClick={() => window.alert("Coming soon")}
+                  >
                     <FaPlay className="text-[#ADFF00] text-base sm:text-xl" />
                   </button>
-                  <span className="text-white font-poppins text-xs sm:text-lg">Watch Video</span>
+                  <span className="text-white font-poppins text-xs sm:text-lg">
+                    Watch Video
+                  </span>
                 </div>
               </div>
             </div>
@@ -167,7 +197,12 @@ export default function HomePage() {
                           filter: "blur(16px)",
                         }}
                       />
-                      <button onClick={handleStackLeft} className="absolute left-0 z-20 bg-[#ADFF00] text-black rounded-full w-8 h-8 flex items-center justify-center shadow hover:scale-110 transition-transform">&#8592;</button>
+                      <button
+                        onClick={handleStackLeft}
+                        className="absolute left-0 z-20 bg-[#ADFF00] text-black rounded-full w-8 h-8 flex items-center justify-center shadow hover:scale-110 transition-transform"
+                      >
+                        &#8592;
+                      </button>
                       <div className="relative z-10">
                         <Stack
                           ref={stackRef}
@@ -179,7 +214,12 @@ export default function HomePage() {
                           responsive={true}
                         />
                       </div>
-                      <button onClick={handleStackRight} className="absolute right-0 z-20 bg-[#ADFF00] text-black rounded-full w-8 h-8 flex items-center justify-center shadow hover:scale-110 transition-transform">&#8594;</button>
+                      <button
+                        onClick={handleStackRight}
+                        className="absolute right-0 z-20 bg-[#ADFF00] text-black rounded-full w-8 h-8 flex items-center justify-center shadow hover:scale-110 transition-transform"
+                      >
+                        &#8594;
+                      </button>
                     </div>
                   </div>
                   <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-16 mt-8 sm:mt-16 w-full max-w-[1100px] mx-auto">
@@ -188,7 +228,8 @@ export default function HomePage() {
                     </div>
                     <div className="flex flex-col items-center sm:items-start gap-2 sm:gap-6 w-full sm:w-[28vw] min-w-[180px] sm:min-w-[320px]">
                       <div className="text-[#1F2E47] text-sm sm:text-lg font-poppins font-normal text-center sm:text-left">
-                        A dynamic group of innovators who ignite ideas and transform them into impactful work!
+                        A dynamic group of innovators who ignite ideas and
+                        transform them into impactful work!
                       </div>
                       <div className="flex items-center justify-center">
                         <div
@@ -206,10 +247,10 @@ export default function HomePage() {
                               fontWeight: 600,
                               fontFamily: "Poppins, sans-serif",
                               fontSize: "1rem",
-                              boxShadow: "0 2px 16px #ADFF0033", 
+                              boxShadow: "0 2px 16px #ADFF0033",
                               zIndex: 20,
                             }}
-                            onClick={() => window.alert('Coming soon')}
+                            onClick={() => window.alert("Coming soon")}
                           >
                             View All Jobs
                             <svg
@@ -253,16 +294,21 @@ export default function HomePage() {
                   <div className="bg-[#ADFF0038] rounded-full p-1 sm:p-2">
                     <div
                       className="bg-[#ADFF00] rounded-full px-3 py-1 sm:px-6 sm:py-2 font-poppins font-semibold text-black flex items-center gap-2 shadow text-xs sm:text-base cursor-pointer"
-                      onClick={() => window.alert('Partner With Us')}
+                      onClick={() => window.alert("Partner With Us")}
                     >
                       Partner With Us
                       <FaArrowRight className="rotate-315" />
                     </div>
                   </div>
-                  <button className="rounded-full bg-[#1A2B0A] w-8 h-8 sm:w-14 sm:h-14 flex items-center justify-center border-2 border-[#4B8000] shadow-lg" onClick={() => window.alert('Coming soon')}>
+                  <button
+                    className="rounded-full bg-[#1A2B0A] w-8 h-8 sm:w-14 sm:h-14 flex items-center justify-center border-2 border-[#4B8000] shadow-lg"
+                    onClick={() => window.alert("Coming soon")}
+                  >
                     <FaPlay className="text-[#ADFF00] text-base sm:text-xl" />
                   </button>
-                  <span className="text-white font-poppins text-xs sm:text-lg">Watch Video</span>
+                  <span className="text-white font-poppins text-xs sm:text-lg">
+                    Watch Video
+                  </span>
                 </div>
               </div>
             </div>
@@ -319,12 +365,14 @@ export default function HomePage() {
                         {`Browse all\nSkill Gigs!`}
                       </h2>
                       <div className="sm:hidden text-[#1F2E47] text-lg sm:text-2xl font-poppins font-light text-center mb-4 w-full">
-                        A dynamic group of innovators who ignite ideas and transform them into impactful work!
+                        A dynamic group of innovators who ignite ideas and
+                        transform them into impactful work!
                       </div>
                     </div>
                     <div className="hidden sm:flex flex-col items-start w-1/2 justify-center pr-2 sm:pr-8">
                       <div className="text-[#1F2E47] text-lg sm:text-2xl font-poppins font-light mb-4">
-                        A dynamic group of innovators who ignite ideas and transform them into impactful work!
+                        A dynamic group of innovators who ignite ideas and
+                        transform them into impactful work!
                       </div>
                       <button className="bg-[#ADFF00] text-[#1F2E47] font-bold font-poppins rounded-full px-6 py-2 shadow hover:scale-105 transition-transform flex items-center gap-2">
                         View All Jobs <FaArrowRight className="rotate-315" />
@@ -336,7 +384,9 @@ export default function HomePage() {
                     <div className="w-full max-w-2xl mx-auto z-20">
                       <AnimatedList
                         items={animatedItems}
-                        onItemSelect={(item: string, index: number) => console.log(item, index)}
+                        onItemSelect={(item: string, index: number) =>
+                          console.log(item, index)
+                        }
                         showGradients={true}
                         enableArrowNavigation={true}
                         displayScrollbar={true}
@@ -360,7 +410,10 @@ export default function HomePage() {
             <h3 className="text-base sm:text-xl md:text-2xl font-bold text-[#ADFF00] text-center md:text-left">
               Got a Gig to be completed?
             </h3>
-            <button className="px-4 py-2 sm:px-7 sm:py-3 bg-[#181F13] text-[#ADFF00] rounded-full border-2 border-[#ADFF00] font-semibold flex items-center gap-2 shadow-md hover:scale-105 transition-transform duration-150 text-sm sm:text-base" onClick={() => window.alert('Coming soon')}>
+            <button
+              className="px-4 py-2 sm:px-7 sm:py-3 bg-[#181F13] text-[#ADFF00] rounded-full border-2 border-[#ADFF00] font-semibold flex items-center gap-2 shadow-md hover:scale-105 transition-transform duration-150 text-sm sm:text-base"
+              onClick={() => window.alert("Coming soon")}
+            >
               Post a Gig <FaArrowRight className="text-[#ADFF00]" />
             </button>
           </div>
@@ -377,23 +430,35 @@ export default function HomePage() {
                 </div>
                 <div className="flex flex-col gap-1 sm:gap-2 text-base sm:text-lg font-semibold">
                   <div className="flex flex-wrap justify-center sm:justify-start items-center gap-2 sm:gap-4">
-                    <span className="hover:text-[#ADFF00] transition-colors cursor-pointer">Features</span>
+                    <span className="hover:text-[#ADFF00] transition-colors cursor-pointer">
+                      Features
+                    </span>
                     <span className="text-[#E6EAF1]">/</span>
-                    <span className="hover:text-[#ADFF00] transition-colors cursor-pointer">Product</span>
+                    <span className="hover:text-[#ADFF00] transition-colors cursor-pointer">
+                      Product
+                    </span>
                   </div>
                 </div>
               </div>
-              <div className="text-lg sm:text-2xl font-extrabold tracking-tight mt-2 sm:mt-4 text-[#1F2E47] opacity-80 text-center sm:text-left">SkillTag</div>
+              <div className="text-lg sm:text-2xl font-extrabold tracking-tight mt-2 sm:mt-4 text-[#1F2E47] opacity-80 text-center sm:text-left">
+                SkillTag
+              </div>
             </div>
 
             {/* Center: Contact & Location */}
             <div className="flex flex-col gap-4 sm:gap-10 border-l-0 sm:border-l border-r-0 sm:border-r border-[#E6EAF1] px-0 sm:px-8 items-center sm:items-start">
               <div>
-                <div className="text-xs sm:text-base font-bold mb-1 sm:mb-2 tracking-wide text-[#1F2E47] text-center sm:text-left">Contact Us</div>
-                <div className="text-xs sm:text-base font-normal text-[#1F2E47]/80 text-center sm:text-left">skilltag.hub@gmail.com</div>
+                <div className="text-xs sm:text-base font-bold mb-1 sm:mb-2 tracking-wide text-[#1F2E47] text-center sm:text-left">
+                  Contact Us
+                </div>
+                <div className="text-xs sm:text-base font-normal text-[#1F2E47]/80 text-center sm:text-left">
+                  skilltag.hub@gmail.com
+                </div>
               </div>
               <div>
-                <div className="text-xs sm:text-base font-bold mb-1 sm:mb-2 tracking-wide text-[#1F2E47] text-center sm:text-left">Location</div>
+                <div className="text-xs sm:text-base font-bold mb-1 sm:mb-2 tracking-wide text-[#1F2E47] text-center sm:text-left">
+                  Location
+                </div>
                 <div className="text-xs sm:text-base font-normal text-[#1F2E47]/80 text-center sm:text-left">
                   Hyderabad, India
                 </div>
@@ -404,4 +469,4 @@ export default function HomePage() {
       </div>
     </>
   );
-} 
+}

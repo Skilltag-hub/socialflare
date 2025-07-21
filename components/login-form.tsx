@@ -43,6 +43,7 @@ export default function LoginForm() {
         gsap.set(container, { height: currentHeight });
         gsap.to(container, {
           height: targetHeight,
+
           duration: 0.6,
           ease: "elastic",
         });
