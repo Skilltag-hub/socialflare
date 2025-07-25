@@ -8,15 +8,25 @@ interface Props {
   href: string;
   children: React.ReactNode;
   className?: string;
+  disableTransition?: boolean;
 }
 
-const TransitionLink = ({ href, children, className }: Props) => {
+const TransitionLink = ({
+  href,
+  children,
+  className,
+  disableTransition,
+}: Props) => {
   const router = useRouter();
   const pathname = usePathname();
 
   const handleClick = (e: React.MouseEvent) => {
     e.preventDefault();
-    if (pathname !== href) {
+    if (disableTransition) {
+      router.push(href);
+      return;
+    }
+    if (pathname !== href || pathname == "/applied") {
       animatePageOut(href, router);
     }
   };

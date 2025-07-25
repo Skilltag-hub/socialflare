@@ -17,7 +17,7 @@ import { signIn } from "next-auth/react";
 
 export default function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
-  const [activeTab, setActiveTab] = useState("login");
+  const [activeTab, setActiveTab] = useState("register");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -29,21 +29,13 @@ export default function LoginForm() {
   useEffect(() => {
     if (containerRef.current && contentRef.current) {
       const container = containerRef.current;
-
-      // Small delay to ensure content is rendered
       setTimeout(() => {
-        // Get the natural height of the content
         const currentHeight = container.offsetHeight;
-
-        // Temporarily set height to auto to measure natural height
         gsap.set(container, { height: "auto" });
         const targetHeight = container.offsetHeight;
-
-        // Set back to current height and animate to target
         gsap.set(container, { height: currentHeight });
         gsap.to(container, {
           height: targetHeight,
-
           duration: 0.6,
           ease: "elastic",
         });
@@ -64,7 +56,6 @@ export default function LoginForm() {
     });
     setLoading(false);
     if (res && res.ok) {
-      // Use res.url if present (NextAuth returns it)
       router.push(res.url || "/login/pin");
     } else {
       setError("Invalid email or password");
@@ -84,28 +75,31 @@ export default function LoginForm() {
     >
       <div
         ref={containerRef}
-        className="w-full max-w-md bg-white rounded-2xl shadow-lg p-8"
+        className="w-full max-w-md bg-white rounded-md shadow-lg overflow-hidden"
       >
-        <div ref={contentRef}>
-          <Tabs
-            value={activeTab}
-            onValueChange={setActiveTab}
-            className="w-full"
-          >
-            <TabsList className="grid w-full grid-cols-2 mb-8">
-              <TabsTrigger value="register" className="text-gray-600">
-                Register
-              </TabsTrigger>
-              <TabsTrigger value="login" className="text-gray-900 font-medium">
-                Login
-              </TabsTrigger>
-            </TabsList>
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="grid w-full grid-cols-2 bg-gray-100 rounded-none rounded-t-md p-0 h-auto">
+            <TabsTrigger
+              value="register"
+              className="rounded-none rounded-tl-md px-6 py-4 text-sm font-medium transition-all data-[state=active]:shadow-none data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=inactive]:text-gray-600 data-[state=inactive]:bg-gray-100"
+            >
+              Register
+            </TabsTrigger>
+            <TabsTrigger
+              value="login"
+              className="rounded-none rounded-tr-md px-6 py-4 text-sm font-medium transition-all data-[state=active]:shadow-none data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=inactive]:text-gray-600 data-[state=inactive]:bg-gray-100"
+            >
+              Login
+            </TabsTrigger>
+          </TabsList>
 
-            <TabsContent value="login" className="space-y-6">
+          <div ref={contentRef} className="p-8">
+            <TabsContent value="login" className="space-y-6 mt-0">
               <div>
-                <h1 className="text-2xl font-bold text-gray-900 mb-6 font-poppins">
+                <h1 className="text-2xl font-bold text-gray-900 mb-6">
                   Welcome back!
                 </h1>
+
                 <form onSubmit={handleLogin} className="space-y-4">
                   <div className="space-y-2">
                     <Label
@@ -119,7 +113,7 @@ export default function LoginForm() {
                       type="email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full h-[45px] px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       required
                     />
                   </div>
@@ -137,7 +131,7 @@ export default function LoginForm() {
                         type={showPassword ? "text" : "password"}
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="w-full h-[45px] px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         required
                       />
                       <button
@@ -194,7 +188,6 @@ export default function LoginForm() {
                   <Button
                     variant="outline"
                     className="w-full py-3 border border-gray-300 rounded-lg hover:bg-gray-50 flex items-center justify-center space-x-2 bg-transparent"
-                    // Add Google login functionality
                     onClick={() =>
                       signIn("google", { callbackUrl: "/login/pin" })
                     }
@@ -223,7 +216,7 @@ export default function LoginForm() {
               </div>
             </TabsContent>
 
-            <TabsContent value="register" className="space-y-6">
+            <TabsContent value="register" className="space-y-6 mt-0">
               <div>
                 <h1 className="text-2xl font-bold text-gray-900 mb-6">
                   Create an account
@@ -241,7 +234,7 @@ export default function LoginForm() {
                       id="personal-email"
                       type="email"
                       defaultValue="dummy_username@gmail.com"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full h-[45px] px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     />
                   </div>
 
@@ -307,24 +300,26 @@ export default function LoginForm() {
                 </div>
               </div>
             </TabsContent>
-          </Tabs>
-        </div>{" "}
-        {/* Close contentRef div */}
-        <div className="mt-8 pt-6 border-t border-gray-200 font-sans font-bold">
-          <div className="flex justify-center space-x-6 text-sm text-gray-600">
-            <Link href="/support" className="hover:text-gray-900">
-              Support
-            </Link>
-            <span>•</span>
-            <Link href="/privacy" className="hover:text-gray-900 text-sm">
-              Privacy Policy
-            </Link>
-            <span>•</span>
-            <Link href="/terms" className="hover:text-gray-900">
-              Terms & Conditions
-            </Link>
           </div>
-        </div>
+
+          <div className="px-8 pb-8">
+            <div className="pt-6 border-t border-gray-200">
+              <div className="flex justify-center space-x-6 text-sm text-gray-600 font-sans">
+                <Link href="/support" className="hover:text-gray-900">
+                  Support
+                </Link>
+                <span>•</span>
+                <Link href="/privacy" className="hover:text-gray-900">
+                  Privacy Policy
+                </Link>
+                <span>•</span>
+                <Link href="/terms" className="hover:text-gray-900">
+                  Terms & Conditions
+                </Link>
+              </div>
+            </div>
+          </div>
+        </Tabs>
       </div>
     </div>
   );

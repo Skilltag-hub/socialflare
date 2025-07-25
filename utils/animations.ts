@@ -9,13 +9,13 @@ export const animatePageIn = () => {
     const tl = gsap.timeline();
     tl.set(leftBanner, {
       xPercent: 0,
-    }).to(leftBanner, { xPercent: -100, duration: 1.2, ease: "expo.in" });
+    }).to(leftBanner, { xPercent: -100, duration: 0.5, ease: "circ.inOut" });
   }
   if (rightBanner) {
     const tl = gsap.timeline();
     tl.set(rightBanner, {
       xPercent: 0,
-    }).to(rightBanner, { xPercent: 100, duration: 1.2, ease: "expo.in" });
+    }).to(rightBanner, { xPercent: 100, duration: 0.5, ease: "circ.inOut" });
   }
 };
 
