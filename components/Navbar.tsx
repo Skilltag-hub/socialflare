@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Home, FileText, Clock3, CheckCircle, User } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/Button";
 import TransitionLink from "./TransitionLink";
 
 const navItems = [

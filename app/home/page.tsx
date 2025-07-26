@@ -1,7 +1,7 @@
 "use client";
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/Button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   Bookmark,
