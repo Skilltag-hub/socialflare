@@ -159,7 +159,7 @@ export default function LoginForm() {
                   </div>
                   {error && <div className="text-red-500 text-sm">{error}</div>}
                   <Button
-                    className="w-full bg-black hover:bg-gray-800 text-white py-3 rounded-lg font-medium"
+                    className="w-full h-[45px] bg-black hover:bg-gray-800 text-white py-3 rounded-lg font-medium"
                     style={{ color: "#c4f542" }}
                     type="submit"
                     disabled={loading}
@@ -187,7 +187,7 @@ export default function LoginForm() {
 
                   <Button
                     variant="outline"
-                    className="w-full py-3 border border-gray-300 rounded-lg hover:bg-gray-50 flex items-center justify-center space-x-2 bg-transparent"
+                    className="w-full h-[45px] py-3 border border-gray-300 rounded-lg hover:bg-gray-50 flex items-center justify-center space-x-2 bg-transparent"
                     onClick={() =>
                       signIn("google", { callbackUrl: "/login/pin" })
                     }
@@ -239,7 +239,7 @@ export default function LoginForm() {
                   </div>
 
                   <Button
-                    className="w-full bg-black hover:bg-gray-800 text-white py-3 rounded-lg font-medium"
+                    className="w-full h-[45px] bg-black hover:bg-gray-800 text-white py-3 rounded-lg font-medium"
                     style={{ color: "#c4f542" }}
                   >
                     Continue
@@ -256,7 +256,7 @@ export default function LoginForm() {
 
                   <Button
                     variant="outline"
-                    className="w-full py-3 border border-gray-300 rounded-lg hover:bg-gray-50 flex items-center justify-center space-x-2 bg-transparent"
+                    className="w-full h-[45px] py-3 border border-gray-300 rounded-lg hover:bg-gray-50 flex items-center justify-center space-x-2 bg-transparent"
                   >
                     <svg className="w-5 h-5" viewBox="0 0 24 24">
                       <path

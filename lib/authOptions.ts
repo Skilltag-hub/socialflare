@@ -42,6 +42,13 @@ export const authOptions = {
             graduationYear: "",
             idImageUrl: "",
             phone: "",
+            description: "", // User bio or description
+            status: "available", // User availability status
+            skills: [], // Array of user skills
+            gender: "", // User gender
+            dateOfBirth: null, // User date of birth
+            referredPeople: [], // Array of user IDs this user has referred
+            referredBy: null, // ID of user who referred this user
           },
         },
         { upsert: true }
@@ -54,4 +61,4 @@ export const authOptions = {
     },
   },
   secret: process.env.NEXTAUTH_SECRET,
-}; 
+};
