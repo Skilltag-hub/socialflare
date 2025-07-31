@@ -84,7 +84,7 @@ export default function Component() {
     payment: gig.payment,
     skills: gig.skills || [],
   });
-  
+
   // Handle applying for a gig
   const handleApply = async (gigId: string) => {
     if (!session) {
@@ -95,7 +95,7 @@ export default function Component() {
       });
       return;
     }
-    
+
     try {
       setLoading(true);
       const response = await fetch("/api/applications", {
@@ -105,18 +105,18 @@ export default function Component() {
         },
         body: JSON.stringify({ gigId }),
       });
-      
+
       const data = await response.json();
-      
+
       if (!response.ok) {
         throw new Error(data.error || "Failed to apply");
       }
-      
+
       toast({
         title: "Success!",
         description: "Your application has been submitted",
       });
-      
+
       // Redirect to My Zigs page
       window.location.href = "/zigs";
     } catch (error: any) {
@@ -180,7 +180,7 @@ export default function Component() {
                 <Bookmark className="w-4 h-4 text-gray-400" />
               </Button>
             </ClickSpark>
-            <Button 
+            <Button
               className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-full"
               onClick={() => handleApply(job.id)}
             >
@@ -201,17 +201,24 @@ export default function Component() {
           {/* Header - Fixed at top */}
           <div className="flex items-center justify-between p-4 pt-8 bg-gradient-to-b from-purple-100 to-purple-200 sticky top-0 z-10">
             <div>
-              <p className="text-gray-600 text-sm mb-1">Good morning, {session?.user?.name || 'Guest'}!</p>
+              <p className="text-gray-600 text-sm mb-1">
+                Good morning, {session?.user?.name || "Guest"}!
+              </p>
               <p className="text-purple-600 text-xl font-semibold">
                 You Earned ₹0
               </p>
             </div>
             <Avatar className="w-12 h-12 bg-gray-300">
               {session?.user?.image ? (
-                <AvatarImage src={session.user.image} alt={session.user.name || 'User'} />
+                <AvatarImage
+                  src={session.user.image}
+                  alt={session.user.name || "User"}
+                />
               ) : (
                 <AvatarFallback className="bg-gray-300">
-                  {session?.user?.name ? session.user.name.substring(0, 2).toUpperCase() : 'GT'}
+                  {session?.user?.name
+                    ? session.user.name.substring(0, 2).toUpperCase()
+                    : "GT"}
                 </AvatarFallback>
               )}
             </Avatar>
