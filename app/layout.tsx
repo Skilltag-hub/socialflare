@@ -13,6 +13,8 @@ export const metadata: Metadata = {
     "Join the waitlist for SkillTag - your gateway to micro gigs and skill tags.",
 };
 
+import { Providers } from './providers';
+
 export default function RootLayout({
   children,
 }: {

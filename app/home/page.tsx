@@ -27,9 +27,45 @@ export default function Component() {
     description:
       "Create UGC Videos and get shares on Instagram about Myntra Showbizz now.",
     payment: "₹ 350",
+    applicationDeadline: "2025-02-15", // Example deadline
   };
 
-  const JobCard = ({ job }: { job: typeof jobCard }) => (
+  // Helper function to check if deadline has passed
+  const isDeadlinePassed = (deadline: string) => {
+    const deadlineDate = new Date(deadline);
+    const currentDate = new Date();
+    return currentDate > deadlineDate;
+  };
+
+  // Helper function to format deadline display
+  const formatDeadline = (deadline: string) => {
+    const deadlineDate = new Date(deadline);
+    const currentDate = new Date();
+    const timeDiff = deadlineDate.getTime() - currentDate.getTime();
+    const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
+    
+    if (daysDiff < 0) {
+      return "Deadline passed";
+    } else if (daysDiff === 0) {
+      return "Deadline today";
+    } else if (daysDiff === 1) {
+      return "1 day left";
+    } else {
+      return `${daysDiff} days left`;
+    }
+  };
+
+  const JobCard = ({ job }: { job: typeof jobCard }) => {
+    const deadlinePassed = isDeadlinePassed(job.applicationDeadline);
+    const deadlineText = formatDeadline(job.applicationDeadline);
+    
+    // Calculate days difference for styling
+    const deadlineDate = new Date(job.applicationDeadline);
+    const currentDate = new Date();
+    const timeDiff = deadlineDate.getTime() - currentDate.getTime();
+    const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
+    
+    return (
     <Card className="bg-white rounded-2xl shadow-sm">
       <CardContent className="p-4">
         <div className="flex items-start gap-3 mb-3">
@@ -73,14 +109,40 @@ export default function Component() {
                 <Bookmark className="w-4 h-4 text-gray-400" />
               </Button>
             </ClickSpark>
-            <Button className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-full">
-              Apply
-            </Button>
+            {deadlinePassed ? (
+              <Button 
+                disabled 
+                className="bg-gray-400 text-gray-600 px-6 py-2 rounded-full cursor-not-allowed"
+              >
+                Deadline Passed
+              </Button>
+            ) : (
+              <Button className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-full">
+                Apply
+              </Button>
+            )}
+          </div>
+        </div>
+        
+        {/* Deadline indicator */}
+        <div className="mt-3 pt-3 border-t border-gray-100">
+          <div className="flex items-center justify-between text-xs">
+            <span className="text-gray-500">Application Deadline:</span>
+            <span className={`font-medium ${
+              deadlinePassed 
+                ? "text-red-500" 
+                : daysDiff <= 3 
+                  ? "text-orange-500" 
+                  : "text-green-500"
+            }`}>
+              {deadlineText}
+            </span>
           </div>
         </div>
       </CardContent>
     </Card>
-  );
+    );
+  };
 
   return (
     <>

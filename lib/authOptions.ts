@@ -26,32 +26,15 @@ export const authOptions = {
   session: { strategy: "jwt" as SessionStrategy },
   callbacks: {
     async signIn({ user }: { user: any }) {
-      // On sign in, upsert user in MongoDB
-      const client = await connectToDatabase();
-      const db = client.db(dbName);
-      await db.collection("users").updateOne(
-        { email: user.email },
-        {
-          $setOnInsert: {
-            email: user.email,
-            name: user.name,
-            image: user.image,
-            pin: null, // Placeholder for bcrypted pin to be set later
-            institution: "", // Placeholder for additional details
-            state: "",
-            graduationYear: "",
-            idImageUrl: "",
-            phone: "",
-          },
-        },
-        { upsert: true }
-      );
+      // Simple sign-in - just allow all Google OAuth users
       return true;
     },
     async session({ session, token }: { session: any; token: any }) {
-      if (token && session.user) session.user.id = token.sub;
+      if (token && session.user) {
+        session.user.id = token.sub;
+      }
       return session;
     },
   },
   secret: process.env.NEXTAUTH_SECRET,
-}; 
+};

@@ -294,7 +294,7 @@ export default function HomePage() {
                   <div className="bg-[#ADFF0038] rounded-full p-1 sm:p-2">
                     <div
                       className="bg-[#ADFF00] rounded-full px-3 py-1 sm:px-6 sm:py-2 font-poppins font-semibold text-black flex items-center gap-2 shadow text-xs sm:text-base cursor-pointer"
-                      onClick={() => window.alert("Partner With Us")}
+                      onClick={() => router.push('/companies/login')}
                     >
                       Partner With Us
                       <FaArrowRight className="rotate-315" />
