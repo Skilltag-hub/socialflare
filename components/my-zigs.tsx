@@ -36,7 +36,7 @@ export default function MyZigs() {
   }
 
   async function fetchJobs() {
-    const res = await fetch("/api/gigs")
+    const res = await fetch("/api/companies/my-zigs")
     const data = await res.json()
     setJobs(data)
   }
@@ -46,16 +46,12 @@ export default function MyZigs() {
   }, [])
 
   useEffect(() => {
-    async function fetchApplications() {
-      const appMap = {}
-      for (const job of jobs) {
-        const res = await fetch(`/api/applications?jobId=${job._id}`)
-        const data = await res.json()
-        appMap[job._id] = data
-      }
-      setApplications(appMap)
-    }
-    if (jobs.length > 0) fetchApplications()
+    // Extract applications data from jobs since the API now provides it directly
+    const appMap = {}
+    jobs.forEach((job) => {
+      appMap[job._id] = job.applicationsData || []
+    })
+    setApplications(appMap)
   }, [jobs])
 
   const filteredJobs =
@@ -73,10 +69,10 @@ export default function MyZigs() {
   const counts = getJobCounts()
 
   const markCompleted = async (jobId) => {
-    await fetch(`/api/gigs/complete`, {
+    await fetch(`/api/companies/my-zigs`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ jobId }),
+      body: JSON.stringify({ action: "mark-completed", gigId: jobId }),
     })
     setJobs((prev) =>
       prev.map((job) =>
