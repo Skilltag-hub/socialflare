@@ -11,10 +11,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useRef } from "react";
 import { upload } from "@imagekit/next";
+import { useSession } from "next-auth/react";
 // Add import for PhoneInput
 import { PhoneInput } from "./phone-input";
 
@@ -28,6 +29,28 @@ export default function AdditionalDetails() {
   const [idImageUrl, setIdImageUrl] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
+  const { data: session, status } = useSession();
+
+  // Check if user has already completed setup
+  useEffect(() => {
+    const checkUserStatus = async () => {
+      if (status === "authenticated") {
+        try {
+          const response = await fetch("/api/user/status");
+          const data = await response.json();
+
+          if (data.setupComplete) {
+            // User has completed setup, redirect to home
+            router.push("/home");
+          }
+        } catch (error) {
+          console.error("Error checking user status:", error);
+        }
+      }
+    };
+
+    checkUserStatus();
+  }, [status, router]);
 
   // Get ImageKit upload auth params from your API
   const getAuthParams = async () => {
@@ -91,7 +114,7 @@ export default function AdditionalDetails() {
     });
     setIsUploading(false);
     if (res.ok) {
-      router.push("/");
+      router.push("/home");
     } else {
       setError("Failed to save details");
     }
