@@ -15,7 +15,7 @@ export async function GET(req: Request) {
 
   try {
     const client = await clientPromise;
-    const db = client.db("waitlist");
+    const db = client.db("test");
 
     // Get the current user with their gigs
     const currentUser = await db
