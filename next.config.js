@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    domains: ['localhost'],
+    domains: ["localhost"],
   },
   eslint: {
     ignoreDuringBuilds: true,
@@ -9,6 +9,6 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
-}
+};
 
-module.exports = nextConfig 
+module.exports = nextConfig;

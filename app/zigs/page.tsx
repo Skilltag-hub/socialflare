@@ -1,7 +1,7 @@
 "use client";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/Button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   Clock,
@@ -118,6 +118,46 @@ export default function Component() {
     const appliedAt = application?.appliedAt
       ? getRelativeTime(application.appliedAt)
       : "";
+    const [isBoostLoading, setIsBoostLoading] = useState(false);
+    const [isBoosted, setIsBoosted] = useState(application?.boosted || false);
+
+    const handleBoost = async () => {
+      if (isBoostLoading) return;
+      
+      setIsBoostLoading(true);
+      try {
+        const response = await fetch('/api/applications', {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            gigId: application.gigId,
+            action: 'boost',
+            value: !isBoosted,
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to update boost status');
+        }
+
+        setIsBoosted(!isBoosted);
+        toast({
+          title: "Success",
+          description: `Application ${!isBoosted ? 'boosted' : 'unboosted'} successfully!`,
+        });
+      } catch (error) {
+        console.error('Error updating boost status:', error);
+        toast({
+          title: "Error",
+          description: "Failed to update boost status. Please try again.",
+          variant: "destructive",
+        });
+      } finally {
+        setIsBoostLoading(false);
+      }
+    };
 
     return (
       <Card className="bg-white rounded-2xl shadow-sm">
@@ -158,12 +198,26 @@ export default function Component() {
                 {gig.payment?.replace(/[^0-9]/g, "") || "0"}
               </span>
             </div>
-            <Button
-              className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-full"
-              disabled={application.status !== "selected"}
-            >
-              {application.status === "selected" ? "Start Work" : "Applied"}
-            </Button>
+            {application.status === "applied" ? (
+              <Button
+                className={`px-6 py-2 rounded-full ${
+                  isBoosted
+                    ? "bg-green-600 hover:bg-green-700 text-white"
+                    : "bg-purple-600 hover:bg-purple-700 text-white"
+                }`}
+                onClick={handleBoost}
+                disabled={isBoostLoading}
+              >
+                {isBoostLoading ? "Loading..." : isBoosted ? "Boosted" : "Boost"}
+              </Button>
+            ) : (
+              <Button
+                className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-full"
+                disabled={application.status !== "selected"}
+              >
+                {application.status === "selected" ? "Start Work" : "Applied"}
+              </Button>
+            )}
           </div>
         </CardContent>
       </Card>
@@ -179,7 +233,7 @@ export default function Component() {
     <>
       {/* Mobile Layout - Below 700px */}
       <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4 lg:hidden">
-        <div className="w-full max-w-sm bg-gradient-to-b from-purple-100 to-purple-200 rounded-3xl shadow-2xl overflow-hidden relative">
+        <div className="w-full max-w-sm bg-gradient-to-b from-purple-100 to-purple-200 rounded-3xl shadow-2xl overflow-hidden relative min-h-screen flex flex-col">
           <Navbar />
           {/* Header */}
           <div className="flex items-center justify-between p-4 pt-8">
@@ -214,58 +268,64 @@ export default function Component() {
           </div>
 
           {/* Job Cards */}
-          <div className="px-4 space-y-4 pb-4">
+          <div className="px-4 space-y-4 pb-4 flex-1 flex flex-col">
             {loading ? (
               // Show loading state
-              Array(3)
-                .fill(fallbackJobCard)
-                .map((_, index) => (
-                  <Card
-                    key={index}
-                    className="bg-white rounded-2xl shadow-sm animate-pulse"
-                  >
-                    <CardContent className="p-4">
-                      <div className="flex items-start gap-3 mb-3">
-                        <div className="w-12 h-12 bg-gray-200 rounded-full"></div>
-                        <div className="flex-1">
-                          <div className="h-5 bg-gray-200 rounded w-1/2 mb-2"></div>
-                          <div className="flex items-center gap-4">
-                            <div className="h-4 bg-gray-200 rounded w-20"></div>
-                            <div className="h-4 bg-gray-200 rounded w-16"></div>
+              <div className="flex-1">
+                {Array(3)
+                  .fill(fallbackJobCard)
+                  .map((_, index) => (
+                    <Card
+                      key={index}
+                      className="bg-white rounded-2xl shadow-sm animate-pulse mb-4"
+                    >
+                      <CardContent className="p-4">
+                        <div className="flex items-start gap-3 mb-3">
+                          <div className="w-12 h-12 bg-gray-200 rounded-full"></div>
+                          <div className="flex-1">
+                            <div className="h-5 bg-gray-200 rounded w-1/2 mb-2"></div>
+                            <div className="flex items-center gap-4">
+                              <div className="h-4 bg-gray-200 rounded w-20"></div>
+                              <div className="h-4 bg-gray-200 rounded w-16"></div>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                      <div className="h-4 bg-gray-200 rounded w-full mb-2"></div>
-                      <div className="h-4 bg-gray-200 rounded w-3/4 mb-4"></div>
-                      <div className="flex items-center justify-between">
-                        <div className="h-6 bg-gray-200 rounded w-16"></div>
-                        <div className="h-8 bg-gray-200 rounded w-24"></div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))
+                        <div className="h-4 bg-gray-200 rounded w-full mb-2"></div>
+                        <div className="h-4 bg-gray-200 rounded w-3/4 mb-4"></div>
+                        <div className="flex items-center justify-between">
+                          <div className="h-6 bg-gray-200 rounded w-16"></div>
+                          <div className="h-8 bg-gray-200 rounded w-24"></div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+              </div>
             ) : filteredApplications.length > 0 ? (
               // Show applications
-              filteredApplications.map((application, index) => (
-                <JobCard
-                  key={application._id || index}
-                  application={application}
-                />
-              ))
+              <div className="flex-1">
+                {filteredApplications.map((application, index) => (
+                  <JobCard
+                    key={application._id || index}
+                    application={application}
+                  />
+                ))}
+              </div>
             ) : (
               // Show empty state
-              <div className="text-center py-8">
-                <p className="text-gray-500">
-                  No {activeFilter} applications found
-                </p>
-                {activeFilter === "applied" && (
-                  <Button
-                    className="mt-4 bg-purple-600 hover:bg-purple-700 text-white"
-                    onClick={() => (window.location.href = "/home")}
-                  >
-                    Browse Jobs
-                  </Button>
-                )}
+              <div className="flex-1 flex items-center justify-center">
+                <div className="text-center py-8">
+                  <p className="text-gray-500">
+                    No {activeFilter} applications found
+                  </p>
+                  {activeFilter === "applied" && (
+                    <Button
+                      className="mt-4 bg-purple-600 hover:bg-purple-700 text-white"
+                      onClick={() => (window.location.href = "/home")}
+                    >
+                      Browse Jobs
+                    </Button>
+                  )}
+                </div>
               </div>
             )}
           </div>
@@ -277,7 +337,7 @@ export default function Component() {
         <Navbar />
 
         {/* Main Content */}
-        <div className="flex-1 p-8">
+        <div className="flex-1 p-8 flex flex-col lg:ml-64">
           {/* Filter Tabs */}
           <div className="flex items-center justify-between mb-8">
             <div className="flex gap-4">
@@ -306,7 +366,7 @@ export default function Component() {
           </div>
 
           {/* Job Cards Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl">
+          <div className="flex-1 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl">
             {loading ? (
               // Show loading state
               Array(6)
@@ -346,18 +406,20 @@ export default function Component() {
               ))
             ) : (
               // Show empty state
-              <div className="col-span-3 text-center py-8">
-                <p className="text-gray-500">
-                  No {activeFilter} applications found
-                </p>
-                {activeFilter === "applied" && (
-                  <Button
-                    className="mt-4 bg-purple-600 hover:bg-purple-700 text-white"
-                    onClick={() => (window.location.href = "/home")}
-                  >
-                    Browse Jobs
-                  </Button>
-                )}
+              <div className="col-span-3 flex items-center justify-center min-h-[400px]">
+                <div className="text-center py-8">
+                  <p className="text-gray-500">
+                    No {activeFilter} applications found
+                  </p>
+                  {activeFilter === "applied" && (
+                    <Button
+                      className="mt-4 bg-purple-600 hover:bg-purple-700 text-white"
+                      onClick={() => (window.location.href = "/home")}
+                    >
+                      Browse Jobs
+                    </Button>
+                  )}
+                </div>
               </div>
             )}
           </div>
