@@ -1,9 +1,18 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, FileText, Clock3, CheckCircle, User, Bell } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import {
+  Home,
+  FileText,
+  Clock3,
+  CheckCircle,
+  User,
+  Bell,
+  LogOut,
+} from "lucide-react";
+import { Button } from "@/components/ui/Button";
 import TransitionLink from "./TransitionLink";
+import { signOut } from "next-auth/react";
 
 const navItems = [
   { name: "Home", href: "/home", icon: Home },
@@ -24,10 +33,18 @@ export default function Navbar() {
   ].includes(pathname);
   if (!showNavbar) return null;
 
+  const handleLogout = async () => {
+    try {
+      await signOut({ callbackUrl: "/" });
+    } catch (error) {
+      console.error("Error logging out:", error);
+    }
+  };
+
   return (
     <>
       {/* Desktop Navbar (hidden on small screens) */}
-      <div className="w-64 bg-black p-6 flex-col min-h-screen hidden lg:flex">
+      <div className="w-64 bg-black p-6 flex-col min-h-screen hidden lg:fixed lg:flex lg:top-0 lg:left-0 lg:h-screen">
         {/* Logo */}
         <div className="flex flex-col items-center justify-center mb-8">
           <div className="w-16 h-16 bg-purple-600 rounded-lg flex items-center justify-center mb-4">
@@ -40,7 +57,7 @@ export default function Navbar() {
         {/* Navigation */}
         <nav className="flex-1 space-y-2 flex flex-col justify-center">
           {navItems.map(({ name, href, icon: Icon }) => (
-            <TransitionLink href={href} legacyBehavior passHref key={href}>
+            <TransitionLink href={href} key={href}>
               <Button
                 asChild
                 className={`w-full justify-start bg-transparent ${
@@ -65,13 +82,24 @@ export default function Navbar() {
           </div>
           <button className="hover:text-gray-300">Terms & Conditions</button>
         </div>
+        {/* Logout Button */}
+        <div className="mt-6">
+          <Button
+            onClick={handleLogout}
+            variant="ghost"
+            className="w-full justify-start text-red-400 hover:text-red-300 hover:bg-red-900/20"
+          >
+            <LogOut className="w-5 h-5 mr-3" />
+            Logout
+          </Button>
+        </div>
       </div>
 
       {/* Mobile Navbar (hidden on large screens) */}
-      <div className="absolute bottom-4 inset-x-0 w-full px-4 py-4 rounded-3xl z-50 lg:hidden bg-purple-600">
+      <div className="absolute bottom-4 inset-x-0 w-full px-4 py-4 rounded-3xl z-40 lg:hidden bg-purple-600">
         <div className="flex items-center justify-around">
           {navItems.map(({ name, href, icon: Icon }) => (
-            <TransitionLink href={href} legacyBehavior passHref key={href}>
+            <TransitionLink href={href} key={href}>
               <Button
                 asChild
                 variant="ghost"
