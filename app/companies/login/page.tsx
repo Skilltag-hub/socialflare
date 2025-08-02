@@ -2,34 +2,53 @@
 
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import CompaniesLoginPage from "@/components/companies-login";
 
 export default function CompanyLogin() {
   const router = useRouter();
   const { data: session, status } = useSession();
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (status === "authenticated" && session?.user?.email) {
-      // Check if company exists and is onboarded
-      const checkCompanyStatus = async () => {
+    const handleAuthRedirect = async () => {
+      if (status === "authenticated" && session?.user?.email) {
         try {
-          const response = await fetch('/api/auth/companies');
+          // First, ensure the company record exists
+          const createResponse = await fetch('/api/companies/auth', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          });
+
+          if (!createResponse.ok) {
+            throw new Error('Failed to initialize company');
+          }
+
+          // Then get the company details
+          const response = await fetch('/api/companies/auth');
           if (response.ok) {
             const { company } = await response.json();
-            if (company.isOnboarded) {
+            if (company?.isOnboarded) {
               router.replace('/companies');
             } else {
               router.replace('/companies/details');
             }
+          } else {
+            console.error('Failed to fetch company details');
           }
         } catch (error) {
-          console.error('Error checking company status:', error);
+          console.error('Error handling company authentication:', error);
+        } finally {
+          setIsLoading(false);
         }
-      };
-      
-      checkCompanyStatus();
-    }
+      } else {
+        setIsLoading(false);
+      }
+    };
+    
+    handleAuthRedirect();
   }, [session, status, router]);
 
   // Show loading state while checking session

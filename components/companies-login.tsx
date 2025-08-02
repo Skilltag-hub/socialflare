@@ -2,20 +2,16 @@
 
 import { useState, useRef, useEffect } from "react";
 import { gsap } from "gsap";
-import Link from "next/link";
 import { Eye, EyeOff } from "lucide-react";
 import { useRouter } from "next/navigation";
-
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-
-// Add this import for NextAuth
+import Link from "next/link";
 import { signIn } from "next-auth/react";
 
-export default function LoginForm() {
+export default function CompaniesLoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [activeTab, setActiveTab] = useState("register");
   const [email, setEmail] = useState("");
@@ -43,6 +39,58 @@ export default function LoginForm() {
     }
   }, [activeTab]);
 
+  // Handle Google OAuth login
+  const handleGoogleSignIn = async () => {
+    setError("");
+    setLoading(true);
+    try {
+      const result = await signIn("google", {
+        redirect: false,
+      });
+      
+      if (result?.ok) {
+        // After successful Google sign-in, get session and create/update company in MongoDB
+        // Wait a moment for session to be established
+        setTimeout(async () => {
+          try {
+            const response = await fetch('/api/auth/companies', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                // Session will be available in the API route
+              }),
+            });
+            
+            if (response.ok) {
+              const { company } = await response.json();
+              
+              // Redirect based on onboarding status
+              if (company.isOnboarded) {
+                router.push("/companies");
+              } else {
+                router.push("/companies/details");
+              }
+            } else {
+              setError("Failed to create company profile");
+            }
+          } catch (error) {
+            console.error('Company creation error:', error);
+            setError("Failed to create company profile");
+          }
+        }, 1000);
+      } else if (result?.error) {
+        setError("Failed to sign in with Google");
+      }
+    } catch (error) {
+      console.error('Google sign-in error:', error);
+      setError("Failed to sign in with Google");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Handle login form submit
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -55,10 +103,22 @@ export default function LoginForm() {
     });
     setLoading(false);
     if (res && res.ok) {
-      router.push("/");
+      router.push("/companies/details");
     } else {
       setError("Invalid email or password");
     }
+  };
+
+  // Handle register form submit (placeholder)
+  const handleRegister = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
+    // Here you would call your company registration API
+    setTimeout(() => {
+      setLoading(false);
+      router.push("/companies/dashboard");
+    }, 1000);
   };
 
   return (
@@ -96,16 +156,15 @@ export default function LoginForm() {
             <TabsContent value="login" className="space-y-6 mt-0">
               <div>
                 <h1 className="text-2xl font-bold text-gray-900 mb-6">
-                  Welcome back!
+                  Company Login
                 </h1>
-
                 <form onSubmit={handleLogin} className="space-y-4">
                   <div className="space-y-2">
                     <Label
                       htmlFor="email"
                       className="text-sm font-medium text-gray-700"
                     >
-                      Email
+                      Company Email
                     </Label>
                     <Input
                       id="email"
@@ -116,7 +175,6 @@ export default function LoginForm() {
                       required
                     />
                   </div>
-
                   <div className="space-y-2">
                     <Label
                       htmlFor="password"
@@ -146,16 +204,6 @@ export default function LoginForm() {
                       </button>
                     </div>
                   </div>
-
-                  <div className="flex items-center space-x-2">
-                    <Checkbox id="keep-logged" />
-                    <Label
-                      htmlFor="keep-logged"
-                      className="text-sm text-gray-700"
-                    >
-                      Keep me logged in
-                    </Label>
-                  </div>
                   {error && <div className="text-red-500 text-sm">{error}</div>}
                   <Button
                     className="w-full h-[45px] bg-black hover:bg-gray-800 text-white py-3 rounded-lg font-medium"
@@ -166,15 +214,6 @@ export default function LoginForm() {
                     {loading ? "Logging in..." : "Continue"}
                   </Button>
 
-                  <div className="text-center">
-                    <Link
-                      href="/forgot-password"
-                      className="text-sm text-blue-600 hover:underline"
-                    >
-                      Forgot password?
-                    </Link>
-                  </div>
-
                   <div className="relative">
                     <div className="absolute inset-0 flex items-center">
                       <span className="w-full border-t border-gray-300" />
@@ -185,11 +224,11 @@ export default function LoginForm() {
                   </div>
 
                   <Button
+                    type="button"
                     variant="outline"
+                    onClick={handleGoogleSignIn}
+                    disabled={loading}
                     className="w-full h-[45px] py-3 border border-gray-300 rounded-lg hover:bg-gray-50 flex items-center justify-center space-x-2 bg-transparent"
-                    onClick={() =>
-                      signIn("google", { callbackUrl: "/" })
-                    }
                   >
                     <svg className="w-5 h-5" viewBox="0 0 24 24">
                       <path
@@ -209,7 +248,9 @@ export default function LoginForm() {
                         d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
                       />
                     </svg>
-                    <span className="text-gray-700">Sign in with Google</span>
+                    <span className="text-gray-700">
+                      {loading ? "Signing in..." : "Sign in with Google"}
+                    </span>
                   </Button>
                 </form>
               </div>
@@ -218,30 +259,62 @@ export default function LoginForm() {
             <TabsContent value="register" className="space-y-6 mt-0">
               <div>
                 <h1 className="text-2xl font-bold text-gray-900 mb-6">
-                  Create an account
+                  Company Registration
                 </h1>
-
-                <div className="space-y-4">
+                <form onSubmit={handleRegister} className="space-y-4">
                   <div className="space-y-2">
                     <Label
-                      htmlFor="personal-email"
+                      htmlFor="company-email"
                       className="text-sm font-medium text-gray-700"
                     >
-                      Personal Email
+                      Company Email
                     </Label>
                     <Input
-                      id="personal-email"
+                      id="company-email"
                       type="email"
-                      defaultValue="dummy_username@gmail.com"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
                       className="w-full h-[45px] px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      required
                     />
                   </div>
-
+                  <div className="space-y-2">
+                    <Label
+                      htmlFor="company-password"
+                      className="text-sm font-medium text-gray-400"
+                    >
+                      Password
+                    </Label>
+                    <div className="relative">
+                      <Input
+                        id="company-password"
+                        type={showPassword ? "text" : "password"}
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        className="w-full h-[45px] px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        required
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                      >
+                        {showPassword ? (
+                          <EyeOff className="h-4 w-4" />
+                        ) : (
+                          <Eye className="h-4 w-4" />
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                  {error && <div className="text-red-500 text-sm">{error}</div>}
                   <Button
                     className="w-full h-[45px] bg-black hover:bg-gray-800 text-white py-3 rounded-lg font-medium"
                     style={{ color: "#c4f542" }}
+                    type="submit"
+                    disabled={loading}
                   >
-                    Continue
+                    {loading ? "Registering..." : "Register"}
                   </Button>
 
                   <div className="relative">
@@ -254,7 +327,10 @@ export default function LoginForm() {
                   </div>
 
                   <Button
+                    type="button"
                     variant="outline"
+                    onClick={handleGoogleSignIn}
+                    disabled={loading}
                     className="w-full h-[45px] py-3 border border-gray-300 rounded-lg hover:bg-gray-50 flex items-center justify-center space-x-2 bg-transparent"
                   >
                     <svg className="w-5 h-5" viewBox="0 0 24 24">
@@ -275,7 +351,9 @@ export default function LoginForm() {
                         d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
                       />
                     </svg>
-                    <span className="text-gray-700">Sign in with Google</span>
+                    <span className="text-gray-700">
+                      {loading ? "Signing in..." : "Continue with Google"}
+                    </span>
                   </Button>
 
                   <div className="text-center text-sm text-gray-600 mt-4">
@@ -296,7 +374,7 @@ export default function LoginForm() {
                       </Link>
                     </p>
                   </div>
-                </div>
+                </form>
               </div>
             </TabsContent>
           </div>
@@ -320,6 +398,6 @@ export default function LoginForm() {
           </div>
         </Tabs>
       </div>
-    </div>
-  );
+    </div>
+  );
 }
