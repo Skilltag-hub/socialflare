@@ -37,9 +37,14 @@ export default function Component() {
       active: activeFilter === "shortlisted",
     },
     {
-      label: "Selected",
-      status: "selected",
-      active: activeFilter === "selected",
+      label: "Accepted",
+      status: "accepted",
+      active: activeFilter === "accepted",
+    },
+    {
+      label: "Rejected",
+      status: "rejected",
+      active: activeFilter === "rejected",
     },
     {
       label: "Completed",
@@ -120,35 +125,88 @@ export default function Component() {
       : "";
     const [isBoostLoading, setIsBoostLoading] = useState(false);
     const [isBoosted, setIsBoosted] = useState(application?.boosted || false);
+    const [showSubmitModal, setShowSubmitModal] = useState(false);
+    const [submissionTitle, setSubmissionTitle] = useState("");
+    const [submissionDesc, setSubmissionDesc] = useState("");
+    const [submissionFile, setSubmissionFile] = useState<File | null>(null);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
+    async function handleSubmitSubmission(e: React.FormEvent) {
+      e.preventDefault();
+      if (!submissionFile) return;
+      setIsSubmitting(true);
+      try {
+        // Upload file to ImageKit via /api/upload-id
+        const formData = new FormData();
+        formData.append("file", submissionFile);
+        const uploadRes = await fetch("/api/upload-id", {
+          method: "POST",
+          body: formData,
+        });
+        if (!uploadRes.ok) throw new Error("File upload failed");
+        const { url } = await uploadRes.json();
+        // Attach submission to gig application in waitlist.gigs
+        const patchRes = await fetch("/api/applications", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            gigId: application.gigId,
+            action: "submitWork",
+            submission: {
+              title: submissionTitle,
+              description: submissionDesc,
+              fileUrl: url,
+              submittedAt: new Date().toISOString(),
+            },
+          }),
+        });
+        if (!patchRes.ok) throw new Error("Failed to save submission");
+        setShowSubmitModal(false);
+        setSubmissionTitle("");
+        setSubmissionDesc("");
+        setSubmissionFile(null);
+        setIsSubmitting(false);
+        toast({ title: "Success", description: "Work submitted!" });
+      } catch (err) {
+        setIsSubmitting(false);
+        toast({
+          title: "Error",
+          description: (err as any).message,
+          variant: "destructive",
+        });
+      }
+    }
 
     const handleBoost = async () => {
       if (isBoostLoading) return;
-      
+
       setIsBoostLoading(true);
       try {
-        const response = await fetch('/api/applications', {
-          method: 'PATCH',
+        const response = await fetch("/api/applications", {
+          method: "PATCH",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
           body: JSON.stringify({
             gigId: application.gigId,
-            action: 'boost',
+            action: "boost",
             value: !isBoosted,
           }),
         });
 
         if (!response.ok) {
-          throw new Error('Failed to update boost status');
+          throw new Error("Failed to update boost status");
         }
 
         setIsBoosted(!isBoosted);
         toast({
           title: "Success",
-          description: `Application ${!isBoosted ? 'boosted' : 'unboosted'} successfully!`,
+          description: `Application ${
+            !isBoosted ? "boosted" : "unboosted"
+          } successfully!`,
         });
       } catch (error) {
-        console.error('Error updating boost status:', error);
+        console.error("Error updating boost status:", error);
         toast({
           title: "Error",
           description: "Failed to update boost status. Please try again.",
@@ -160,7 +218,7 @@ export default function Component() {
     };
 
     return (
-      <Card className="bg-white rounded-2xl shadow-sm">
+      <Card className="bg-white rounded-2xl shadow-sm max-h-[200px]">
         <CardContent className="p-4">
           <div className="flex items-start gap-3 mb-3">
             <div className="w-12 h-12 bg-yellow-400 rounded-full flex items-center justify-center">
@@ -208,8 +266,69 @@ export default function Component() {
                 onClick={handleBoost}
                 disabled={isBoostLoading}
               >
-                {isBoostLoading ? "Loading..." : isBoosted ? "Boosted" : "Boost"}
+                {isBoostLoading
+                  ? "Loading..."
+                  : isBoosted
+                  ? "Boosted"
+                  : "Boost"}
               </Button>
+            ) : application.status === "accepted" ? (
+              <>
+                <Button
+                  className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-full"
+                  onClick={() => setShowSubmitModal(true)}
+                >
+                  Submit
+                </Button>
+                {showSubmitModal && (
+                  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-30">
+                    <div className="bg-white p-6 rounded-xl shadow-xl max-w-md w-full relative">
+                      <button
+                        className="absolute top-3 right-3 text-gray-400 hover:text-gray-700"
+                        onClick={() => setShowSubmitModal(false)}
+                      >
+                        &times;
+                      </button>
+                      <h3 className="text-lg font-semibold mb-4">
+                        Submit Your Work
+                      </h3>
+                      <form onSubmit={handleSubmitSubmission}>
+                        <input
+                          type="text"
+                          className="block w-full mb-3 border border-gray-300 rounded px-3 py-2"
+                          placeholder="Title"
+                          value={submissionTitle}
+                          onChange={(e) => setSubmissionTitle(e.target.value)}
+                          required
+                        />
+                        <textarea
+                          className="block w-full mb-3 border border-gray-300 rounded px-3 py-2"
+                          placeholder="Description"
+                          value={submissionDesc}
+                          onChange={(e) => setSubmissionDesc(e.target.value)}
+                          required
+                        />
+                        <input
+                          type="file"
+                          accept="image/*,application/pdf"
+                          className="block w-full mb-4"
+                          onChange={(e) =>
+                            setSubmissionFile(e.target.files?.[0] || null)
+                          }
+                          required
+                        />
+                        <Button
+                          type="submit"
+                          className="bg-green-600 hover:bg-green-700 text-white w-full"
+                          disabled={isSubmitting}
+                        >
+                          {isSubmitting ? "Submitting..." : "Submit Work"}
+                        </Button>
+                      </form>
+                    </div>
+                  </div>
+                )}
+              </>
             ) : (
               <Button
                 className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-full"

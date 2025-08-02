@@ -4,14 +4,14 @@ import clientPromise from "@/lib/mongodb"
 
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: { gigId: string } }
 ) {
   try {
     const client = await clientPromise
     const db = client.db("waitlist")
     
     // Validate the ID format
-    if (!ObjectId.isValid(params.id)) {
+    if (!ObjectId.isValid(params.gigId)) {
       return NextResponse.json(
         { error: "Invalid gig ID format" },
         { status: 400 }
@@ -19,7 +19,7 @@ export async function GET(
     }
 
     const gig = await db.collection("gigs").findOne({
-      _id: new ObjectId(params.id)
+      _id: new ObjectId(params.gigId)
     })
 
     if (!gig) {
@@ -48,7 +48,7 @@ export async function GET(
 
 export async function PATCH(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: { gigId: string } }
 ) {
   try {
     const client = await clientPromise
@@ -56,7 +56,7 @@ export async function PATCH(
     const data = await request.json()
 
     // Validate the ID format
-    if (!ObjectId.isValid(params.id)) {
+    if (!ObjectId.isValid(params.gigId)) {
       return NextResponse.json(
         { error: "Invalid gig ID format" },
         { status: 400 }
@@ -64,7 +64,7 @@ export async function PATCH(
     }
 
     const result = await db.collection("gigs").updateOne(
-      { _id: new ObjectId(params.id) },
+      { _id: new ObjectId(params.gigId) },
       { $set: data }
     )
 

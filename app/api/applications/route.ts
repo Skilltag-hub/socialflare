@@ -377,7 +377,7 @@ export async function PATCH(req: Request) {
     }
 
     // Validate action
-    const validActions = ["bookmark", "boost"];
+    const validActions = ["bookmark", "boost", "submitWork"];
     if (!validActions.includes(action)) {
       return new Response(JSON.stringify({ error: "Invalid action" }), {
         status: 400,
@@ -424,40 +424,70 @@ export async function PATCH(req: Request) {
 
     try {
       await dbSession.withTransaction(async () => {
-        // Update the user's gigs array
-        const userResult = await db.collection("users").updateOne(
-          {
-            _id: currentUser._id,
-            "gigs.gigId": gigId,
-          },
-          {
-            $set: {
-              [`gigs.$.${fieldName}`]: newValue,
-              "gigs.$.updatedAt": now,
+        if (action === "submitWork") {
+          // Add a submission to both user's gigs and gig's applications
+          const { submission } = reqBody;
+          if (!submission) throw new Error("No submission provided");
+          // Add to user's gigs array
+          await db.collection("users").updateOne(
+            {
+              _id: currentUser._id,
+              "gigs.gigId": gigId,
             },
-          },
-          { session: dbSession }
-        );
-
-        if (userResult.matchedCount === 0) {
-          throw new Error("Gig not found in user's applications");
-        }
-
-        // If action is boost, also update the boosted status in the gig's applications array
-        if (action === "boost") {
+            {
+              $push: { "gigs.$.submissions": submission },
+              $set: { "gigs.$.updatedAt": now },
+            },
+            { session: dbSession }
+          );
+          // Add to gig's applications array for this user
           await db.collection("gigs").updateOne(
             {
               _id: new ObjectId(gigId),
               "applications.userId": currentUser._id.toString(),
             },
             {
+              $push: { "applications.$.submissions": submission },
+              $set: { "applications.$.lastUpdated": now },
+            },
+            { session: dbSession }
+          );
+        } else {
+          // Update the user's gigs array (bookmark/boost)
+          const userResult = await db.collection("users").updateOne(
+            {
+              _id: currentUser._id,
+              "gigs.gigId": gigId,
+            },
+            {
               $set: {
-                "applications.$.boosted": newValue,
-                "applications.$.lastUpdated": now,
+                [`gigs.$.${fieldName}`]: newValue,
+                "gigs.$.updatedAt": now,
               },
             },
             { session: dbSession }
           );
+
+          if (userResult.matchedCount === 0) {
+            throw new Error("Gig not found in user's applications");
+          }
+
+          // If action is boost, also update the boosted status in the gig's applications array
+          if (action === "boost") {
+            await db.collection("gigs").updateOne(
+              {
+                _id: new ObjectId(gigId),
+                "applications.userId": currentUser._id.toString(),
+              },
+              {
+                $set: {
+                  "applications.$.boosted": newValue,
+                  "applications.$.lastUpdated": now,
+                },
+              },
+              { session: dbSession }
+            );
+          }
         }
       });
     } catch (error) {

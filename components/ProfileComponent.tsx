@@ -21,7 +21,12 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 
-export default function ProfileComponent() {
+interface ProfileComponentProps {
+  userId?: string;
+  hideEditButton?: boolean;
+}
+
+export default function ProfileComponent({ userId, hideEditButton }: ProfileComponentProps) {
   const { data: session, status } = useSession();
   const { toast } = useToast();
   const [referralLink, setReferralLink] = useState("");
@@ -44,9 +49,36 @@ export default function ProfileComponent() {
   // Fetch user data when session is available
   useEffect(() => {
     const fetchUserData = async () => {
-      if (status === "loading") return;
-
-      if (status === "authenticated" && session?.user) {
+      if (userId) {
+        // Fetch user data by userId (public profile)
+        try {
+          setIsLoading(true);
+          const response = await fetch(`/api/user/${userId}`);
+          if (!response.ok) throw new Error("Failed to fetch user profile");
+          const profileData = await response.json();
+          setUserData((prev) => ({
+            ...prev,
+            name: profileData.name || prev.name,
+            email: profileData.email || prev.email,
+            image: profileData.profileImage || prev.image,
+            description: profileData.description || "",
+            status: profileData.status || "available",
+            skills: profileData.skills || [],
+            gender: profileData.gender || "",
+            dateOfBirth: profileData.dateOfBirth || "",
+            phone: profileData.phone || "+91 8008000988",
+          }));
+        } catch (error) {
+          console.error("Error fetching profile:", error);
+          toast({
+            title: "Error",
+            description: "Failed to load profile data.",
+            variant: "destructive",
+          });
+        } finally {
+          setIsLoading(false);
+        }
+      } else if (status === "authenticated" && session?.user) {
         try {
           // Set basic data from session
           setUserData((prev) => ({
@@ -106,7 +138,7 @@ export default function ProfileComponent() {
     };
 
     fetchUserData();
-  }, [session, status, toast]);
+  }, [userId, session, status, toast]);
 
   // Get user initials for avatar fallback
   const getUserInitials = () => {
@@ -193,11 +225,13 @@ export default function ProfileComponent() {
                     ))}
                   <span className="ml-1 text-sm text-gray-600">5.0</span>
                 </div>
-                <Link href="/profile/edit">
-                  <Button variant="outline" className="w-full bg-transparent">
-                    Edit Profile
-                  </Button>
-                </Link>
+                {!hideEditButton && (
+                  <Link href="/profile/edit">
+                    <Button variant="outline" className="w-full bg-transparent">
+                      Edit Profile
+                    </Button>
+                  </Link>
+                )}
               </CardContent>
             </Card>
 
@@ -469,11 +503,13 @@ export default function ProfileComponent() {
                     ))}
                   <span className="ml-2 text-lg font-medium">5.0</span>
                 </div>
-                <Link href="/profile/edit">
-                  <Button variant="outline" className="w-full bg-transparent">
-                    Edit Profile
-                  </Button>
-                </Link>
+                {!hideEditButton && (
+                  <Link href="/profile/edit">
+                    <Button variant="outline" className="w-full bg-transparent">
+                      Edit Profile
+                    </Button>
+                  </Link>
+                )}
               </CardContent>
             </Card>
 
