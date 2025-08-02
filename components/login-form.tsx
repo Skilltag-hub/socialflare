@@ -55,7 +55,7 @@ export default function LoginForm() {
     });
     setLoading(false);
     if (res && res.ok) {
-      router.push("/");
+      router.push("/home");
     } else {
       setError("Invalid email or password");
     }
@@ -188,7 +188,7 @@ export default function LoginForm() {
                     variant="outline"
                     className="w-full h-[45px] py-3 border border-gray-300 rounded-lg hover:bg-gray-50 flex items-center justify-center space-x-2 bg-transparent"
                     onClick={() =>
-                      signIn("google", { callbackUrl: "/" })
+                      signIn("google", { callbackUrl: "/home" })
                     }
                   >
                     <svg className="w-5 h-5" viewBox="0 0 24 24">
