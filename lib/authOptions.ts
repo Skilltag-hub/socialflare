@@ -24,7 +24,7 @@ export const authOptions = {
     }),
   ],
   session: { strategy: "jwt" as SessionStrategy },
-  callback: {
+  callbacks: {
     // SignIn callback for managing user sign-in and redirection logic
     async signIn({ user }: { user: any }) {
       const client = await connectToDatabase();
@@ -65,11 +65,13 @@ export const authOptions = {
               dateOfBirth: null,
               referredPeople: [],
               referredBy: null,
+              createdAt: new Date(),
+              updatedAt: new Date()
             },
           },
           { upsert: true }
         );
-        return false; // New user, needs to complete setup
+        return true; // Allow sign-in for new users
       }
     },
     // Session callback to pass necessary data to the session
