@@ -10,7 +10,7 @@ import CircularGallery from "../components/CircularGallery.jsx";
 import AnimatedList from "../components/AnimatedList.jsx";
 import TrustedBy from "../components/TrustedBy";
 import FloatingLogos from "../components/FloatingLogos.jsx";
-import TransitionLink from "@/components/TransitionLink";
+import Link from "next/link";
 
 const animatedItems = [
   "Graphic Designer",
@@ -92,13 +92,13 @@ export default function HomePage() {
                 </div>
                 <div className="flex flex-row items-center justify-center sm:justify-start mt-2 sm:mt-8 gap-x-4">
                   <div className="bg-[#ADFF0038] rounded-full p-1 sm:p-2">
-                    <TransitionLink
+                    <Link
                       className="bg-[#ADFF00] rounded-full px-3 py-1 sm:px-6 sm:py-2 font-poppins font-semibold text-black flex items-center gap-2 shadow text-xs sm:text-base cursor-pointer"
                       href="/login"
                     >
                       Join the waitlist
                       <FaArrowRight className="rotate-315" />
-                    </TransitionLink>
+                    </Link>
                   </div>
                   <button
                     className="rounded-full bg-[#1A2B0A] w-8 h-8 sm:w-14 sm:h-14 flex items-center justify-center border-2 border-[#4B8000] shadow-lg"
@@ -161,65 +161,25 @@ export default function HomePage() {
               <div className="w-full bg-[#F6F9FF] rounded-none sm:rounded-t-4xl">
                 <div className="mx-auto max-w-[1100px] px-2 sm:px-8 pt-2 pb-4 sm:pt-4 sm:pb-8">
                   <div className="h-4 sm:h-[8vh]"></div>
-                  <h2
-                    className="text-2xl sm:text-4xl font-poppins text-center font-bold mb-2 sm:mb-4"
-                    style={{ color: "#1F2E47" }}
-                  >
-                    Browse All Skill Gigs
+                  <h2 className="text-5xl sm:text-7xl font-poppins font-bold mb-4 text-[#1F2E47] text-center leading-tight whitespace-pre-line">
+                    {`Browse all\nSkill Gigs!`}
                   </h2>
-                  <p
-                    className="text-center text-sm sm:text-lg font-poppins font-light"
-                    style={{ color: "#1F2E47" }}
-                  >
-                    Claim Your Free, Sharable Skill Tag.
-                  </p>
-                  <p
-                    className="text-center text-sm sm:text-lg font-poppins font-light"
-                    style={{ color: "#1F2E47" }}
-                  >
-                    Start In Seconds, Start Looking For Gigs At Your Own Pace.
-                  </p>
-                  <div className="p-2 sm:p-6 flex justify-center">
-                    <div
-                      className="relative flex justify-center items-center"
-                      style={{ minHeight: 220 }}
-                    >
-                      <div
-                        className="absolute w-[340px] h-[220px] sm:w-[480px] sm:h-[320px]"
-                        style={{
-                          left: "50%",
-                          top: "50%",
-                          transform: "translate(-50%, -50%)",
-                          zIndex: 0,
-                          pointerEvents: "none",
-                          background:
-                            "radial-gradient(ellipse at center, #ADFF0066 0%, #ADFF0011 80%)",
-                          filter: "blur(16px)",
-                        }}
+                  <div className="text-[#1F2E47] text-lg sm:text-2xl font-poppins font-light text-center mb-4 w-full">
+                    A dynamic group of innovators who ignite ideas and transform
+                    them into impactful work!
+                  </div>
+                  <div className="relative w-full flex justify-center items-center mt-8">
+                    <FloatingLogos />
+                    <div className="w-full max-w-2xl mx-auto z-20">
+                      <AnimatedList
+                        items={animatedItems}
+                        onItemSelect={(item: string, index: number) =>
+                          console.log(item, index)
+                        }
+                        showGradients={true}
+                        enableArrowNavigation={true}
+                        displayScrollbar={true}
                       />
-                      <button
-                        onClick={handleStackLeft}
-                        className="absolute left-0 z-20 bg-[#ADFF00] text-black rounded-full w-8 h-8 flex items-center justify-center shadow hover:scale-110 transition-transform"
-                      >
-                        &#8592;
-                      </button>
-                      <div className="relative z-10">
-                        <Stack
-                          ref={stackRef}
-                          randomRotation={false}
-                          sensitivity={180}
-                          sendToBackOnClick={false}
-                          cardDimensions={{ width: 340, height: 220 }}
-                          cardsData={images}
-                          responsive={true}
-                        />
-                      </div>
-                      <button
-                        onClick={handleStackRight}
-                        className="absolute right-0 z-20 bg-[#ADFF00] text-black rounded-full w-8 h-8 flex items-center justify-center shadow hover:scale-110 transition-transform"
-                      >
-                        &#8594;
-                      </button>
                     </div>
                   </div>
                   <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-16 mt-8 sm:mt-16 w-full max-w-[1100px] mx-auto">
@@ -287,14 +247,16 @@ export default function HomePage() {
             <Lanyard position={[0, 0, 15]} gravity={[0, -40, 0]} />
             <div className="absolute top-[75vh] sm:top-[35vh] left-0 sm:left-[10vw] z-20 w-full sm:w-auto flex flex-col items-center sm:items-start">
               <div className="w-full max-w-[95vw] sm:max-w-[45Dvw] px-2 sm:px-0 flex flex-col sm:block items-center sm:items-start justify-center gap-2 sm:gap-0">
-                <div className="text-white text-4xl sm:text-6xl font-black font-poppins text-center sm:text-left mb-2 sm:mb-0 max-w-3xl mx-auto">
-                  INDIA'S #1 EARLY TALENT GATEWAY
+                <div className="text-white text-4xl sm:text-6xl font-black font-poppins text-center sm:text-left mb-2 sm:mb-0 max-w-[40vw] mx-auto">
+                  <div>INDIA'S #1</div>
+                  <div>EARLY TALENT</div>
+                  <div>GATEWAY</div>
                 </div>
                 <div className="flex flex-row items-center justify-center sm:justify-start gap-x-4 mt-2 sm:mt-8">
                   <div className="bg-[#ADFF0038] rounded-full p-1 sm:p-2">
                     <div
                       className="bg-[#ADFF00] rounded-full px-3 py-1 sm:px-6 sm:py-2 font-poppins font-semibold text-black flex items-center gap-2 shadow text-xs sm:text-base cursor-pointer"
-                      onClick={() => window.alert("Partner With Us")}
+                      onClick={() => router.push("/companies/login")}
                     >
                       Partner With Us
                       <FaArrowRight className="rotate-315" />
@@ -361,61 +323,131 @@ export default function HomePage() {
                 <div className="mx-auto max-w-[1100px] px-2 sm:px-8 pt-2 pb-4 sm:pt-4 sm:pb-8 flex flex-col items-center">
                   <div className="w-full flex flex-col sm:flex-row items-center sm:items-start justify-between gap-8 min-h-[320px] sm:min-h-[380px] pt-12 sm:pt-20 pb-2 sm:pb-4">
                     <div className="w-full sm:w-1/2 flex flex-col items-center sm:items-start justify-center pl-2 pr-2 sm:pl-24">
-                      <h2 className="text-5xl sm:text-7xl font-poppins font-bold mb-4 text-[#1F2E47] text-center sm:text-left leading-tight whitespace-pre-line">
-                        {`Browse all\nSkill Gigs!`}
+                      <h2
+                        className="text-2xl sm:text-4xl font-poppins text-center sm:text-left font-bold mb-2 sm:mb-4"
+                        style={{ color: "#1F2E47" }}
+                      >
+                        Browse All Skill Gigs
                       </h2>
-                      <div className="sm:hidden text-[#1F2E47] text-lg sm:text-2xl font-poppins font-light text-center mb-4 w-full">
-                        A dynamic group of innovators who ignite ideas and
-                        transform them into impactful work!
-                      </div>
+                      <p
+                        className="text-center sm:text-left text-sm sm:text-lg font-poppins font-light"
+                        style={{ color: "#1F2E47" }}
+                      >
+                        Claim Your Free, Sharable Skill Tag.
+                      </p>
+                      <p
+                        className="text-center sm:text-left text-sm sm:text-lg font-poppins font-light"
+                        style={{ color: "#1F2E47" }}
+                      >
+                        Start In Seconds, Start Looking For Gigs At Your Own
+                        Pace.
+                      </p>
                     </div>
                     <div className="hidden sm:flex flex-col items-start w-1/2 justify-center pr-2 sm:pr-8">
                       <div className="text-[#1F2E47] text-lg sm:text-2xl font-poppins font-light mb-4">
                         A dynamic group of innovators who ignite ideas and
                         transform them into impactful work!
                       </div>
-                      <button className="bg-[#ADFF00] text-[#1F2E47] font-bold font-poppins rounded-full px-6 py-2 shadow hover:scale-105 transition-transform flex items-center gap-2">
+                      <Link
+                        className="bg-[#ADFF00] text-[#1F2E47] font-bold font-poppins rounded-full px-6 py-2 shadow hover:scale-105 transition-transform flex items-center gap-2"
+                        href="/"
+                      >
                         View All Jobs <FaArrowRight className="rotate-315" />
+                      </Link>
+                    </div>
+                  </div>
+                  <div className="p-2 sm:p-6 flex justify-center">
+                    <div
+                      className="relative flex justify-center items-center"
+                      style={{ minHeight: 220 }}
+                    >
+                      <div
+                        className="absolute w-[340px] h-[220px] sm:w-[480px] sm:h-[320px]"
+                        style={{
+                          left: "50%",
+                          top: "50%",
+                          transform: "translate(-50%, -50%)",
+                          zIndex: 0,
+                          pointerEvents: "none",
+                          background:
+                            "radial-gradient(ellipse at center, #ADFF0066 0%, #ADFF0011 80%)",
+                          filter: "blur(16px)",
+                        }}
+                      />
+                      <button
+                        onClick={handleStackLeft}
+                        className="absolute left-0 z-20 bg-[#ADFF00] text-black rounded-full w-8 h-8 flex items-center justify-center shadow hover:scale-110 transition-transform"
+                      >
+                        &#8592;
+                      </button>
+                      <div className="relative z-10">
+                        <Stack
+                          ref={stackRef}
+                          randomRotation={false}
+                          sensitivity={180}
+                          sendToBackOnClick={false}
+                          cardDimensions={{ width: 340, height: 220 }}
+                          cardsData={images}
+                          responsive={true}
+                        />
+                      </div>
+                      <button
+                        onClick={handleStackRight}
+                        className="absolute right-0 z-20 bg-[#ADFF00] text-black rounded-full w-8 h-8 flex items-center justify-center shadow hover:scale-110 transition-transform"
+                      >
+                        &#8594;
                       </button>
                     </div>
-                  </div>
-                  <div className="relative w-full flex justify-center items-center mt-8">
-                    <FloatingLogos />
-                    <div className="w-full max-w-2xl mx-auto z-20">
-                      <AnimatedList
-                        items={animatedItems}
-                        onItemSelect={(item: string, index: number) =>
-                          console.log(item, index)
-                        }
-                        showGradients={true}
-                        enableArrowNavigation={true}
-                        displayScrollbar={true}
-                      />
-                    </div>
-                  </div>
+                  </div>  
                   <div className="sm:hidden flex flex-col items-center mt-4">
-                    <button className="bg-[#ADFF00] text-[#1F2E47] font-bold font-poppins rounded-full px-6 py-2 shadow hover:scale-105 transition-transform flex items-center gap-2 mb-2">
+                    <Link
+                      className="bg-[#ADFF00] text-[#1F2E47] font-bold font-poppins rounded-full px-6 py-2 shadow hover:scale-105 transition-transform flex items-center gap-2 mb-2"
+                      href="/"
+                    >
                       View All Jobs <FaArrowRight className="rotate-315" />
-                    </button>
+                    </Link>
                   </div>
                 </div>
+              </div>
+            </div>
+
+            {/* Circular gallery for Companies */}
+            <div className="bg-[#F6F9FF]">
+              <div style={{ height: "600px", position: "relative" }}>
+                <CircularGallery />
               </div>
             </div>
           </>
         )}
 
-        {/* ——— GOT A GIG BANNER ——— */}
+        {/* ——— DYNAMIC BANNER ——— */}
         <div className="gig-banner-section relative w-full flex justify-center py-6 sm:py-12 bg-[#F6F9FF]">
           <div className="w-full max-w-[340px] sm:max-w-[900px] rounded-2xl sm:rounded-3xl bg-black shadow-xl border border-[#222] flex flex-col md:flex-row items-center justify-between px-4 py-4 sm:px-10 sm:py-8 gap-4 sm:gap-6">
-            <h3 className="text-base sm:text-xl md:text-2xl font-bold text-[#ADFF00] text-center md:text-left">
-              Got a Gig to be completed?
-            </h3>
-            <button
-              className="px-4 py-2 sm:px-7 sm:py-3 bg-[#181F13] text-[#ADFF00] rounded-full border-2 border-[#ADFF00] font-semibold flex items-center gap-2 shadow-md hover:scale-105 transition-transform duration-150 text-sm sm:text-base"
-              onClick={() => window.alert("Coming soon")}
-            >
-              Post a Gig <FaArrowRight className="text-[#ADFF00]" />
-            </button>
+            {tab === 'companies' ? (
+              <>
+                <h3 className="text-base sm:text-xl md:text-2xl font-bold text-[#ADFF00] text-center md:text-left">
+                  Got a Gig to be completed?
+                </h3>
+                <button
+                  className="px-4 py-2 sm:px-7 sm:py-3 bg-[#181F13] text-[#ADFF00] rounded-full border-2 border-[#ADFF00] font-semibold flex items-center gap-2 shadow-md hover:scale-105 transition-transform duration-150 text-sm sm:text-base"
+                  onClick={() => router.push('/companies/login')}
+                >
+                  Post a Gig <FaArrowRight className="text-[#ADFF00]" />
+                </button>
+              </>
+            ) : (
+              <>
+                <h3 className="text-base sm:text-xl md:text-2xl font-bold text-[#ADFF00] text-center md:text-left">
+                  Start earning with Skilltag!
+                </h3>
+                <button
+                  className="px-4 py-2 sm:px-7 sm:py-3 bg-[#181F13] text-[#ADFF00] rounded-full border-2 border-[#ADFF00] font-semibold flex items-center gap-2 shadow-md hover:scale-105 transition-transform duration-150 text-sm sm:text-base"
+                  onClick={() => router.push('/login')}
+                >
+                  Join Skilltag <FaArrowRight className="text-[#ADFF00]" />
+                </button>
+              </>
+            )}
           </div>
         </div>
 
@@ -430,13 +462,19 @@ export default function HomePage() {
                 </div>
                 <div className="flex flex-col gap-1 sm:gap-2 text-base sm:text-lg font-semibold">
                   <div className="flex flex-wrap justify-center sm:justify-start items-center gap-2 sm:gap-4">
-                    <span className="hover:text-[#ADFF00] transition-colors cursor-pointer">
+                    <Link
+                      className="hover:text-[#ADFF00] transition-colors cursor-pointer"
+                      href="/"
+                    >
                       Features
-                    </span>
+                    </Link>
                     <span className="text-[#E6EAF1]">/</span>
-                    <span className="hover:text-[#ADFF00] transition-colors cursor-pointer">
+                    <Link
+                      className="hover:text-[#ADFF00] transition-colors cursor-pointer"
+                      href="/"
+                    >
                       Product
-                    </span>
+                    </Link>
                   </div>
                 </div>
               </div>
