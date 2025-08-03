@@ -19,6 +19,8 @@ import {
 import Navbar from "@/components/Navbar";
 import ClickSpark from "@/utils/ClickSpark/ClickSpark";
 import { useEffect, useState } from "react";
+import { Ripples } from "ldrs/react";
+import "ldrs/react/Ripples.css";
 import { useToast } from "@/hooks/use-toast";
 import { useSession, signOut } from "next-auth/react";
 
@@ -359,9 +361,9 @@ export default function Component() {
           {/* Job Cards - Scrollable area */}
           <div className="px-4 space-y-4 pb-4 flex-1 overflow-y-auto">
             {loading ? (
-              Array(3)
-                .fill(fallbackJobCard)
-                .map((job, index) => <JobCard key={index} job={job} />)
+              <div className="w-full flex items-center justify-center min-h-[300px]">
+                <Ripples size={45} speed={2} color="blue" />
+              </div>
             ) : activeTab === "all" ? (
               gigs.map((gig, index) => (
                 <JobCard
@@ -408,9 +410,9 @@ export default function Component() {
           </div>
           <div className="grid grid-cols-3 gap-6 max-w-6xl">
             {loading ? (
-              Array(9)
-                .fill(fallbackJobCard)
-                .map((job, index) => <JobCard key={index} job={job} />)
+              <div className="col-span-3 flex items-center justify-center min-h-[400px]">
+                <Ripples size={90} speed={2} color="purple" />
+              </div>
             ) : activeTab === "all" ? (
               gigs.map((gig, index) => (
                 <JobCard

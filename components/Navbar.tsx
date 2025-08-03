@@ -57,7 +57,7 @@ export default function Navbar() {
         {/* Navigation */}
         <nav className="flex-1 space-y-2 flex flex-col justify-center">
           {navItems.map(({ name, href, icon: Icon }) => (
-            <TransitionLink href={href} key={href}>
+            <Link href={href} key={href}>
               <Button
                 asChild
                 className={`w-full justify-start bg-transparent ${
@@ -71,7 +71,7 @@ export default function Navbar() {
                   {name}
                 </span>
               </Button>
-            </TransitionLink>
+            </Link>
           ))}
         </nav>
         {/* Footer Links */}
@@ -99,7 +99,7 @@ export default function Navbar() {
       <div className="absolute bottom-4 inset-x-0 w-full px-4 py-4 rounded-3xl z-40 lg:hidden bg-purple-600">
         <div className="flex items-center justify-around">
           {navItems.map(({ name, href, icon: Icon }) => (
-            <TransitionLink href={href} key={href}>
+            <Link href={href} key={href}>
               <Button
                 asChild
                 variant="ghost"
@@ -113,7 +113,7 @@ export default function Navbar() {
                   <span className="text-xs mt-1">{name}</span>
                 </span>
               </Button>
-            </TransitionLink>
+            </Link>
           ))}
         </div>
       </div>
