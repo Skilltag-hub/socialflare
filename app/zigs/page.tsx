@@ -1,7 +1,8 @@
 "use client";
-
+import { upload } from "@imagekit/next";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/Button";
+import { toast } from "sonner";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   Clock,
@@ -13,19 +14,18 @@ import {
   Filter,
 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useToast } from "@/hooks/use-toast";
+
 import { useSession } from "next-auth/react";
 import Navbar from "@/components/Navbar";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { TransitionLink } from "@/components/transition-link";
 
 export default function Component() {
   const [applications, setApplications] = useState<any[]>([]);
   const [filteredApplications, setFilteredApplications] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState("applied");
-  const { toast } = useToast();
+
   const { data: session, status } = useSession();
 
   // Define filter tabs with dynamic counts
@@ -68,12 +68,12 @@ export default function Component() {
         setApplications(data.applications || []);
       } catch (error) {
         console.error("Error fetching applications:", error);
-        toast({
-          title: "Error",
-          description:
-            "Failed to load your applications. Please try again later.",
-          variant: "destructive",
-        });
+        toast.error(
+          "Failed to load your applications. Please try again later.",
+          {
+            style: { background: "red", border: "none", color: "white" },
+          }
+        );
       } finally {
         setLoading(false);
       }
@@ -136,16 +136,24 @@ export default function Component() {
       if (!submissionFile) return;
       setIsSubmitting(true);
       try {
-        // Upload file to ImageKit via /api/upload-id
-        const formData = new FormData();
-        formData.append("file", submissionFile);
-        const uploadRes = await fetch("/api/upload-id", {
-          method: "POST",
-          body: formData,
+        // 1. Get ImageKit upload auth params
+        const authRes = await fetch("/api/upload-auth");
+        if (!authRes.ok) throw new Error("Failed to get upload auth params");
+        const { signature, expire, token, publicKey } = await authRes.json();
+
+        // 2. Upload file directly to ImageKit
+        const uploadRes = await upload({
+          expire,
+          token,
+          signature,
+          publicKey,
+          file: submissionFile,
+          fileName: submissionFile.name,
         });
-        if (!uploadRes.ok) throw new Error("File upload failed");
-        const { url } = await uploadRes.json();
-        // Attach submission to gig application in waitlist.gigs
+        const url = uploadRes.url;
+        if (!url) throw new Error("File upload failed");
+
+        // 3. Attach submission to gig application in waitlist.gigs
         const patchRes = await fetch("/api/applications", {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
@@ -155,6 +163,8 @@ export default function Component() {
             submission: {
               title: submissionTitle,
               description: submissionDesc,
+              upiId: submissionTitle,
+              upiName: submissionDesc,
               fileUrl: url,
               submittedAt: new Date().toISOString(),
             },
@@ -166,13 +176,13 @@ export default function Component() {
         setSubmissionDesc("");
         setSubmissionFile(null);
         setIsSubmitting(false);
-        toast({ title: "Success", description: "Work submitted!" });
+        toast.success("Work submitted!", {
+          style: { background: "green", border: "none", color: "white" },
+        });
       } catch (err) {
         setIsSubmitting(false);
-        toast({
-          title: "Error",
-          description: (err as any).message,
-          variant: "destructive",
+        toast.error((err as any).message, {
+          style: { background: "red", border: "none", color: "white" },
         });
       }
     }
@@ -199,18 +209,16 @@ export default function Component() {
         }
 
         setIsBoosted(!isBoosted);
-        toast({
-          title: "Success",
-          description: `Application ${
-            !isBoosted ? "boosted" : "unboosted"
-          } successfully!`,
-        });
+        toast.success(
+          `Application ${!isBoosted ? "boosted" : "unboosted"} successfully!`,
+          {
+            style: { background: "green", border: "none", color: "white" },
+          }
+        );
       } catch (error) {
         console.error("Error updating boost status:", error);
-        toast({
-          title: "Error",
-          description: "Failed to update boost status. Please try again.",
-          variant: "destructive",
+        toast.error("Failed to update boost status. Please try again.", {
+          style: { background: "red", border: "none", color: "white" },
         });
       } finally {
         setIsBoostLoading(false);
@@ -282,48 +290,96 @@ export default function Component() {
                 </Button>
                 {showSubmitModal && (
                   <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-30">
-                    <div className="bg-white p-6 rounded-xl shadow-xl max-w-md w-full relative">
+                    <div className="bg-white p-6 rounded-2xl shadow-xl max-w-sm w-full relative">
                       <button
-                        className="absolute top-3 right-3 text-gray-400 hover:text-gray-700"
+                        className="absolute top-3 left-3 text-gray-400 hover:text-gray-700"
                         onClick={() => setShowSubmitModal(false)}
+                        aria-label="Back"
                       >
-                        &times;
+                        &lt; Back
                       </button>
-                      <h3 className="text-lg font-semibold mb-4">
-                        Submit Your Work
-                      </h3>
+                      <h2 className="text-center font-semibold text-lg mb-6 mt-2">
+                        Submit Task
+                      </h2>
                       <form onSubmit={handleSubmitSubmission}>
-                        <input
-                          type="text"
-                          className="block w-full mb-3 border border-gray-300 rounded px-3 py-2"
-                          placeholder="Title"
-                          value={submissionTitle}
-                          onChange={(e) => setSubmissionTitle(e.target.value)}
-                          required
-                        />
-                        <textarea
-                          className="block w-full mb-3 border border-gray-300 rounded px-3 py-2"
-                          placeholder="Description"
-                          value={submissionDesc}
-                          onChange={(e) => setSubmissionDesc(e.target.value)}
-                          required
-                        />
-                        <input
-                          type="file"
-                          accept="image/*,application/pdf"
-                          className="block w-full mb-4"
-                          onChange={(e) =>
-                            setSubmissionFile(e.target.files?.[0] || null)
-                          }
-                          required
-                        />
-                        <Button
-                          type="submit"
-                          className="bg-green-600 hover:bg-green-700 text-white w-full"
-                          disabled={isSubmitting}
-                        >
-                          {isSubmitting ? "Submitting..." : "Submit Work"}
-                        </Button>
+                        <div className="mb-4">
+                          <label className="block text-xs font-semibold mb-1">
+                            UPI ID
+                          </label>
+                          <input
+                            type="text"
+                            className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-200"
+                            placeholder="Name"
+                            value={submissionTitle}
+                            onChange={(e) => setSubmissionTitle(e.target.value)}
+                            required
+                          />
+                        </div>
+                        <div className="mb-4">
+                          <label className="block text-xs font-semibold mb-1">
+                            UPI Name
+                          </label>
+                          <input
+                            type="text"
+                            className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-200"
+                            placeholder="Skills Required"
+                            value={submissionDesc}
+                            onChange={(e) => setSubmissionDesc(e.target.value)}
+                            required
+                          />
+                        </div>
+                        <div className="mb-4">
+                          <label className="block text-xs font-semibold mb-1">
+                            File Upload
+                          </label>
+                          <div className="relative border-2 border-gray-300 border-dashed rounded flex flex-col items-center justify-center py-7 cursor-pointer hover:border-purple-400 transition-all">
+                            <input
+                              type="file"
+                              accept="image/*,application/pdf"
+                              className="opacity-0 absolute inset-0 h-full w-full cursor-pointer"
+                              onChange={(e) =>
+                                setSubmissionFile(e.target.files?.[0] || null)
+                              }
+                              required
+                            />
+                            <span className="text-gray-400 text-2xl mb-2">
+                              &#8682;
+                            </span>
+                            <span className="text-gray-500 text-sm">
+                              Upload File
+                            </span>
+                          </div>
+                        </div>
+                        <div className="flex items-center mb-6">
+                          <input
+                            type="checkbox"
+                            id="agreement"
+                            className="mr-2 accent-purple-600"
+                            required
+                          />
+                          <label
+                            htmlFor="agreement"
+                            className="text-xs text-gray-700"
+                          >
+                            I agree that all information given above is genuine.
+                          </label>
+                        </div>
+                        <div className="flex gap-2">
+                          <Button
+                            type="submit"
+                            className="bg-purple-600 hover:bg-purple-700 text-white flex-1"
+                            disabled={isSubmitting}
+                          >
+                            Submit
+                          </Button>
+                          <button
+                            type="button"
+                            onClick={() => setShowSubmitModal(false)}
+                            className="border border-gray-400 rounded flex-1 py-2 text-gray-700 hover:bg-gray-100"
+                          >
+                            Cancel
+                          </button>
+                        </div>
                       </form>
                     </div>
                   </div>

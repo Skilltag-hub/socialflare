@@ -4,6 +4,7 @@ import { ObjectId } from "mongodb";
 
 // Define the Gig type for TypeScript
 type Gig = {
+  companyId: string;
   companyName: string;
   openings: number;
   description: string;
@@ -42,13 +43,33 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
+    // Require authentication
+    const { getServerSession } = await import("next-auth/next");
+    const { authOptions } = await import("@/lib/authOptions");
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.email) {
+      return NextResponse.json(
+        { error: "Not authenticated as company" },
+        { status: 401 }
+      );
+    }
+
     const client = await clientPromise;
     const db = client.db("waitlist");
     const gigsCollection = db.collection<Gig>("gigs");
+    const companiesCollection = db.collection("companies");
+
+    // Find the company by email
+    const company = await companiesCollection.findOne({ email: session.user.email });
+    if (!company || !company._id) {
+      return NextResponse.json(
+        { error: "Company not found or not onboarded" },
+        { status: 403 }
+      );
+    }
 
     // Parse the request body
     const gigData = await request.json();
-    
     // Validate required fields
     if (!gigData.companyName || !gigData.description || !gigData.payment) {
       return NextResponse.json(
@@ -57,8 +78,9 @@ export async function POST(request: Request) {
       );
     }
 
-    // Create a new gig document
+    // Create a new gig document with companyId
     const newGig: Gig = {
+      companyId: company._id.toString(),
       companyName: gigData.companyName,
       openings: gigData.openings || 1,
       description: gigData.description,

@@ -3,7 +3,22 @@
 import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Check, X, Eye, FileText, Send, Clock, ArrowLeft } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+  TooltipProvider,
+} from "@/components/ui/tooltip";
+import {
+  Check,
+  X,
+  Eye,
+  FileText,
+  Send,
+  Clock,
+  ArrowLeft,
+  FunnelPlus,
+} from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -491,32 +506,55 @@ export default function CompaniesJobApplicationsPage({
                         >
                           View Profile
                         </Button>
-                        <Button
-                          onClick={() =>
-                            handleStatusUpdate(applicant._id, "shortlisted")
-                          }
-                          variant="outline"
-                          className="border-yellow-400 text-yellow-700 hover:bg-yellow-50 bg-transparent"
-                        >
-                          Shortlist
-                        </Button>
-                        <Button
-                          onClick={() =>
-                            handleStatusUpdate(applicant._id, "accepted")
-                          }
-                          className="bg-green-600 hover:bg-green-700 text-white px-4"
-                        >
-                          Accept
-                        </Button>
-                        <Button
-                          onClick={() =>
-                            handleStatusUpdate(applicant._id, "rejected")
-                          }
-                          variant="outline"
-                          className="border-red-300 text-red-600 hover:bg-red-50 bg-transparent"
-                        >
-                          Reject
-                        </Button>
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger>
+                              <Button
+                                onClick={() =>
+                                  handleStatusUpdate(
+                                    applicant._id,
+                                    "shortlisted"
+                                  )
+                                }
+                                variant="outline"
+                                className="border-yellow-400 text-yellow-700 hover:bg-yellow-50 bg-transparent p-2 rounded-full"
+                                aria-label="Shortlist"
+                              >
+                                <FunnelPlus className="w-5 h-5" />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>Shortlist</TooltipContent>
+                          </Tooltip>
+                          <Tooltip>
+                            <TooltipTrigger>
+                              <Button
+                                onClick={() =>
+                                  handleStatusUpdate(applicant._id, "accepted")
+                                }
+                                className="bg-green-600 hover:bg-green-700 text-white p-2 rounded-full"
+                                aria-label="Accept"
+                              >
+                                <Check className="w-5 h-5" />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>Accept</TooltipContent>
+                          </Tooltip>
+                          <Tooltip>
+                            <TooltipTrigger>
+                              <Button
+                                onClick={() =>
+                                  handleStatusUpdate(applicant._id, "rejected")
+                                }
+                                variant="outline"
+                                className="border-red-300 text-red-600 hover:bg-red-50 bg-transparent p-2 rounded-full"
+                                aria-label="Reject"
+                              >
+                                <X className="w-5 h-5" />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>Reject</TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
                       </div>
                     </div>
                   );

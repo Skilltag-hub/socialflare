@@ -363,8 +363,10 @@ export async function PATCH(req: Request) {
     });
   }
 
+  let reqBody;
   try {
-    const { gigId, action, value } = await req.json();
+    reqBody = await req.json();
+    const { gigId, action, value } = reqBody;
 
     if (!gigId || !action) {
       return new Response(
@@ -436,7 +438,7 @@ export async function PATCH(req: Request) {
             },
             {
               $push: { "gigs.$.submissions": submission },
-              $set: { "gigs.$.updatedAt": now },
+              $set: { "gigs.$.updatedAt": now, "gigs.$.status": "completed" },
             },
             { session: dbSession }
           );
@@ -448,7 +450,7 @@ export async function PATCH(req: Request) {
             },
             {
               $push: { "applications.$.submissions": submission },
-              $set: { "applications.$.lastUpdated": now },
+              $set: { "applications.$.lastUpdated": now, "applications.$.status": "completed" },
             },
             { session: dbSession }
           );
