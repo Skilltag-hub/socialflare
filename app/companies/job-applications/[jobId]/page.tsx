@@ -28,7 +28,7 @@ type ApplicationStatus =
   | "shortlisted"
   | "accepted"
   | "rejected"
-  | "submitted";
+  | "completed";
 
 interface Applicant {
   _id: string;
@@ -77,6 +77,8 @@ export default function CompaniesJobApplicationsPage({
     Record<string, UserData | null>
   >({});
   const [jobId, setJobId] = useState<string | null>(null);
+  const [showSubmissionModal, setShowSubmissionModal] = useState(false);
+  const [selectedSubmission, setSelectedSubmission] = useState<any>(null);
 
   useEffect(() => {
     async function initializeParams() {
@@ -269,7 +271,7 @@ export default function CompaniesJobApplicationsPage({
         (activeTab === "shortlisted" && applicant.status === "shortlisted") ||
         (activeTab === "accepted" && applicant.status === "accepted") ||
         (activeTab === "rejected" && applicant.status === "rejected") ||
-        (activeTab === "submitted" && applicant.status === "submitted");
+        (activeTab === "submitted" && applicant.status === "completed");
 
       console.log("Applicant:", {
         id: applicant._id,
@@ -316,57 +318,110 @@ export default function CompaniesJobApplicationsPage({
     }
   };
 
-  const handleStatusUpdate = async (
+  async function handleStatusUpdate(
     applicantId: string,
     newStatus: ApplicationStatus
-  ) => {
-    if (!jobId) return;
-
+  ) {
     try {
-      // Update the UI optimistically
-      setJob((prevJob) => {
-        if (!prevJob) return prevJob;
-        return {
-          ...prevJob,
-          applicants: prevJob.applicants.map((app) =>
-            app._id === applicantId ? { ...app, status: newStatus } : app
-          ),
-        };
-      });
-
-      const res = await fetch(`/api/gigs/${jobId}/applicants/${applicantId}`, {
+      const res = await fetch(`/api/gigs/${jobId}/applications`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: newStatus }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          userId: applicantId,
+          status: newStatus,
+        }),
       });
 
       if (!res.ok) {
-        throw new Error("Failed to update status");
+        throw new Error(`Failed to update status: ${res.statusText}`);
       }
 
-      // Refresh the job data to ensure consistency
-      const jobRes = await fetch(`/api/gigs/${jobId}`);
-      if (!jobRes.ok) throw new Error("Failed to refresh job");
-      const response = await jobRes.json();
-      const updatedJob = response.gig || response;
-
-      setJob(updatedJob);
+      // Refresh the job data to get updated applicant statuses
+      await fetchJob();
     } catch (error) {
-      console.error("Error updating status:", error);
-      // Revert optimistic update on error
-      setJob((prevJob) => {
-        if (!prevJob) return prevJob;
-        return {
-          ...prevJob,
-          applicants: prevJob.applicants.map((app) =>
-            app._id === applicantId
-              ? { ...app, status: app.status } // Revert to previous status
-              : app
-          ),
-        };
-      });
+      console.error("Error updating applicant status:", error);
+      // You might want to show a toast notification here
     }
-  };
+  }
+
+  async function handleViewSubmission(applicantId: string) {
+    try {
+      console.log("handleViewSubmission called with applicantId:", applicantId);
+      console.log("Current jobId:", jobId);
+
+      // Fetch the gig data to get the submission from the applications array
+      const res = await fetch(`/api/gigs/${jobId}`);
+      console.log("API response status:", res.status);
+
+      if (!res.ok) {
+        throw new Error(`Failed to fetch gig data: ${res.statusText}`);
+      }
+
+      const response = await res.json();
+      const gigData = response.gig || response;
+      console.log("Gig data received:", gigData);
+      console.log("Applications array:", gigData.applications);
+
+      // Find the application for this applicant
+      const application = gigData.applications?.find(
+        (app: any) => app.userId === applicantId
+      );
+      console.log("Found application:", application);
+
+      if (
+        application &&
+        application.submissions &&
+        Array.isArray(application.submissions) &&
+        application.submissions.length > 0
+      ) {
+        console.log("Submissions found:", application.submissions);
+
+        // Get user name from userDataMap using userId
+        const userData = Object.values(userDataMap).find(
+          (user) => user?._id === applicantId
+        );
+        const applicantName = userData?.name || "Unknown User";
+
+        const submissionData = {
+          applicantId,
+          submission: application.submissions, // Keep as array
+          applicantName,
+        };
+        console.log("Setting submission data:", submissionData);
+        setSelectedSubmission(submissionData);
+        setShowSubmissionModal(true);
+        console.log("Modal should now be visible");
+      } else {
+        console.warn("No submissions found for this applicant");
+        console.log("Application object:", application);
+        console.log("Submissions field:", application?.submissions);
+
+        // Get user name from userDataMap using userId
+        const userData = Object.values(userDataMap).find(
+          (user) => user?._id === applicantId
+        );
+        const applicantName = userData?.name || "Unknown User";
+
+        // Show modal anyway for debugging
+        setSelectedSubmission({
+          applicantId,
+          submission: [],
+          applicantName,
+        });
+        setShowSubmissionModal(true);
+      }
+    } catch (error) {
+      console.error("Error fetching submission:", error);
+    }
+  }
+
+  function handleSendTask(applicantId: string) {
+    // Implement task sending logic here
+    console.log("Sending task to applicant:", applicantId);
+    // You might want to open a modal or navigate to a task creation page
+  }
   const tabs = [
     { key: "applied" as const, label: "Applied" }, // more accurate labeling
     { key: "shortlisted" as const, label: "Shortlisted" },
@@ -506,55 +561,85 @@ export default function CompaniesJobApplicationsPage({
                         >
                           View Profile
                         </Button>
-                        <TooltipProvider>
-                          <Tooltip>
-                            <TooltipTrigger>
-                              <Button
-                                onClick={() =>
-                                  handleStatusUpdate(
-                                    applicant._id,
-                                    "shortlisted"
-                                  )
-                                }
-                                variant="outline"
-                                className="border-yellow-400 text-yellow-700 hover:bg-yellow-50 bg-transparent p-2 rounded-full"
-                                aria-label="Shortlist"
-                              >
-                                <FunnelPlus className="w-5 h-5" />
-                              </Button>
-                            </TooltipTrigger>
-                            <TooltipContent>Shortlist</TooltipContent>
-                          </Tooltip>
-                          <Tooltip>
-                            <TooltipTrigger>
-                              <Button
-                                onClick={() =>
-                                  handleStatusUpdate(applicant._id, "accepted")
-                                }
-                                className="bg-green-600 hover:bg-green-700 text-white p-2 rounded-full"
-                                aria-label="Accept"
-                              >
-                                <Check className="w-5 h-5" />
-                              </Button>
-                            </TooltipTrigger>
-                            <TooltipContent>Accept</TooltipContent>
-                          </Tooltip>
-                          <Tooltip>
-                            <TooltipTrigger>
-                              <Button
-                                onClick={() =>
-                                  handleStatusUpdate(applicant._id, "rejected")
-                                }
-                                variant="outline"
-                                className="border-red-300 text-red-600 hover:bg-red-50 bg-transparent p-2 rounded-full"
-                                aria-label="Reject"
-                              >
-                                <X className="w-5 h-5" />
-                              </Button>
-                            </TooltipTrigger>
-                            <TooltipContent>Reject</TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
+                        {/* Show View Submission button for completed applications under submitted tab */}
+                        {activeTab === "submitted" &&
+                        applicant.status === "completed" ? (
+                          <Button
+                            variant="outline"
+                            className="text-sm px-4 py-1 border-blue-300 text-blue-700 hover:bg-blue-50 bg-transparent"
+                            onClick={() => handleViewSubmission(applicant._id)}
+                          >
+                            <Eye className="w-4 h-4 mr-2" />
+                            View Submission
+                          </Button>
+                        ) : activeTab === "accepted" &&
+                          applicant.status === "accepted" ? (
+                          /* Show Send Task button for accepted applications */
+                          <Button
+                            variant="outline"
+                            className="text-sm px-4 py-1 border-green-300 text-green-700 hover:bg-green-50 bg-transparent"
+                            onClick={() => handleSendTask(applicant._id)}
+                          >
+                            <Send className="w-4 h-4 mr-2" />
+                            Send Task
+                          </Button>
+                        ) : (
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger>
+                                <Button
+                                  onClick={() =>
+                                    handleStatusUpdate(
+                                      applicant._id,
+                                      "shortlisted"
+                                    )
+                                  }
+                                  variant="outline"
+                                  className="bg-white hover:bg-yellow-500 text-yellow-500 hover:text-white transition-colors p-2 rounded-full"
+                                  aria-label="Shortlist"
+                                >
+                                  <FunnelPlus className="w-5 h-5" />
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>Shortlist</TooltipContent>
+                            </Tooltip>
+                            <Tooltip>
+                              <TooltipTrigger>
+                                <Button
+                                  onClick={() =>
+                                    handleStatusUpdate(
+                                      applicant._id,
+                                      "accepted"
+                                    )
+                                  }
+                                  className="bg-white hover:bg-green-500 text-green-500 hover:text-white transition-colors p-2 rounded-full"
+                                  aria-label="Accept"
+                                >
+                                  <Check className="w-5 h-5" />
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>Accept</TooltipContent>
+                            </Tooltip>
+                            <Tooltip>
+                              <TooltipTrigger>
+                                <Button
+                                  onClick={() =>
+                                    handleStatusUpdate(
+                                      applicant._id,
+                                      "rejected"
+                                    )
+                                  }
+                                  variant="outline"
+                                  className="bg-white hover:bg-red-500 text-red-500 hover:text-white transition-colors p-2 rounded-full"
+                                  aria-label="Reject"
+                                >
+                                  <X className="w-5 h-5" />
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>Reject</TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        )}
                       </div>
                     </div>
                   );
@@ -564,6 +649,174 @@ export default function CompaniesJobApplicationsPage({
           </CardContent>
         </Card>
       </div>
+
+      {/* Submission Modal */}
+      {showSubmissionModal && selectedSubmission && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+          style={{ zIndex: 9999 }}
+        >
+          <div className="bg-white rounded-lg p-6 max-w-2xl w-full mx-4 max-h-[80vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-semibold text-gray-900">
+                Submission by {selectedSubmission.applicantName}
+              </h2>
+              <Button
+                variant="outline"
+                onClick={() => setShowSubmissionModal(false)}
+                className="p-2"
+              >
+                <X className="w-4 h-4" />
+              </Button>
+            </div>
+
+            <div className="space-y-4">
+              {/* Display first submission only */}
+              {Array.isArray(selectedSubmission.submission) &&
+              selectedSubmission.submission.length > 0 ? (
+                (() => {
+                  const firstSubmission = selectedSubmission.submission[0];
+                  const fileUrl = firstSubmission.fileUrl;
+                  const isImage =
+                    fileUrl && /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(fileUrl);
+                  const isPdf = fileUrl && /\.pdf$/i.test(fileUrl);
+                  const submittedDate = firstSubmission.submittedAt
+                    ? new Date(firstSubmission.submittedAt).toLocaleString()
+                    : "Unknown";
+
+                  return (
+                    <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+                      {/* Submission Header */}
+                      <div className="flex justify-between items-start mb-4">
+                        <div>
+                          <h3 className="text-lg font-semibold text-gray-900 mb-1">
+                            {firstSubmission.title || "Untitled Submission"}
+                          </h3>
+                          <p className="text-sm text-gray-500">
+                            Submitted on {submittedDate}
+                          </p>
+                        </div>
+                        {selectedSubmission.submission.length > 1 && (
+                          <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded">
+                            +{selectedSubmission.submission.length - 1} more
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Description */}
+                      {firstSubmission.description && (
+                        <div className="mb-4">
+                          <h4 className="font-medium text-gray-900 mb-2">
+                            Description:
+                          </h4>
+                          <p className="text-gray-700 bg-gray-50 p-3 rounded">
+                            {firstSubmission.description}
+                          </p>
+                        </div>
+                      )}
+
+                      {/* UPI Details */}
+                      {(firstSubmission.upiId || firstSubmission.upiName) && (
+                        <div className="mb-4">
+                          <h4 className="font-medium text-gray-900 mb-2">
+                            Payment Details:
+                          </h4>
+                          <div className="bg-gray-50 p-3 rounded space-y-1">
+                            {firstSubmission.upiName && (
+                              <p className="text-sm">
+                                <span className="font-medium">UPI Name:</span>{" "}
+                                {firstSubmission.upiName}
+                              </p>
+                            )}
+                            {firstSubmission.upiId && (
+                              <p className="text-sm">
+                                <span className="font-medium">UPI ID:</span>{" "}
+                                {firstSubmission.upiId}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* File Viewer */}
+                      {fileUrl && (
+                        <div className="mb-4">
+                          <h4 className="font-medium text-gray-900 mb-2">
+                            Submission File:
+                          </h4>
+                          <div className="border border-gray-200 rounded-lg overflow-hidden">
+                            {isImage ? (
+                              <div className="relative">
+                                <img
+                                  src={fileUrl}
+                                  alt="Submission"
+                                  className="w-full max-h-96 object-contain bg-gray-50"
+                                  onError={(e) => {
+                                    (
+                                      e.target as HTMLImageElement
+                                    ).style.display = "none";
+                                    (
+                                      e.target as HTMLImageElement
+                                    ).nextElementSibling?.classList.remove(
+                                      "hidden"
+                                    );
+                                  }}
+                                />
+                                <div className="hidden p-4 text-center text-gray-500">
+                                  Failed to load image
+                                </div>
+                              </div>
+                            ) : isPdf ? (
+                              <div className="bg-gray-50 p-4">
+                                <iframe
+                                  src={fileUrl}
+                                  className="w-full h-96 border-0"
+                                  title="PDF Viewer"
+                                />
+                              </div>
+                            ) : (
+                              <div className="p-4 text-center text-gray-500">
+                                <FileText className="w-12 h-12 mx-auto mb-2 text-gray-400" />
+                                <p>File preview not available</p>
+                              </div>
+                            )}
+
+                            {/* Download/View Link */}
+                            <div className="bg-gray-50 px-4 py-2 border-t border-gray-200">
+                              <a
+                                href={fileUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center text-blue-600 hover:text-blue-800 font-medium text-sm"
+                              >
+                                <Eye className="w-4 h-4 mr-1" />
+                                View Full File
+                              </a>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })()
+              ) : (
+                <div className="text-center py-8 text-gray-500">
+                  No submissions available for this applicant
+                </div>
+              )}
+            </div>
+
+            <div className="flex justify-end mt-6">
+              <Button
+                onClick={() => setShowSubmissionModal(false)}
+                className="bg-gray-600 hover:bg-gray-700 text-white"
+              >
+                Close
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

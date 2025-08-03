@@ -362,7 +362,7 @@ export default function Component() {
           <div className="px-4 space-y-4 pb-4 flex-1 overflow-y-auto">
             {loading ? (
               <div className="w-full flex items-center justify-center min-h-[300px]">
-                <Ripples size={45} speed={2} color="blue" />
+                <Ripples size={45} speed={2} color="#5E17EB" />
               </div>
             ) : activeTab === "all" ? (
               gigs.map((gig, index) => (

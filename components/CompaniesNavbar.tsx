@@ -44,16 +44,12 @@ export default function CompaniesNavbar() {
       <div className="w-64 bg-black p-6 flex-col min-h-screen hidden lg:fixed lg:flex lg:top-0 lg:left-0 lg:h-screen">
         {/* Logo */}
         <div className="flex flex-col items-center justify-center mb-8">
-          <div className="w-40 h-16 flex items-center justify-center mb-2">
-            <img 
-              src="/zigwork-logo.svg" 
-              alt="ZigWork Logo" 
-              className="h-full w-auto object-contain"
-            />
-          </div>
-          <span className="text-white text-2xl font-light">
-            zig<span className="font-normal">work</span>
-          </span>
+          <div className="flex flex-col items-center justify-center mb-2">
+  <img src="/zigwork-logo.svg" alt="ZigWork Logo" className="w-16 h-16 object-contain" />
+</div>
+<span className="text-white text-2xl font-light">
+  zig<span className="font-normal">work</span>
+</span>
         </div>
         
         {/* Navigation */}
@@ -62,10 +58,10 @@ export default function CompaniesNavbar() {
             <Link href={href} key={href}>
               <Button
                 asChild
-                className={`w-full justify-start bg-transparent ${
+                className={`w-full justify-start bg-transparent transition-colors duration-150 ${
                   pathname === href
-                    ? "text-purple-400 hover:bg-transparent hover:text-purple-200"
-                    : "text-gray-400 hover:bg-transparent hover:text-purple-200"
+                    ? "text-[#5E17EB]"
+                    : "text-gray-400 hover:text-[#5E17EB]"
                 }`}
               >
                 <span className="flex items-center">
@@ -100,7 +96,7 @@ export default function CompaniesNavbar() {
       </div>
 
       {/* Mobile Navbar (hidden on large screens) */}
-      <div className="absolute bottom-4 inset-x-0 w-full px-4 py-4 rounded-3xl z-40 lg:hidden bg-purple-600">
+      <div className="absolute bottom-4 inset-x-0 w-full px-4 py-4 rounded-3xl z-40 lg:hidden bg-transparent">
         <div className="flex items-center justify-around">
           {navItems.map(({ name, href, icon: Icon }) => (
             <Link href={href} key={href}>

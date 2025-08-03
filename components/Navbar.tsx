@@ -47,8 +47,12 @@ export default function Navbar() {
       <div className="w-64 bg-black p-6 flex-col min-h-screen hidden lg:fixed lg:flex lg:top-0 lg:left-0 lg:h-screen">
         {/* Logo */}
         <div className="flex flex-col items-center justify-center mb-8">
-          <div className="w-16 h-16 bg-purple-600 rounded-lg flex items-center justify-center mb-4">
-            <div className="w-8 h-12 bg-white transform rotate-12 rounded-sm"></div>
+          <div className="flex flex-col items-center justify-center mb-4">
+            <img
+              src="/zigwork-logo.svg"
+              alt="ZigWork Logo"
+              className="w-16 h-16 object-contain"
+            />
           </div>
           <span className="text-white text-2xl font-light text-center">
             zig<span className="font-normal">work</span>
@@ -60,10 +64,10 @@ export default function Navbar() {
             <Link href={href} key={href}>
               <Button
                 asChild
-                className={`w-full justify-start bg-transparent ${
+                className={`w-full justify-start bg-transparent transition-colors duration-150 ${
                   pathname === href
-                    ? "text-purple-400 hover:bg-transparent hover:text-purple-200"
-                    : "text-gray-400 hover:bg-transparent hover:text-purple-200"
+                    ? "text-[#5E17EB]"
+                    : "text-gray-400 hover:text-[#5E17EB]"
                 }`}
               >
                 <span className="flex items-center">
@@ -96,7 +100,7 @@ export default function Navbar() {
       </div>
 
       {/* Mobile Navbar (hidden on large screens) */}
-      <div className="absolute bottom-4 inset-x-0 w-full px-4 py-4 rounded-3xl z-40 lg:hidden bg-purple-600">
+      <div className="absolute bottom-4 inset-x-0 w-full px-4 py-4 rounded-3xl z-40 lg:hidden bg-transparent">
         <div className="flex items-center justify-around">
           {navItems.map(({ name, href, icon: Icon }) => (
             <Link href={href} key={href}>
@@ -104,9 +108,11 @@ export default function Navbar() {
                 asChild
                 variant="ghost"
                 size="icon"
-                className={`h-12 w-12 ${
-                  pathname === href ? "text-white" : "text-purple-200"
-                } hover:bg-purple-500`}
+                className={`h-12 w-12 transition-colors duration-150 ${
+                  pathname === href
+                    ? "text-[#5E17EB]"
+                    : "text-gray-400 hover:text-[#5E17EB]"
+                }`}
               >
                 <span className="flex flex-col items-center">
                   <Icon className="w-6 h-6 fill-current" />

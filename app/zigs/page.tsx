@@ -14,8 +14,8 @@ import {
   Filter,
 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { Ripples } from 'ldrs/react';
-import 'ldrs/react/Ripples.css';
+import { Ripples } from "ldrs/react";
+import "ldrs/react/Ripples.css";
 
 import { useSession } from "next-auth/react";
 import Navbar from "@/components/Navbar";
@@ -545,9 +545,9 @@ export default function Component() {
           {/* Job Cards Grid */}
           <div className="flex-1 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl">
             {loading ? (
-  <div className="col-span-3 flex items-center justify-center min-h-[400px]">
-    <Ripples size={90} speed={2} color="purple" />
-  </div>
+              <div className="col-span-3 flex items-center justify-center min-h-[400px]">
+                <Ripples size={90} speed={2} color="#5E17EB" />
+              </div>
             ) : filteredApplications.length > 0 ? (
               // Show applications
               filteredApplications.map((application, index) => (
