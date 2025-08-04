@@ -32,7 +32,9 @@ type ApplicationStatus =
   | "rejected"
   | "completed"
   | "withdrawal_requested"
-  | "withdrawal_processed";
+  | "withdrawal_processed"
+  | "work_accepted"
+  | "work_rejected";
 
 interface Applicant {
   _id: string;
@@ -297,6 +299,37 @@ export default function CompaniesJobApplicationsPage({
     return tab;
   };
 
+  // Show toast notification
+  const showToast = (message: string, type: 'success' | 'error' | 'info' = 'info') => {
+    const style = {
+      success: { background: 'green', color: 'white' },
+      error: { background: 'red', color: 'white' },
+      info: { background: 'blue', color: 'white' }
+    }[type];
+    
+    const toast = document.createElement('div');
+    toast.textContent = message;
+    toast.style.position = 'fixed';
+    toast.style.bottom = '20px';
+    toast.style.right = '20px';
+    toast.style.padding = '12px 24px';
+    toast.style.borderRadius = '4px';
+    toast.style.color = style.color;
+    toast.style.backgroundColor = style.background;
+    toast.style.zIndex = '1000';
+    toast.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+    toast.style.transition = 'opacity 0.3s ease-in-out';
+    
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+      toast.style.opacity = '0';
+      setTimeout(() => {
+        document.body.removeChild(toast);
+      }, 300);
+    }, 3000);
+  };
+
   // Filter applicants based on active tab
   const filteredApplicants =
     job?.applicants?.filter((applicant) => {
@@ -355,11 +388,15 @@ export default function CompaniesJobApplicationsPage({
     }
   };
 
+  const [isUpdating, setIsUpdating] = useState<Record<string, boolean>>({});
+
   async function handleStatusUpdate(
     applicantId: string,
     newStatus: ApplicationStatus
   ) {
     try {
+      setIsUpdating(prev => ({ ...prev, [applicantId]: true }));
+      
       const res = await fetch(`/api/gigs/${jobId}/applications`, {
         method: "PATCH",
         headers: {
@@ -372,14 +409,20 @@ export default function CompaniesJobApplicationsPage({
       });
 
       if (!res.ok) {
-        throw new Error(`Failed to update status: ${res.statusText}`);
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.message || `Failed to update status: ${res.statusText}`);
       }
 
+      // Show success message
+      showToast(`Status updated to ${newStatus}`, 'success');
+      
       // Refresh the job data to get updated applicant statuses
       await fetchJob();
     } catch (error) {
       console.error("Error updating applicant status:", error);
-      // You might want to show a toast notification here
+      showToast(error instanceof Error ? error.message : 'Failed to update status', 'error');
+    } finally {
+      setIsUpdating(prev => ({ ...prev, [applicantId]: false }));
     }
   }
 
@@ -460,8 +503,12 @@ export default function CompaniesJobApplicationsPage({
     // You might want to open a modal or navigate to a task creation page
   }
 
+  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
+
   async function handlePaymentProcess(applicantId: string) {
     try {
+      setIsProcessingPayment(true);
+      
       // Update the status to withdrawal_processed
       const res = await fetch(`/api/gigs/${jobId}/applications`, {
         method: "PATCH",
@@ -475,8 +522,12 @@ export default function CompaniesJobApplicationsPage({
       });
 
       if (!res.ok) {
-        throw new Error(`Failed to update payment status: ${res.statusText}`);
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.message || `Failed to process payment: ${res.statusText}`);
       }
+
+      // Show success message
+      showToast('Payment processed successfully', 'success');
 
       // Close the payment modal
       setShowPaymentModal(false);
@@ -485,6 +536,9 @@ export default function CompaniesJobApplicationsPage({
       await fetchJob();
     } catch (error) {
       console.error("Error processing payment:", error);
+      showToast(error instanceof Error ? error.message : 'Failed to process payment', 'error');
+    } finally {
+      setIsProcessingPayment(false);
     }
   }
 
@@ -651,14 +705,43 @@ export default function CompaniesJobApplicationsPage({
                         {/* Show different buttons based on application status */}
                         {activeTab === "submitted" &&
                         applicant.status === "completed" ? (
-                          <Button
-                            variant="outline"
-                            className="text-sm px-4 py-1 border-blue-300 text-blue-700 hover:bg-blue-50 bg-transparent"
-                            onClick={() => handleViewSubmission(applicant._id)}
-                          >
-                            <Eye className="w-4 h-4 mr-2" />
-                            View Submission
-                          </Button>
+                          <div className="flex gap-2">
+                            <Button
+                              variant="outline"
+                              className="text-sm px-3 py-1 border-blue-300 text-blue-700 hover:bg-blue-50 bg-transparent"
+                              onClick={() => handleViewSubmission(applicant._id)}
+                            >
+                              <Eye className="w-4 h-4 mr-1" />
+                              View
+                            </Button>
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Button
+                                    onClick={() => handleStatusUpdate(applicant._id, "work_accepted")}
+                                    className="bg-white hover:bg-green-500 text-green-500 hover:text-white transition-colors p-1.5 rounded-full"
+                                    aria-label="Accept Work"
+                                  >
+                                    <Check className="w-4 h-4" />
+                                  </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>Accept Work</TooltipContent>
+                              </Tooltip>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Button
+                                    onClick={() => handleStatusUpdate(applicant._id, "work_rejected")}
+                                    variant="outline"
+                                    className="bg-white hover:bg-red-500 text-red-500 hover:text-white transition-colors p-1.5 rounded-full"
+                                    aria-label="Reject Work"
+                                  >
+                                    <X className="w-4 h-4" />
+                                  </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>Reject Work</TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          </div>
                         ) : activeTab === "submitted" &&
                           applicant.status === "withdrawal_requested" ? (
                           <Button

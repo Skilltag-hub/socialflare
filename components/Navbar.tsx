@@ -17,7 +17,6 @@ import { signOut } from "next-auth/react";
 const navItems = [
   { name: "Home", href: "/home", icon: Home },
   { name: "My Zigs", href: "/zigs", icon: FileText },
-  { name: "Gigs", href: "/gigs", icon: Clock3 },
   { name: "Notifications", href: "/notifications", icon: Bell },
   { name: "Profile", href: "/profile", icon: User },
 ];
@@ -28,8 +27,7 @@ export default function Navbar() {
     "/home",
     "/zigs",
     "/notifications",
-    "/profile",
-    "/gigs",
+    "/profile"
   ].includes(pathname);
   if (!showNavbar) return null;
 

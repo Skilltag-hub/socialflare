@@ -89,9 +89,11 @@ export default function Component() {
     if (applications.length > 0) {
       const filtered = applications.filter((app) => {
         if (activeFilter === "completed") {
-          // Include completed and withdrawal statuses in the completed tab
+          // Include completed, work_accepted, work_rejected and withdrawal statuses in the completed tab
           return [
             "completed",
+            "work_accepted",
+            "work_rejected",
             "withdrawal_requested",
             "withdrawal_processed",
           ].includes(app.status);
@@ -346,12 +348,20 @@ export default function Component() {
                 Submit
               </Button>
             ) : application.status === "completed" ? (
+              <div className="bg-yellow-100 text-yellow-800 text-xs font-medium px-3 py-1 rounded-full">
+                Under Review
+              </div>
+            ) : application.status === "work_accepted" ? (
               <Button
                 className="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-full"
                 onClick={() => setShowWithdrawModal(true)}
               >
                 Withdraw
               </Button>
+            ) : application.status === "work_rejected" ? (
+              <div className="bg-red-100 text-red-800 text-xs font-medium px-3 py-1 rounded-full">
+                Work Rejected
+              </div>
             ) : application.status === "withdrawal_requested" ? (
               <div className="bg-yellow-100 text-yellow-800 text-xs font-medium px-3 py-1 rounded-full">
                 Withdrawal Requested
@@ -551,11 +561,17 @@ export default function Component() {
           {/* Header */}
           <div className="flex items-center justify-between p-4 pt-8">
             <div>
-              <p className="text-gray-600 text-sm mb-1">Good morning, Luke!</p>
+              <p className="text-gray-600 text-sm mb-1">
+                Good morning, {session?.user?.name || "User"}!
+              </p>
               <p className="text-purple-600 text-xl font-semibold">My Zigs</p>
             </div>
             <Avatar className="w-12 h-12 bg-gray-300">
-              <AvatarFallback className="bg-gray-300"></AvatarFallback>
+              <AvatarImage
+                src={session?.user?.image || ""}
+                alt={session?.user?.name || "User"}
+                className="bg-gray-300"
+              />
             </Avatar>
           </div>
 
