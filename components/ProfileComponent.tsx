@@ -21,30 +21,57 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 
+interface CompanyData {
+  _id: string;
+  email: string;
+  googleId: string;
+  isOnboarded: boolean;
+  createdAt: string;
+  updatedAt: string;
+  businessEmail: string;
+  companyName: string;
+  companyWebsite: string;
+  contactName: string;
+  logoUrl: string;
+}
+
 interface ProfileComponentProps {
   userId?: string;
   hideEditButton?: boolean;
+  companyData?: CompanyData | null;
 }
 
-export default function ProfileComponent({ userId, hideEditButton }: ProfileComponentProps) {
+export default function ProfileComponent({ userId, hideEditButton, companyData }: ProfileComponentProps) {
   const { data: session, status } = useSession();
   const { toast } = useToast();
   const [referralLink, setReferralLink] = useState("");
   const [userData, setUserData] = useState({
-    name: "",
-    email: "",
-    image: "",
+    name: companyData?.contactName || "",
+    email: companyData?.email || "",
+    image: companyData?.logoUrl || "",
     description: "",
     status: "available",
     skills: [],
     gender: "",
     dateOfBirth: "",
-    phone: "+91 8008000988",
+    phone: "",
     referredPeople: [],
     referredBy: null,
   });
   const [referrals, setReferrals] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+
+  // Update user data when companyData changes
+  useEffect(() => {
+    if (companyData) {
+      setUserData(prev => ({
+        ...prev,
+        name: companyData.contactName,
+        email: companyData.email,
+        image: companyData.logoUrl
+      }));
+    }
+  }, [companyData]);
 
   // Fetch user data when session is available
   useEffect(() => {

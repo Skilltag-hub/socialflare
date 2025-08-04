@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -25,6 +26,9 @@ export default function MyZigs() {
   const [jobs, setJobs] = useState([]);
   const [applications, setApplications] = useState({});
   const [isPopulating, setIsPopulating] = useState(false);
+  const [hasLoaded, setHasLoaded] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   // Fetch companyId after session loads
   useEffect(() => {
@@ -46,14 +50,15 @@ export default function MyZigs() {
     fetchCompanyId();
   }, [session, status]);
 
+  const router = useRouter();
+
   // Fetch jobs only after companyId is set
   useEffect(() => {
-    if (companyId) {
-      fetchJobs();
-    } else {
-      setJobs([]);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    const fetchJobs = async () => {
+      if (!companyId) return;
+      // Implementation will be handled by the fetchJobs function below
+    };
+    fetchJobs();
   }, [companyId]);
 
   async function fetchJobs() {
@@ -281,9 +286,40 @@ export default function MyZigs() {
             </Button>
           </div>
           <div className="grid grid-cols-3 gap-4 overflow-y-auto scrollbar-hide h-[calc(100vh-10vh-140px)]">
-            {jobs.length === 0 ? (
-              <div className="col-span-3 flex items-center justify-center min-h-[300px]">
+            {isLoading ? (
+              <div className="col-span-3 flex flex-col items-center justify-center min-h-[300px] space-y-4">
                 <Ripples size={60} speed={2} color="#5E17EB" />
+                <p className="text-gray-400">Loading your zigs...</p>
+              </div>
+            ) : error ? (
+              <div className="col-span-3 flex flex-col items-center justify-center min-h-[300px] space-y-4 p-6 text-center">
+                <div className="bg-red-500/10 p-4 rounded-full">
+                  <Zap className="w-8 h-8 text-red-500" />
+                </div>
+                <h3 className="text-xl font-medium text-white">Something went wrong</h3>
+                <p className="text-gray-400 max-w-md">{error}</p>
+                <Button 
+                  onClick={() => window.location.reload()}
+                  className="mt-2 bg-[#5E17EB] hover:bg-[#5E17EB]/90"
+                >
+                  Try Again
+                </Button>
+              </div>
+            ) : filteredJobs.length === 0 ? (
+              <div className="col-span-3 flex flex-col items-center justify-center min-h-[300px] space-y-4 p-6 text-center">
+                <div className="bg-[#5E17EB]/10 p-4 rounded-full">
+                  <Zap className="w-8 h-8 text-[#5E17EB]" />
+                </div>
+                <h3 className="text-xl font-medium text-white">No zigs yet</h3>
+                <p className="text-gray-400 max-w-md">
+                  You haven't posted any zigs yet. Create your first zig to get started.
+                </p>
+                <Button 
+                  onClick={() => router.push('/companies/post-job')}
+                  className="mt-2 bg-[#5E17EB] hover:bg-[#5E17EB]/90"
+                >
+                  Post Your First Zig
+                </Button>
               </div>
             ) : (
               filteredJobs.map((job) => (

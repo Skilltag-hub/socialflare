@@ -1,43 +1,15 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
-import { gsap } from "gsap";
-import { Eye, EyeOff } from "lucide-react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/Button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Link from "next/link";
+import { Button } from "@/components/ui/Button";
 import { signIn } from "next-auth/react";
 
 export default function CompaniesLoginPage() {
-  const [showPassword, setShowPassword] = useState(false);
-  const [activeTab, setActiveTab] = useState("register");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const contentRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
-
-  useEffect(() => {
-    if (containerRef.current && contentRef.current) {
-      const container = containerRef.current;
-      setTimeout(() => {
-        const currentHeight = container.offsetHeight;
-        gsap.set(container, { height: "auto" });
-        const targetHeight = container.offsetHeight;
-        gsap.set(container, { height: currentHeight });
-        gsap.to(container, {
-          height: targetHeight,
-          duration: 0.6,
-          ease: "elastic",
-        });
-      }, 10);
-    }
-  }, [activeTab]);
 
   // Handle Google OAuth login
   const handleGoogleSignIn = async () => {
@@ -91,313 +63,82 @@ export default function CompaniesLoginPage() {
     }
   };
 
-  // Handle login form submit
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError("");
-    setLoading(true);
-    const res = await signIn("credentials", {
-      redirect: false,
-      email,
-      password,
-    });
-    setLoading(false);
-    if (res && res.ok) {
-      router.push("/companies/details");
-    } else {
-      setError("Invalid email or password");
-    }
-  };
-
-  // Handle register form submit (placeholder)
-  const handleRegister = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError("");
-    setLoading(true);
-    // Here you would call your company registration API
-    setTimeout(() => {
-      setLoading(false);
-      router.push("/companies/dashboard");
-    }, 1000);
-  };
-
   return (
     <div
       className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden"
       style={{
         background: `
-    radial-gradient(circle at 20% -20%, #c4f542 0%, #c4f542 15%, rgba(196, 245, 66, 0.6) 35%, rgba(196, 245, 66, 0.2) 50%, transparent 70%),
-    radial-gradient(circle at 80% -10%, #c4f542 0%, #c4f542 8%, rgba(196, 245, 66, 0.4) 20%, rgba(196, 245, 66, 0.1) 35%, transparent 50%),
-    #f8f9fa
-  `,
+          radial-gradient(circle at 20% -20%, #c4f542 0%, #c4f542 15%, rgba(196, 245, 66, 0.6) 35%, rgba(196, 245, 66, 0.2) 50%, transparent 70%),
+          radial-gradient(circle at 80% -10%, #c4f542 0%, #c4f542 8%, rgba(196, 245, 66, 0.4) 20%, rgba(196, 245, 66, 0.1) 35%, transparent 50%),
+          #f8f9fa
+        `,
       }}
     >
-      <div
-        ref={containerRef}
-        className="w-full max-w-md bg-white rounded-md shadow-lg overflow-hidden"
-      >
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-2 bg-gray-100 rounded-none rounded-t-md p-0 h-auto">
-            <TabsTrigger
-              value="register"
-              className="rounded-none rounded-tl-md px-6 py-4 text-sm font-medium transition-all data-[state=active]:shadow-none data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=inactive]:text-gray-600 data-[state=inactive]:bg-gray-100"
+      <div className="w-full max-w-md bg-white rounded-md shadow-lg overflow-hidden">
+        <div className="p-8">
+          <h1 className="text-2xl font-bold text-gray-900 mb-6 text-center">
+            Company Sign In
+          </h1>
+          
+          {error && (
+            <div className="mb-4 p-3 bg-red-50 text-red-700 text-sm rounded-md">
+              {error}
+            </div>
+          )}
+
+          <Button
+            onClick={handleGoogleSignIn}
+            variant="outline"
+            className="w-full flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 h-[45px]"
+            disabled={loading}
+          >
+            <svg
+              className="w-5 h-5 mr-2"
+              viewBox="0 0 24 24"
+              width="24"
+              height="24"
+              xmlns="http://www.w3.org/2000/svg"
             >
-              Register
-            </TabsTrigger>
-            <TabsTrigger
-              value="login"
-              className="rounded-none rounded-tr-md px-6 py-4 text-sm font-medium transition-all data-[state=active]:shadow-none data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=inactive]:text-gray-600 data-[state=inactive]:bg-gray-100"
-            >
-              Login
-            </TabsTrigger>
-          </TabsList>
-
-          <div ref={contentRef} className="p-8">
-            <TabsContent value="login" className="space-y-6 mt-0">
-              <div>
-                <h1 className="text-2xl font-bold text-gray-900 mb-6">
-                  Company Login
-                </h1>
-                <form onSubmit={handleLogin} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label
-                      htmlFor="email"
-                      className="text-sm font-medium text-gray-700"
-                    >
-                      Company Email
-                    </Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className="w-full h-[45px] px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label
-                      htmlFor="password"
-                      className="text-sm font-medium text-gray-400"
-                    >
-                      Password
-                    </Label>
-                    <div className="relative">
-                      <Input
-                        id="password"
-                        type={showPassword ? "text" : "password"}
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        className="w-full h-[45px] px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        required
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                      >
-                        {showPassword ? (
-                          <EyeOff className="h-4 w-4" />
-                        ) : (
-                          <Eye className="h-4 w-4" />
-                        )}
-                      </button>
-                    </div>
-                  </div>
-                  {error && <div className="text-red-500 text-sm">{error}</div>}
-                  <Button
-                    className="w-full h-[45px] bg-black hover:bg-gray-800 text-white py-3 rounded-lg font-medium"
-                    style={{ color: "#c4f542" }}
-                    type="submit"
-                    disabled={loading}
-                  >
-                    {loading ? "Logging in..." : "Continue"}
-                  </Button>
-
-                  <div className="relative">
-                    <div className="absolute inset-0 flex items-center">
-                      <span className="w-full border-t border-gray-300" />
-                    </div>
-                    <div className="relative flex justify-center text-sm">
-                      <span className="px-2 bg-white text-gray-500">or</span>
-                    </div>
-                  </div>
-
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={handleGoogleSignIn}
-                    disabled={loading}
-                    className="w-full h-[45px] py-3 border border-gray-300 rounded-lg hover:bg-gray-50 flex items-center justify-center space-x-2 bg-transparent"
-                  >
-                    <svg className="w-5 h-5" viewBox="0 0 24 24">
-                      <path
-                        fill="#4285F4"
-                        d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-                      />
-                      <path
-                        fill="#34A853"
-                        d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                      />
-                      <path
-                        fill="#FBBC05"
-                        d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-                      />
-                      <path
-                        fill="#EA4335"
-                        d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-                      />
-                    </svg>
-                    <span className="text-gray-700">
-                      {loading ? "Signing in..." : "Sign in with Google"}
-                    </span>
-                  </Button>
-                </form>
-              </div>
-            </TabsContent>
-
-            <TabsContent value="register" className="space-y-6 mt-0">
-              <div>
-                <h1 className="text-2xl font-bold text-gray-900 mb-6">
-                  Company Registration
-                </h1>
-                <form onSubmit={handleRegister} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label
-                      htmlFor="company-email"
-                      className="text-sm font-medium text-gray-700"
-                    >
-                      Company Email
-                    </Label>
-                    <Input
-                      id="company-email"
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className="w-full h-[45px] px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label
-                      htmlFor="company-password"
-                      className="text-sm font-medium text-gray-400"
-                    >
-                      Password
-                    </Label>
-                    <div className="relative">
-                      <Input
-                        id="company-password"
-                        type={showPassword ? "text" : "password"}
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        className="w-full h-[45px] px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        required
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                      >
-                        {showPassword ? (
-                          <EyeOff className="h-4 w-4" />
-                        ) : (
-                          <Eye className="h-4 w-4" />
-                        )}
-                      </button>
-                    </div>
-                  </div>
-                  {error && <div className="text-red-500 text-sm">{error}</div>}
-                  <Button
-                    className="w-full h-[45px] bg-black hover:bg-gray-800 text-white py-3 rounded-lg font-medium"
-                    style={{ color: "#c4f542" }}
-                    type="submit"
-                    disabled={loading}
-                  >
-                    {loading ? "Registering..." : "Register"}
-                  </Button>
-
-                  <div className="relative">
-                    <div className="absolute inset-0 flex items-center">
-                      <span className="w-full border-t border-gray-300" />
-                    </div>
-                    <div className="relative flex justify-center text-sm">
-                      <span className="px-2 bg-white text-gray-500">or</span>
-                    </div>
-                  </div>
-
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={handleGoogleSignIn}
-                    disabled={loading}
-                    className="w-full h-[45px] py-3 border border-gray-300 rounded-lg hover:bg-gray-50 flex items-center justify-center space-x-2 bg-transparent"
-                  >
-                    <svg className="w-5 h-5" viewBox="0 0 24 24">
-                      <path
-                        fill="#4285F4"
-                        d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-                      />
-                      <path
-                        fill="#34A853"
-                        d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                      />
-                      <path
-                        fill="#FBBC05"
-                        d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-                      />
-                      <path
-                        fill="#EA4335"
-                        d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-                      />
-                    </svg>
-                    <span className="text-gray-700">
-                      {loading ? "Signing in..." : "Continue with Google"}
-                    </span>
-                  </Button>
-
-                  <div className="text-center text-sm text-gray-600 mt-4">
-                    <p>
-                      By continuing to create an account, you agree to SkillTag{" "}
-                      <Link
-                        href="/terms"
-                        className="text-blue-600 hover:underline"
-                      >
-                        Terms & Conditions
-                      </Link>{" "}
-                      and{" "}
-                      <Link
-                        href="/privacy"
-                        className="text-blue-600 hover:underline"
-                      >
-                        Privacy Policy
-                      </Link>
-                    </p>
-                  </div>
-                </form>
-              </div>
-            </TabsContent>
-          </div>
-
-          <div className="px-8 pb-8">
-            <div className="pt-6 border-t border-gray-200">
-              <div className="flex justify-center space-x-6 text-sm text-gray-600 font-sans">
-                <Link href="/support" className="hover:text-gray-900">
-                  Support
-                </Link>
-                <span>•</span>
-                <Link href="/privacy" className="hover:text-gray-900">
-                  Privacy Policy
-                </Link>
-                <span>•</span>
-                <Link href="/terms" className="hover:text-gray-900">
-                  Terms & Conditions
-                </Link>
-              </div>
+              <g transform="matrix(1, 0, 0, 1, 27.009001, -39.238998)">
+                <path
+                  fill="#4285F4"
+                  d="M -3.264 51.509 C -3.264 50.719 -3.334 49.969 -3.454 49.239 L -14.754 49.239 L -14.754 53.749 L -8.28426 53.749 C -8.52426 55.229 -9.244 56.479 -10.464 57.329 L -10.464 60.989 L -6.024 60.989 C -4.564 59.509 -3.264 55.859 -3.264 51.509 Z"
+                />
+                <path
+                  fill="#34A853"
+                  d="M -14.754 63.239 C -11.514 63.239 -8.804 62.159 -6.024 60.989 L -10.464 57.329 C -11.744 58.049 -13.314 58.489 -14.754 58.489 C -17.884 58.489 -20.534 56.379 -21.464 53.529 L -25.994 53.529 L -25.994 57.189 C -23.514 62.169 -18.464 63.239 -14.754 63.239 Z"
+                />
+                <path
+                  fill="#FBBC05"
+                  d="M -21.464 53.529 C -21.734 52.809 -21.864 52.039 -21.864 51.239 C -21.864 50.439 -21.724 49.669 -21.464 48.949 L -21.464 45.289 L -25.984 45.289 C -26.924 47.159 -27.284 49.179 -27.004 51.239 C -26.724 53.299 -25.814 55.199 -24.404 56.729 L -19.994 61.239 L -24.404 56.729 C -22.944 58.099 -21.124 59.019 -19.154 59.519 L -19.154 53.519 L -21.464 53.529 Z"
+                />
+                <path
+                  fill="#EA4335"
+                  d="M -14.754 43.989 C -12.984 43.989 -11.404 44.599 -10.154 45.789 L -6.734 42.369 C -8.684 40.589 -11.514 39.739 -14.754 39.739 C -18.464 39.739 -22.514 41.579 -24.404 45.289 L -19.154 49.239 C -18.114 46.889 -15.694 43.989 -14.754 43.989 Z"
+                />
+              </g>
+            </svg>
+            {loading ? "Signing in with Google..." : "Sign in with Google"}
+          </Button>
+          
+          <div className="mt-8 pt-6 border-t border-gray-200">
+            
+            <div className="flex justify-center space-x-6 text-sm text-gray-600 font-sans">
+              <Link href="/support" className="hover:text-gray-900">
+                Support
+              </Link>
+              <span>•</span>
+              <Link href="/privacy" className="hover:text-gray-900">
+                Privacy Policy
+              </Link>
+              <span>•</span>
+              <Link href="/terms" className="hover:text-gray-900">
+                Terms & Conditions
+              </Link>
             </div>
           </div>
-        </Tabs>
+        </div>
       </div>
-    </div>
-  );
+    </div>
+  );
 }
