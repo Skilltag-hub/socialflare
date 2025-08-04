@@ -1,20 +1,26 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState } from "react"
-import { Card, CardContent } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Checkbox } from "@/components/ui/checkbox"
-import { ArrowLeft, Plus } from "lucide-react"
-import Link from "next/link"
-import { useToast } from "@/hooks/use-toast"
+import { useState } from "react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
+import { ArrowLeft, Plus } from "lucide-react";
+import Link from "next/link";
+import { useToast } from "@/hooks/use-toast";
 
 export default function PostGig() {
-  const { toast } = useToast()
+  const { toast } = useToast();
   // Form data interface
   interface FormData {
     gigTitle: string;
@@ -66,20 +72,20 @@ export default function PostGig() {
     };
   };
   const [formData, setFormData] = useState(getInitialFormData());
-  const [skills, setSkills] = useState<string[]>([])
+  const [skills, setSkills] = useState<string[]>([]);
 
-  const [errors, setErrors] = useState<{ [key: string]: boolean }>({})
+  const [errors, setErrors] = useState<{ [key: string]: boolean }>({});
 
   const addSkill = () => {
     if (formData.requiredSkills.trim()) {
-      setSkills([...skills, formData.requiredSkills.trim()])
-      setFormData(prev => ({ ...prev, requiredSkills: "" }))
+      setSkills([...skills, formData.requiredSkills.trim()]);
+      setFormData((prev) => ({ ...prev, requiredSkills: "" }));
     }
-  }
+  };
 
   const removeSkill = (index: number) => {
-    setSkills(skills.filter((_, i) => i !== index))
-  }
+    setSkills(skills.filter((_, i) => i !== index));
+  };
 
   const validateFields = () => {
     const requiredFields = [
@@ -92,22 +98,20 @@ export default function PostGig() {
       "requiredExperience",
       "numberOfPositions",
       "applicationDeadline",
-    ]
-    const newErrors: { [key: string]: boolean } = {}
+    ];
+    const newErrors: { [key: string]: boolean } = {};
     requiredFields.forEach((field) => {
-      if (!formData[field]) newErrors[field] = true
-    })
-    if (!formData.agreeToTerms) newErrors["agreeToTerms"] = true
-    setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
-  }
-
-
+      if (!formData[field]) newErrors[field] = true;
+    });
+    if (!formData.agreeToTerms) newErrors["agreeToTerms"] = true;
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!validateFields()) return
-    
+    e.preventDefault();
+    if (!validateFields()) return;
+
     // Format the data to match the API's expected format
     const gigData = {
       companyName: formData.gigTitle, // Using gigTitle as companyName
@@ -123,8 +127,8 @@ export default function PostGig() {
       duration: formData.duration,
       location: formData.location,
       requiredExperience: formData.requiredExperience,
-      applicationDeadline: formData.applicationDeadline
-    }
+      applicationDeadline: formData.applicationDeadline,
+    };
 
     try {
       // Post job to MongoDB
@@ -132,39 +136,41 @@ export default function PostGig() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(gigData),
-      })
+      });
 
       if (!res.ok) {
         throw new Error("Failed to post gig");
       }
 
       const data = await res.json();
-      
+
       toast({
         title: "Success",
         description: "Gig posted successfully",
-      })
-      
+      });
+
       // Redirect to companies page after a short delay
       setTimeout(() => {
-        window.location.href = "/companies"
+        window.location.href = "/companies";
       }, 1500);
-      
     } catch (error) {
       console.error("Error posting gig:", error);
       toast({
         title: "Error",
         description: "Failed to post gig. Please try again.",
-        variant: "destructive"
-      })
+        variant: "destructive",
+      });
     }
-  }
+  };
 
   return (
     <div className="min-h-screen bg-black text-white p-6">
       {/* Header */}
       <div className="mb-6">
-        <Link href="/companies" className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors mb-4">
+        <Link
+          href="/companies"
+          className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors mb-4"
+        >
           <ArrowLeft className="w-4 h-4" />
           <span>Back</span>
         </Link>
@@ -174,7 +180,9 @@ export default function PostGig() {
       <div className="max-w-2xl mx-auto">
         <Card className="bg-white text-black rounded-xl shadow-lg">
           <CardContent className="p-8">
-            <h1 className="text-2xl font-bold text-center mb-8 text-gray-800">Post a Gig</h1>
+            <h1 className="text-2xl font-bold text-center mb-8 text-gray-800">
+              Post a Gig
+            </h1>
 
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Gig Title and Category Row */}
@@ -187,8 +195,15 @@ export default function PostGig() {
                     type="text"
                     placeholder="e.g. UI UX Designer"
                     value={formData.gigTitle}
-                    onChange={(e) => setFormData(prev => ({ ...prev, gigTitle: e.target.value }))}
-                    className={`w-full ${errors.gigTitle ? "border-red-500" : ""}`}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        gigTitle: e.target.value,
+                      }))
+                    }
+                    className={`w-full ${
+                      errors.gigTitle ? "border-red-500" : ""
+                    }`}
                     required
                   />
                 </div>
@@ -198,8 +213,9 @@ export default function PostGig() {
                   </label>
                   <Select
                     value={formData.category}
-                    onValueChange={(value) => setFormData(prev => ({ ...prev, category: value }))}
-
+                    onValueChange={(value) =>
+                      setFormData((prev) => ({ ...prev, category: value }))
+                    }
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Select category" />
@@ -224,8 +240,15 @@ export default function PostGig() {
                 <Textarea
                   placeholder="Describe the gig responsibilities and what you're looking for..."
                   value={formData.description}
-                  onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                  className={`w-full h-24 resize-none ${errors.description ? "border-red-500" : ""}`}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      description: e.target.value,
+                    }))
+                  }
+                  className={`w-full h-24 resize-none ${
+                    errors.description ? "border-red-500" : ""
+                  }`}
                   required
                 />
               </div>
@@ -233,31 +256,48 @@ export default function PostGig() {
               {/* Duration, Stipend, Location Row */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Duration</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Duration
+                  </label>
                   <Input
                     type="text"
                     placeholder="e.g. 3 months"
                     value={formData.duration}
-                    onChange={(e) => setFormData(prev => ({ ...prev, duration: e.target.value }))}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        duration: e.target.value,
+                      }))
+                    }
                     className={errors.duration ? "border-red-500" : ""}
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Stipend</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Stipend
+                  </label>
                   <Input
                     type="text"
                     placeholder="e.g. 25,000"
                     value={formData.stipend}
-                    onChange={(e) => setFormData(prev => ({ ...prev, stipend: e.target.value }))}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        stipend: e.target.value,
+                      }))
+                    }
                     className={errors.stipend ? "border-red-500" : ""}
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Location</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Location
+                  </label>
                   <Select
                     value={formData.location}
-                    onValueChange={(value) => setFormData(prev => ({ ...prev, location: value }))}
-
+                    onValueChange={(value) =>
+                      setFormData((prev) => ({ ...prev, location: value }))
+                    }
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="select location" />
@@ -276,16 +316,27 @@ export default function PostGig() {
 
               {/* Required Skills */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Required Skills</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Required Skills
+                </label>
                 <div className="flex gap-2 mb-2">
                   <Input
                     type="text"
                     placeholder="e.g. figma,adobe xd,prototyping"
                     value={formData.requiredSkills}
-                    onChange={(e) => setFormData(prev => ({ ...prev, requiredSkills: e.target.value }))}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        requiredSkills: e.target.value,
+                      }))
+                    }
                     className="flex-1"
                   />
-                  <Button type="button" onClick={addSkill} className="bg-gray-200 hover:bg-gray-300 text-gray-700 px-3">
+                  <Button
+                    type="button"
+                    onClick={addSkill}
+                    className="bg-gray-200 hover:bg-gray-300 text-gray-700 px-3"
+                  >
                     <Plus className="w-4 h-4" />
                   </Button>
                 </div>
@@ -307,11 +358,17 @@ export default function PostGig() {
               {/* Required Experience and Number of Positions */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Required Experience</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Required Experience
+                  </label>
                   <Select
                     value={formData.requiredExperience}
-                    onValueChange={(value) => setFormData(prev => ({ ...prev, requiredExperience: value }))}
-
+                    onValueChange={(value) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        requiredExperience: value,
+                      }))
+                    }
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="select experience level" />
@@ -325,11 +382,17 @@ export default function PostGig() {
                   </Select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Number of Positions</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Number of Positions
+                  </label>
                   <Select
                     value={formData.numberOfPositions}
-                    onValueChange={(value) => setFormData(prev => ({ ...prev, numberOfPositions: value }))}
-
+                    onValueChange={(value) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        numberOfPositions: value,
+                      }))
+                    }
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="select" />
@@ -347,40 +410,64 @@ export default function PostGig() {
 
               {/* Additional Requirements */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Additional Requirements</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Additional Requirements
+                </label>
                 <Textarea
                   placeholder="Any specific requirements..."
                   value={formData.additionalRequirements}
-                  onChange={(e) => setFormData(prev => ({ ...prev, additionalRequirements: e.target.value }))}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      additionalRequirements: e.target.value,
+                    }))
+                  }
                   className="w-full h-20 resize-none"
                 />
               </div>
 
               {/* Application Deadline */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Application Deadline</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Application Deadline
+                </label>
                 <Input
                   type="date"
                   value={formData.applicationDeadline}
-                  onChange={(e) => setFormData(prev => ({ ...prev, applicationDeadline: e.target.value }))}
-                  className={`w-full md:w-1/3 ${errors.applicationDeadline ? "border-red-500" : ""}`}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      applicationDeadline: e.target.value,
+                    }))
+                  }
+                  className={`w-full md:w-1/3 ${
+                    errors.applicationDeadline ? "border-red-500" : ""
+                  }`}
                 />
               </div>
-
-
 
               {/* Agreement Checkbox */}
               <div className="flex items-start gap-3">
                 <Checkbox
                   id="agree"
                   checked={formData.agreeToTerms}
-                  onCheckedChange={(checked) => setFormData(prev => ({ ...prev, agreeToTerms: checked as boolean }))}
+                  onCheckedChange={(checked) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      agreeToTerms: checked as boolean,
+                    }))
+                  }
                   className={errors.agreeToTerms ? "border-red-500" : ""}
                 />
                 {errors.agreeToTerms && (
-                  <span className="text-red-500 text-xs ml-2">You must agree to the terms</span>
+                  <span className="text-red-500 text-xs ml-2">
+                    You must agree to the terms
+                  </span>
                 )}
-                <label htmlFor="agree" className="text-sm text-gray-600 leading-relaxed">
+                <label
+                  htmlFor="agree"
+                  className="text-sm text-gray-600 leading-relaxed"
+                >
                   I agree that all information given above is genuine.
                 </label>
               </div>
@@ -409,5 +496,5 @@ export default function PostGig() {
         </Card>
       </div>
     </div>
-  )
+  );
 }

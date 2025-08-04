@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/Button";
 import {
   Tooltip,
   TooltipContent,
@@ -86,11 +86,16 @@ export default function CompaniesJobApplicationsPage({
   const [showSubmissionModal, setShowSubmissionModal] = useState(false);
   const [selectedSubmission, setSelectedSubmission] = useState<any>(null);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
-  const [selectedPayment, setSelectedPayment] = useState<{applicantId: string; upiId?: string; upiName?: string; name?: string}>({
-    applicantId: '',
-    upiId: '',
-    upiName: '',
-    name: ''
+  const [selectedPayment, setSelectedPayment] = useState<{
+    applicantId: string;
+    upiId?: string;
+    upiName?: string;
+    name?: string;
+  }>({
+    applicantId: "",
+    upiId: "",
+    upiName: "",
+    name: "",
   });
 
   useEffect(() => {
@@ -172,8 +177,14 @@ export default function CompaniesJobApplicationsPage({
                   ? new Date(app.timeApplied).toISOString()
                   : new Date().toISOString(),
                 profileImage: userData?.profileImage || "",
-                upiId: app.withdrawals && app.withdrawals.length > 0 ? app.withdrawals[0].upiId : "",
-                upiName: app.withdrawals && app.withdrawals.length > 0 ? app.withdrawals[0].upiName : "",
+                upiId:
+                  app.withdrawals && app.withdrawals.length > 0
+                    ? app.withdrawals[0].upiId
+                    : "",
+                upiName:
+                  app.withdrawals && app.withdrawals.length > 0
+                    ? app.withdrawals[0].upiName
+                    : "",
               };
 
               applicantsWithUserData.push(applicant);
@@ -201,8 +212,14 @@ export default function CompaniesJobApplicationsPage({
                   ? new Date(app.timeApplied).toISOString()
                   : new Date().toISOString(),
                 profileImage: "",
-                upiId: app.withdrawals && app.withdrawals.length > 0 ? app.withdrawals[0].upiId : "",
-                upiName: app.withdrawals && app.withdrawals.length > 0 ? app.withdrawals[0].upiName : "",
+                upiId:
+                  app.withdrawals && app.withdrawals.length > 0
+                    ? app.withdrawals[0].upiId
+                    : "",
+                upiName:
+                  app.withdrawals && app.withdrawals.length > 0
+                    ? app.withdrawals[0].upiName
+                    : "",
               };
 
               applicantsWithUserData.push(fallbackApplicant);
@@ -288,7 +305,10 @@ export default function CompaniesJobApplicationsPage({
         (activeTab === "shortlisted" && applicant.status === "shortlisted") ||
         (activeTab === "accepted" && applicant.status === "accepted") ||
         (activeTab === "rejected" && applicant.status === "rejected") ||
-        (activeTab === "submitted" && (applicant.status === "completed" || applicant.status === "withdrawal_requested" || applicant.status === "withdrawal_processed"));
+        (activeTab === "submitted" &&
+          (applicant.status === "completed" ||
+            applicant.status === "withdrawal_requested" ||
+            applicant.status === "withdrawal_processed"));
 
       console.log("Applicant:", {
         id: applicant._id,
@@ -460,7 +480,7 @@ export default function CompaniesJobApplicationsPage({
 
       // Close the payment modal
       setShowPaymentModal(false);
-      
+
       // Refresh the job data to get updated applicant statuses
       await fetchJob();
     } catch (error) {
@@ -483,7 +503,7 @@ export default function CompaniesJobApplicationsPage({
       applicantId: applicant._id,
       upiId: applicant.upiId || "",
       upiName: applicant.upiName || "",
-      name: displayName
+      name: displayName,
     });
 
     // Show the payment modal
@@ -629,7 +649,8 @@ export default function CompaniesJobApplicationsPage({
                           View Profile
                         </Button>
                         {/* Show different buttons based on application status */}
-                        {activeTab === "submitted" && applicant.status === "completed" ? (
+                        {activeTab === "submitted" &&
+                        applicant.status === "completed" ? (
                           <Button
                             variant="outline"
                             className="text-sm px-4 py-1 border-blue-300 text-blue-700 hover:bg-blue-50 bg-transparent"
@@ -638,7 +659,8 @@ export default function CompaniesJobApplicationsPage({
                             <Eye className="w-4 h-4 mr-2" />
                             View Submission
                           </Button>
-                        ) : activeTab === "submitted" && applicant.status === "withdrawal_requested" ? (
+                        ) : activeTab === "submitted" &&
+                          applicant.status === "withdrawal_requested" ? (
                           <Button
                             variant="outline"
                             className="text-sm px-4 py-1 border-green-300 text-green-700 hover:bg-green-50 bg-transparent"
@@ -647,7 +669,8 @@ export default function CompaniesJobApplicationsPage({
                             <Send className="w-4 h-4 mr-2" />
                             Process Payment
                           </Button>
-                        ) : activeTab === "submitted" && applicant.status === "withdrawal_processed" ? (
+                        ) : activeTab === "submitted" &&
+                          applicant.status === "withdrawal_processed" ? (
                           <Button
                             variant="outline"
                             disabled
@@ -656,7 +679,8 @@ export default function CompaniesJobApplicationsPage({
                             <CheckCircle className="w-4 h-4 mr-2" />
                             Payment Processed
                           </Button>
-                        ) : activeTab === "accepted" && applicant.status === "accepted" ? (
+                        ) : activeTab === "accepted" &&
+                          applicant.status === "accepted" ? (
                           /* Show Send Task button for accepted applications */
                           <Button
                             variant="outline"
@@ -940,15 +964,23 @@ export default function CompaniesJobApplicationsPage({
                 <div className="space-y-3">
                   {selectedPayment.upiId && (
                     <div className="bg-gray-50 p-3 rounded">
-                      <p className="text-sm font-medium text-gray-700 mb-1">UPI ID</p>
-                      <p className="text-base text-gray-900">{selectedPayment.upiId}</p>
+                      <p className="text-sm font-medium text-gray-700 mb-1">
+                        UPI ID
+                      </p>
+                      <p className="text-base text-gray-900">
+                        {selectedPayment.upiId}
+                      </p>
                     </div>
                   )}
 
                   {selectedPayment.upiName && (
                     <div className="bg-gray-50 p-3 rounded">
-                      <p className="text-sm font-medium text-gray-700 mb-1">UPI Name</p>
-                      <p className="text-base text-gray-900">{selectedPayment.upiName}</p>
+                      <p className="text-sm font-medium text-gray-700 mb-1">
+                        UPI Name
+                      </p>
+                      <p className="text-base text-gray-900">
+                        {selectedPayment.upiName}
+                      </p>
                     </div>
                   )}
 
@@ -970,7 +1002,9 @@ export default function CompaniesJobApplicationsPage({
                 Cancel
               </Button>
               <Button
-                onClick={() => handlePaymentProcess(selectedPayment.applicantId)}
+                onClick={() =>
+                  handlePaymentProcess(selectedPayment.applicantId)
+                }
                 className="bg-green-600 hover:bg-green-700 text-white"
                 disabled={!selectedPayment.upiId && !selectedPayment.upiName}
               >
