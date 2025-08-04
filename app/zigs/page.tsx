@@ -87,9 +87,17 @@ export default function Component() {
   // Filter applications based on active filter
   useEffect(() => {
     if (applications.length > 0) {
-      const filtered = applications.filter(
-        (app) => app.status === activeFilter
-      );
+      const filtered = applications.filter((app) => {
+        if (activeFilter === "completed") {
+          // Include completed and withdrawal statuses in the completed tab
+          return [
+            "completed",
+            "withdrawal_requested",
+            "withdrawal_processed",
+          ].includes(app.status);
+        }
+        return app.status === activeFilter;
+      });
       setFilteredApplications(filtered);
     }
   }, [applications, activeFilter]);
@@ -128,10 +136,14 @@ export default function Component() {
     const [isBoostLoading, setIsBoostLoading] = useState(false);
     const [isBoosted, setIsBoosted] = useState(application?.boosted || false);
     const [showSubmitModal, setShowSubmitModal] = useState(false);
+    const [showWithdrawModal, setShowWithdrawModal] = useState(false);
     const [submissionTitle, setSubmissionTitle] = useState("");
     const [submissionDesc, setSubmissionDesc] = useState("");
     const [submissionFile, setSubmissionFile] = useState<File | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [withdrawUpiId, setWithdrawUpiId] = useState("");
+    const [withdrawUpiName, setWithdrawUpiName] = useState("");
+    const [withdrawAgree, setWithdrawAgree] = useState(false);
 
     async function handleSubmitSubmission(e: React.FormEvent) {
       e.preventDefault();
@@ -165,8 +177,7 @@ export default function Component() {
             submission: {
               title: submissionTitle,
               description: submissionDesc,
-              upiId: submissionTitle,
-              upiName: submissionDesc,
+              notes: submissionDesc,
               fileUrl: url,
               submittedAt: new Date().toISOString(),
             },
@@ -227,6 +238,51 @@ export default function Component() {
       }
     };
 
+    const handleWithdraw = async () => {
+      if (!withdrawAgree || !withdrawUpiId || !withdrawUpiName) {
+        toast.error("Please fill all required fields and agree to the terms.", {
+          style: { background: "red", border: "none", color: "white" },
+        });
+        return;
+      }
+
+      setIsSubmitting(true);
+      try {
+        const response = await fetch("/api/applications", {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            gigId: application.gigId,
+            action: "withdraw",
+            upiId: withdrawUpiId,
+            upiName: withdrawUpiName,
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to process withdrawal");
+        }
+
+        setShowWithdrawModal(false);
+        setWithdrawUpiId("");
+        setWithdrawUpiName("");
+        setWithdrawAgree(false);
+
+        toast.success("Withdrawal request submitted successfully!", {
+          style: { background: "green", border: "none", color: "white" },
+        });
+      } catch (error) {
+        console.error("Error processing withdrawal:", error);
+        toast.error("Failed to process withdrawal. Please try again.", {
+          style: { background: "red", border: "none", color: "white" },
+        });
+      } finally {
+        setIsSubmitting(false);
+      }
+    };
+
     return (
       <Card className="bg-white rounded-2xl shadow-sm max-h-[200px]">
         <CardContent className="p-4">
@@ -283,110 +339,27 @@ export default function Component() {
                   : "Boost"}
               </Button>
             ) : application.status === "accepted" ? (
-              <>
-                <Button
-                  className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-full"
-                  onClick={() => setShowSubmitModal(true)}
-                >
-                  Submit
-                </Button>
-                {showSubmitModal && (
-                  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-30">
-                    <div className="bg-white p-6 rounded-2xl shadow-xl max-w-sm w-full relative">
-                      <button
-                        className="absolute top-3 left-3 text-gray-400 hover:text-gray-700"
-                        onClick={() => setShowSubmitModal(false)}
-                        aria-label="Back"
-                      >
-                        &lt; Back
-                      </button>
-                      <h2 className="text-center font-semibold text-lg mb-6 mt-2">
-                        Submit Task
-                      </h2>
-                      <form onSubmit={handleSubmitSubmission}>
-                        <div className="mb-4">
-                          <label className="block text-xs font-semibold mb-1">
-                            UPI ID
-                          </label>
-                          <input
-                            type="text"
-                            className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-200"
-                            placeholder="Name"
-                            value={submissionTitle}
-                            onChange={(e) => setSubmissionTitle(e.target.value)}
-                            required
-                          />
-                        </div>
-                        <div className="mb-4">
-                          <label className="block text-xs font-semibold mb-1">
-                            UPI Name
-                          </label>
-                          <input
-                            type="text"
-                            className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-200"
-                            placeholder="Skills Required"
-                            value={submissionDesc}
-                            onChange={(e) => setSubmissionDesc(e.target.value)}
-                            required
-                          />
-                        </div>
-                        <div className="mb-4">
-                          <label className="block text-xs font-semibold mb-1">
-                            File Upload
-                          </label>
-                          <div className="relative border-2 border-gray-300 border-dashed rounded flex flex-col items-center justify-center py-7 cursor-pointer hover:border-purple-400 transition-all">
-                            <input
-                              type="file"
-                              accept="image/*,application/pdf"
-                              className="opacity-0 absolute inset-0 h-full w-full cursor-pointer"
-                              onChange={(e) =>
-                                setSubmissionFile(e.target.files?.[0] || null)
-                              }
-                              required
-                            />
-                            <span className="text-gray-400 text-2xl mb-2">
-                              &#8682;
-                            </span>
-                            <span className="text-gray-500 text-sm">
-                              Upload File
-                            </span>
-                          </div>
-                        </div>
-                        <div className="flex items-center mb-6">
-                          <input
-                            type="checkbox"
-                            id="agreement"
-                            className="mr-2 accent-purple-600"
-                            required
-                          />
-                          <label
-                            htmlFor="agreement"
-                            className="text-xs text-gray-700"
-                          >
-                            I agree that all information given above is genuine.
-                          </label>
-                        </div>
-                        <div className="flex gap-2">
-                          <Button
-                            type="submit"
-                            className="bg-purple-600 hover:bg-purple-700 text-white flex-1"
-                            disabled={isSubmitting}
-                          >
-                            Submit
-                          </Button>
-                          <button
-                            type="button"
-                            onClick={() => setShowSubmitModal(false)}
-                            className="border border-gray-400 rounded flex-1 py-2 text-gray-700 hover:bg-gray-100"
-                          >
-                            Cancel
-                          </button>
-                        </div>
-                      </form>
-                    </div>
-                  </div>
-                )}
-              </>
+              <Button
+                className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-full"
+                onClick={() => setShowSubmitModal(true)}
+              >
+                Submit
+              </Button>
+            ) : application.status === "completed" ? (
+              <Button
+                className="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-full"
+                onClick={() => setShowWithdrawModal(true)}
+              >
+                Withdraw
+              </Button>
+            ) : application.status === "withdrawal_requested" ? (
+              <div className="bg-yellow-100 text-yellow-800 text-xs font-medium px-3 py-1 rounded-full">
+                Withdrawal Requested
+              </div>
+            ) : application.status === "withdrawal_processed" ? (
+              <div className="bg-green-100 text-green-800 text-xs font-medium px-3 py-1 rounded-full">
+                Withdrawal Completed
+              </div>
             ) : (
               <Button
                 className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-full"
@@ -394,6 +367,169 @@ export default function Component() {
               >
                 {application.status === "selected" ? "Start Work" : "Applied"}
               </Button>
+            )}
+
+            {/* Submit Work Modal */}
+            {showSubmitModal && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-30">
+                <div className="bg-white p-6 rounded-2xl shadow-xl max-w-sm w-full relative">
+                  <button
+                    className="absolute top-3 left-3 text-gray-400 hover:text-gray-700"
+                    onClick={() => setShowSubmitModal(false)}
+                    aria-label="Back"
+                  >
+                    &lt; Back
+                  </button>
+                  <h2 className="text-center font-semibold text-lg mb-6 mt-2">
+                    Submit Task
+                  </h2>
+                  <form onSubmit={handleSubmitSubmission}>
+                    <div className="mb-4">
+                      <label className="block text-xs font-semibold mb-1">
+                        Notes (Optional)
+                      </label>
+                      <textarea
+                        className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-200 min-h-[100px]"
+                        placeholder="Add any additional notes or comments..."
+                        value={submissionDesc}
+                        onChange={(e) => setSubmissionDesc(e.target.value)}
+                      />
+                    </div>
+                    <div className="mb-4">
+                      <label className="block text-xs font-semibold mb-1">
+                        File Upload
+                      </label>
+                      <div className="relative border-2 border-gray-300 border-dashed rounded flex flex-col items-center justify-center py-7 cursor-pointer hover:border-purple-400 transition-all">
+                        <input
+                          type="file"
+                          accept="image/*,application/pdf"
+                          className="opacity-0 absolute inset-0 h-full w-full cursor-pointer"
+                          onChange={(e) =>
+                            setSubmissionFile(e.target.files?.[0] || null)
+                          }
+                          required
+                        />
+                        <span className="text-gray-400 text-2xl mb-2">
+                          &#8682;
+                        </span>
+                        <span className="text-gray-500 text-sm">
+                          Upload File
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex items-center mb-6">
+                      <input
+                        type="checkbox"
+                        id="agreement"
+                        className="mr-2 accent-purple-600"
+                        required
+                      />
+                      <label
+                        htmlFor="agreement"
+                        className="text-xs text-gray-700"
+                      >
+                        I agree that all information given above is genuine.
+                      </label>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button
+                        type="submit"
+                        className="bg-purple-600 hover:bg-purple-700 text-white flex-1"
+                        disabled={isSubmitting}
+                      >
+                        Submit
+                      </Button>
+                      <button
+                        type="button"
+                        onClick={() => setShowSubmitModal(false)}
+                        className="border border-gray-400 rounded flex-1 py-2 text-gray-700 hover:bg-gray-100"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            )}
+
+            {/* Withdraw Modal */}
+            {showWithdrawModal && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-30">
+                <div className="bg-white p-6 rounded-2xl shadow-xl max-w-sm w-full relative">
+                  <button
+                    className="absolute top-3 left-3 text-gray-400 hover:text-gray-700"
+                    onClick={() => setShowWithdrawModal(false)}
+                    aria-label="Back"
+                  >
+                    &lt; Back
+                  </button>
+                  <h2 className="text-center font-semibold text-lg mb-6 mt-2">
+                    Withdraw Earnings
+                  </h2>
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-xs font-semibold mb-1">
+                        UPI ID *
+                      </label>
+                      <input
+                        type="text"
+                        className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-200"
+                        placeholder="Enter UPI ID"
+                        value={withdrawUpiId}
+                        onChange={(e) => setWithdrawUpiId(e.target.value)}
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold mb-1">
+                        UPI Name *
+                      </label>
+                      <input
+                        type="text"
+                        className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-200"
+                        placeholder="Enter Name as per UPI"
+                        value={withdrawUpiName}
+                        onChange={(e) => setWithdrawUpiName(e.target.value)}
+                        required
+                      />
+                    </div>
+                    <div className="flex items-start">
+                      <input
+                        type="checkbox"
+                        id="withdrawAgree"
+                        checked={withdrawAgree}
+                        onChange={(e) => setWithdrawAgree(e.target.checked)}
+                        className="mt-1 mr-2"
+                        required
+                      />
+                      <label
+                        htmlFor="withdrawAgree"
+                        className="text-xs text-gray-700"
+                      >
+                        I agree that all information given above is genuine.
+                      </label>
+                    </div>
+                    <div className="flex gap-2 pt-2">
+                      <Button
+                        type="button"
+                        onClick={handleWithdraw}
+                        className="bg-red-600 hover:bg-red-700 text-white flex-1"
+                        disabled={isSubmitting}
+                      >
+                        {isSubmitting ? "Processing..." : "Confirm Withdraw"}
+                      </Button>
+                      <Button
+                        type="button"
+                        onClick={() => setShowWithdrawModal(false)}
+                        className="border border-gray-400 rounded flex-1 py-2 text-gray-700 hover:bg-gray-100"
+                        disabled={isSubmitting}
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </div>
             )}
           </div>
         </CardContent>

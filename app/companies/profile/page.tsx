@@ -1,5 +1,7 @@
-import UserProfile from "@/components/user-profile"
-
 export default function CompaniesProfile() {
-  return <UserProfile userId="mock-user-id" />
+  return (
+    <div className="flex flex-col items-center justify-center">
+      <h1 className="text-4xl font-bold">Companies Profile</h1>
+    </div>
+  );
 }

@@ -18,6 +18,8 @@ import {
   Clock,
   ArrowLeft,
   FunnelPlus,
+  CheckCircle,
+  DollarSign,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -28,7 +30,9 @@ type ApplicationStatus =
   | "shortlisted"
   | "accepted"
   | "rejected"
-  | "completed";
+  | "completed"
+  | "withdrawal_requested"
+  | "withdrawal_processed";
 
 interface Applicant {
   _id: string;
@@ -37,6 +41,8 @@ interface Applicant {
   status: ApplicationStatus;
   appliedAt: string;
   profileImage?: string;
+  upiId?: string;
+  upiName?: string;
   // Add any other applicant fields from waitlist.gigs
 }
 
@@ -79,6 +85,13 @@ export default function CompaniesJobApplicationsPage({
   const [jobId, setJobId] = useState<string | null>(null);
   const [showSubmissionModal, setShowSubmissionModal] = useState(false);
   const [selectedSubmission, setSelectedSubmission] = useState<any>(null);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [selectedPayment, setSelectedPayment] = useState<{applicantId: string; upiId?: string; upiName?: string; name?: string}>({
+    applicantId: '',
+    upiId: '',
+    upiName: '',
+    name: ''
+  });
 
   useEffect(() => {
     async function initializeParams() {
@@ -159,6 +172,8 @@ export default function CompaniesJobApplicationsPage({
                   ? new Date(app.timeApplied).toISOString()
                   : new Date().toISOString(),
                 profileImage: userData?.profileImage || "",
+                upiId: app.withdrawals && app.withdrawals.length > 0 ? app.withdrawals[0].upiId : "",
+                upiName: app.withdrawals && app.withdrawals.length > 0 ? app.withdrawals[0].upiName : "",
               };
 
               applicantsWithUserData.push(applicant);
@@ -186,6 +201,8 @@ export default function CompaniesJobApplicationsPage({
                   ? new Date(app.timeApplied).toISOString()
                   : new Date().toISOString(),
                 profileImage: "",
+                upiId: app.withdrawals && app.withdrawals.length > 0 ? app.withdrawals[0].upiId : "",
+                upiName: app.withdrawals && app.withdrawals.length > 0 ? app.withdrawals[0].upiName : "",
               };
 
               applicantsWithUserData.push(fallbackApplicant);
@@ -271,7 +288,7 @@ export default function CompaniesJobApplicationsPage({
         (activeTab === "shortlisted" && applicant.status === "shortlisted") ||
         (activeTab === "accepted" && applicant.status === "accepted") ||
         (activeTab === "rejected" && applicant.status === "rejected") ||
-        (activeTab === "submitted" && applicant.status === "completed");
+        (activeTab === "submitted" && (applicant.status === "completed" || applicant.status === "withdrawal_requested" || applicant.status === "withdrawal_processed"));
 
       console.log("Applicant:", {
         id: applicant._id,
@@ -422,6 +439,56 @@ export default function CompaniesJobApplicationsPage({
     console.log("Sending task to applicant:", applicantId);
     // You might want to open a modal or navigate to a task creation page
   }
+
+  async function handlePaymentProcess(applicantId: string) {
+    try {
+      // Update the status to withdrawal_processed
+      const res = await fetch(`/api/gigs/${jobId}/applications`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          userId: applicantId,
+          status: "withdrawal_processed",
+        }),
+      });
+
+      if (!res.ok) {
+        throw new Error(`Failed to update payment status: ${res.statusText}`);
+      }
+
+      // Close the payment modal
+      setShowPaymentModal(false);
+      
+      // Refresh the job data to get updated applicant statuses
+      await fetchJob();
+    } catch (error) {
+      console.error("Error processing payment:", error);
+    }
+  }
+
+  function handleShowPaymentModal(applicant: Applicant) {
+    // Get user data from userDataMap
+    const email = applicant.email || "";
+    const userData = userDataMap[email] || {
+      _id: applicant._id,
+      email,
+      name: applicant.name,
+    };
+    const displayName = userData.name || applicant.name || "Unknown User";
+
+    // Set the selected payment data
+    setSelectedPayment({
+      applicantId: applicant._id,
+      upiId: applicant.upiId || "",
+      upiName: applicant.upiName || "",
+      name: displayName
+    });
+
+    // Show the payment modal
+    setShowPaymentModal(true);
+  }
   const tabs = [
     { key: "applied" as const, label: "Applied" }, // more accurate labeling
     { key: "shortlisted" as const, label: "Shortlisted" },
@@ -561,9 +628,8 @@ export default function CompaniesJobApplicationsPage({
                         >
                           View Profile
                         </Button>
-                        {/* Show View Submission button for completed applications under submitted tab */}
-                        {activeTab === "submitted" &&
-                        applicant.status === "completed" ? (
+                        {/* Show different buttons based on application status */}
+                        {activeTab === "submitted" && applicant.status === "completed" ? (
                           <Button
                             variant="outline"
                             className="text-sm px-4 py-1 border-blue-300 text-blue-700 hover:bg-blue-50 bg-transparent"
@@ -572,8 +638,25 @@ export default function CompaniesJobApplicationsPage({
                             <Eye className="w-4 h-4 mr-2" />
                             View Submission
                           </Button>
-                        ) : activeTab === "accepted" &&
-                          applicant.status === "accepted" ? (
+                        ) : activeTab === "submitted" && applicant.status === "withdrawal_requested" ? (
+                          <Button
+                            variant="outline"
+                            className="text-sm px-4 py-1 border-green-300 text-green-700 hover:bg-green-50 bg-transparent"
+                            onClick={() => handleShowPaymentModal(applicant)}
+                          >
+                            <Send className="w-4 h-4 mr-2" />
+                            Process Payment
+                          </Button>
+                        ) : activeTab === "submitted" && applicant.status === "withdrawal_processed" ? (
+                          <Button
+                            variant="outline"
+                            disabled
+                            className="text-sm px-4 py-1 border-gray-300 text-gray-500 bg-gray-50"
+                          >
+                            <CheckCircle className="w-4 h-4 mr-2" />
+                            Payment Processed
+                          </Button>
+                        ) : activeTab === "accepted" && applicant.status === "accepted" ? (
                           /* Show Send Task button for accepted applications */
                           <Button
                             variant="outline"
@@ -723,7 +806,7 @@ export default function CompaniesJobApplicationsPage({
                           </h4>
                           <div className="bg-gray-50 p-3 rounded space-y-1">
                             {firstSubmission.upiName && (
-                              <p className="text-sm">
+                              <p className="text-sm text-gray-900">
                                 <span className="font-medium">UPI Name:</span>{" "}
                                 {firstSubmission.upiName}
                               </p>
@@ -812,6 +895,87 @@ export default function CompaniesJobApplicationsPage({
                 className="bg-gray-600 hover:bg-gray-700 text-white"
               >
                 Close
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Payment Modal */}
+      {showPaymentModal && selectedPayment && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+          style={{ zIndex: 9999 }}
+        >
+          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-semibold text-gray-900">
+                Process Payment
+              </h2>
+              <Button
+                variant="outline"
+                onClick={() => setShowPaymentModal(false)}
+                className="p-2"
+              >
+                <X className="w-4 h-4" />
+              </Button>
+            </div>
+
+            <div className="space-y-4">
+              <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center text-purple-600">
+                    <DollarSign className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900">
+                      Payment Details
+                    </h3>
+                    <p className="text-sm text-gray-500">
+                      For {selectedPayment.name}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  {selectedPayment.upiId && (
+                    <div className="bg-gray-50 p-3 rounded">
+                      <p className="text-sm font-medium text-gray-700 mb-1">UPI ID</p>
+                      <p className="text-base text-gray-900">{selectedPayment.upiId}</p>
+                    </div>
+                  )}
+
+                  {selectedPayment.upiName && (
+                    <div className="bg-gray-50 p-3 rounded">
+                      <p className="text-sm font-medium text-gray-700 mb-1">UPI Name</p>
+                      <p className="text-base text-gray-900">{selectedPayment.upiName}</p>
+                    </div>
+                  )}
+
+                  {!selectedPayment.upiId && !selectedPayment.upiName && (
+                    <div className="bg-yellow-50 p-3 rounded text-yellow-700">
+                      <p>No payment details available.</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-3 mt-6">
+              <Button
+                variant="outline"
+                onClick={() => setShowPaymentModal(false)}
+                className="border-gray-300"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={() => handlePaymentProcess(selectedPayment.applicantId)}
+                className="bg-green-600 hover:bg-green-700 text-white"
+                disabled={!selectedPayment.upiId && !selectedPayment.upiName}
+              >
+                <CheckCircle className="w-4 h-4 mr-2" />
+                Confirm Payment
               </Button>
             </div>
           </div>
