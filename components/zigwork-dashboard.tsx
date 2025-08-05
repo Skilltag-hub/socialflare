@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { useState, useEffect } from "react"
 import { Card, CardContent } from "@/components/ui/card"
@@ -56,7 +56,7 @@ export default function ZigworkDashboard() {
     <div className="h-screen bg-black text-white overflow-hidden lg:ml-64">
       {/* Header with Post a Job button */}
       <div className="flex justify-end mb-4 p-6 pb-0">
-        <Button 
+        <Button
           onClick={handlePostJobClick}
           className="bg-[#5E17EB] hover:bg-[#4A12C4] text-white px-6 py-1.5 rounded-lg text-sm"
         >
@@ -65,7 +65,6 @@ export default function ZigworkDashboard() {
       </div>
 
       <div className="flex h-[calc(100vh-120px)] gap-6 p-6 pt-4">
-
         {/* Main Content */}
         <div className="flex-1 flex flex-col overflow-hidden">
           {/* Stats Cards - 2x2 Grid */}
@@ -166,7 +165,9 @@ export default function ZigworkDashboard() {
                   <div className="w-8 h-8 bg-gradient-to-br from-[#5E17EB] to-[#4A12C4] rounded-lg flex items-center justify-center mx-auto mb-2 transform -rotate-12">
                     <Zap className="w-4 h-4 text-white transform rotate-12" />
                   </div>
-                  <div className="text-gray-400 font-normal text-sm">+ Post your first Zig</div>
+                  <div className="text-gray-400 font-normal text-sm">
+                    + Post your first Zig
+                  </div>
                 </CardContent>
               </Card>
 
@@ -203,14 +204,21 @@ export default function ZigworkDashboard() {
               </Card>
 
               {/* UGC Videos Card 2 - Clickable, leads to post-gig with pre-fill */}
-              <Card className="bg-white text-black rounded-xl shadow-sm cursor-pointer" onClick={() => {
-                window.location.href = "/companies/post-gig?title=UGC%20Videos%20for%20Myntra%20Showbizz&description=Create%20UGC%20Videos%20and%20get%20shares%20on%20Instagram%20about%20Myntra%20Showbizz%20now.";
-              }}>
+              <Card
+                className="bg-white text-black rounded-xl shadow-sm cursor-pointer"
+                onClick={() => {
+                  window.location.href =
+                    "/companies/post-gig?title=UGC%20Videos%20for%20Myntra%20Showbizz&description=Create%20UGC%20Videos%20and%20get%20shares%20on%20Instagram%20about%20Myntra%20Showbizz%20now.";
+                }}
+              >
                 <CardContent className="p-3">
                   <div className="mb-2">
                     <h3 className="font-normal text-gray-700 leading-relaxed text-sm">
-                      Create <span className="font-semibold text-gray-900">UGC Videos</span> and get shares on Instagram
-                      about Myntra Showbizz now.
+                      Create{" "}
+                      <span className="font-semibold text-gray-900">
+                        UGC Videos
+                      </span>{" "}
+                      and get shares on Instagram about Myntra Showbizz now.
                     </h3>
                   </div>
                   <div className="flex items-center gap-3 text-xs text-gray-400 mb-2">
@@ -236,14 +244,21 @@ export default function ZigworkDashboard() {
               </Card>
 
               {/* UGC Videos Card 3 - Clickable, leads to post-gig with pre-fill */}
-              <Card className="bg-white text-black rounded-xl shadow-sm cursor-pointer" onClick={() => {
-                window.location.href = "/companies/post-gig?title=UGC%20Videos%20for%20Myntra%20Showbizz&description=Create%20UGC%20Videos%20and%20get%20shares%20on%20Instagram%20about%20Myntra%20Showbizz%20now.";
-              }}>
+              <Card
+                className="bg-white text-black rounded-xl shadow-sm cursor-pointer"
+                onClick={() => {
+                  window.location.href =
+                    "/companies/post-gig?title=UGC%20Videos%20for%20Myntra%20Showbizz&description=Create%20UGC%20Videos%20and%20get%20shares%20on%20Instagram%20about%20Myntra%20Showbizz%20now.";
+                }}
+              >
                 <CardContent className="p-3">
                   <div className="mb-2">
                     <h3 className="font-normal text-gray-700 leading-relaxed text-sm">
-                      Create <span className="font-semibold text-gray-900">UGC Videos</span> and get shares on Instagram
-                      about Myntra Showbizz now.
+                      Create{" "}
+                      <span className="font-semibold text-gray-900">
+                        UGC Videos
+                      </span>{" "}
+                      and get shares on Instagram about Myntra Showbizz now.
                     </h3>
                   </div>
                   <div className="flex items-center gap-3 text-xs text-gray-400 mb-2">
@@ -298,5 +313,5 @@ export default function ZigworkDashboard() {
         }
       `}</style>
     </div>
-  )
+  );
 }

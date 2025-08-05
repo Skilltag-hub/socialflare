@@ -379,7 +379,7 @@ export async function PATCH(req: Request) {
     }
 
     // Validate action
-    const validActions = ["bookmark", "boost", "submitWork"];
+    const validActions = ["bookmark", "boost", "submitWork", "withdraw"];
     if (!validActions.includes(action)) {
       return new Response(JSON.stringify({ error: "Invalid action" }), {
         status: 400,
@@ -426,10 +426,65 @@ export async function PATCH(req: Request) {
 
     try {
       await dbSession.withTransaction(async () => {
-        if (action === "submitWork") {
+        if (action === "withdraw") {
+          // Handle withdrawal request
+          const { upiId, upiName } = reqBody;
+          
+          if (!upiId || !upiName) {
+            throw new Error("UPI ID and UPI Name are required for withdrawal");
+          }
+          
+          const withdrawalData = {
+            upiId,
+            upiName,
+            status: "pending",
+            requestedAt: now,
+          };
+          
+          // Update user's gig with withdrawal request
+          await db.collection("users").updateOne(
+            {
+              _id: currentUser._id,
+              "gigs.gigId": gigId,
+            },
+            {
+              $push: { "gigs.$.withdrawals": withdrawalData },
+              $set: { 
+                "gigs.$.updatedAt": now,
+                "gigs.$.status": "withdrawal_requested" 
+              },
+            },
+            { session: dbSession }
+          );
+          
+          // Update gig's application with withdrawal request
+          await db.collection("gigs").updateOne(
+            {
+              _id: new ObjectId(gigId),
+              "applications.userId": currentUser._id.toString(),
+            },
+            {
+              $push: { "applications.$.withdrawals": withdrawalData },
+              $set: { 
+                "applications.$.lastUpdated": now,
+                "applications.$.status": "withdrawal_requested" 
+              },
+            },
+            { session: dbSession }
+          );
+          
+        } else if (action === "submitWork") {
           // Add a submission to both user's gigs and gig's applications
           const { submission } = reqBody;
           if (!submission) throw new Error("No submission provided");
+          
+          // Create submission object with required fields
+          const submissionData = {
+            ...submission,
+            submittedAt: now,
+            status: "submitted"
+          };
+          
           // Add to user's gigs array
           await db.collection("users").updateOne(
             {
@@ -437,11 +492,15 @@ export async function PATCH(req: Request) {
               "gigs.gigId": gigId,
             },
             {
-              $push: { "gigs.$.submissions": submission },
-              $set: { "gigs.$.updatedAt": now, "gigs.$.status": "completed" },
+              $push: { "gigs.$.submissions": submissionData },
+              $set: { 
+                "gigs.$.updatedAt": now, 
+                "gigs.$.status": "completed" 
+              },
             },
             { session: dbSession }
           );
+          
           // Add to gig's applications array for this user
           await db.collection("gigs").updateOne(
             {
@@ -449,8 +508,11 @@ export async function PATCH(req: Request) {
               "applications.userId": currentUser._id.toString(),
             },
             {
-              $push: { "applications.$.submissions": submission },
-              $set: { "applications.$.lastUpdated": now, "applications.$.status": "completed" },
+              $push: { "applications.$.submissions": submissionData },
+              $set: { 
+                "applications.$.lastUpdated": now, 
+                "applications.$.status": "completed" 
+              },
             },
             { session: dbSession }
           );
