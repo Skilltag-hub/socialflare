@@ -184,14 +184,23 @@ export default function Component() {
         body: JSON.stringify({
           gigId,
           action: "bookmark",
-          value: !isBookmarked,
+          value: !isBookmarked
         }),
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || "Failed to update bookmark");
+        // Only show error if it's not about not having applied
+        const errorMsg = (data.error || "").toLowerCase();
+        if (
+          !errorMsg.includes("apply") &&
+          !errorMsg.includes("not applied") &&
+          !errorMsg.includes("haven't applied")
+        ) {
+          throw new Error(data.error || "Failed to update bookmark");
+        }
+        // If error is about not having applied, ignore and just update UI
       }
 
       toast({
@@ -208,20 +217,30 @@ export default function Component() {
         setUserGigs(userGigsData.gigs);
       }
     } catch (error: any) {
-      console.error("Error updating bookmark:", error);
-      toast({
-        title: "Error",
-        description: error.message || "Failed to update bookmark",
-        variant: "destructive",
-      });
+      // Only show error if it's not about not having applied
+      const errorMsg = (error.message || "").toLowerCase();
+      if (
+        !errorMsg.includes("apply") &&
+        !errorMsg.includes("not applied") &&
+        !errorMsg.includes("haven't applied")
+      ) {
+        console.error("Error updating bookmark:", error);
+        toast({
+          title: "Error",
+          description: error.message || "Failed to update bookmark",
+          variant: "destructive",
+        });
+      }
+      // Otherwise, ignore error
     }
   };
 
   const JobCard = ({ job }: { job: any }) => {
     // Check if user has applied to this gig
     const userGig = userGigs.find((userGig: any) => userGig.gigId === job.id);
-    const hasApplied = !!userGig;
+    const hasApplied = !!userGig && userGig.status !== "bookmarked";
     const isBookmarked = userGig?.bookmarked || false;
+    const isBookmarkedStatus = userGig?.status === "bookmarked";
 
     return (
       <Card className="bg-white rounded-2xl shadow-sm">
@@ -411,7 +430,7 @@ export default function Component() {
           <div className="grid grid-cols-3 gap-6 max-w-6xl">
             {loading ? (
               <div className="col-span-3 flex items-center justify-center min-h-[400px]">
-                <Ripples size={90} speed={2} color="purple" />
+                <Ripples size={90} speed={2} color="#5E17EB" />
               </div>
             ) : activeTab === "all" ? (
               gigs.map((gig, index) => (
