@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { Card, CardContent } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/Button"
 import { Users, BarChart3, Bookmark, User, Home, Clock, Zap, Loader2, Bell } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
