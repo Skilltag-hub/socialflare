@@ -6,6 +6,7 @@ import { ObjectId } from "mongodb";
 type Gig = {
   companyId: string;
   companyName: string;
+  companyLogo?: string;
   openings: number;
   description: string;
   payment: string;
@@ -13,6 +14,11 @@ type Gig = {
   aboutCompany: string;
   datePosted: Date;
   status?: string;
+  category?: string;
+  duration?: string;
+  location?: string;
+  requiredExperience?: string;
+  applicationDeadline?: string;
 };
 
 export async function GET() {
@@ -78,17 +84,23 @@ export async function POST(request: Request) {
       );
     }
 
-    // Create a new gig document with companyId
+    // Create a new gig document with company details
     const newGig: Gig = {
       companyId: company._id.toString(),
       companyName: gigData.companyName,
+      companyLogo: company.logoUrl || '',
       openings: gigData.openings || 1,
       description: gigData.description,
       payment: gigData.payment,
       skills: Array.isArray(gigData.skills) ? gigData.skills : [],
       aboutCompany: gigData.aboutCompany || "",
       datePosted: new Date(gigData.datePosted || Date.now()),
-      status: "active" // Default status
+      status: "active", // Default status
+      category: gigData.category,
+      duration: gigData.duration,
+      location: gigData.location,
+      requiredExperience: gigData.requiredExperience,
+      applicationDeadline: gigData.applicationDeadline
     };
 
     // Insert the new gig into the database

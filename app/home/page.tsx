@@ -123,6 +123,7 @@ export default function Component() {
   const transformGigToJobCard = (gig: any) => ({
     id: gig._id,
     company: gig.companyName,
+    companyLogo: gig.companyLogo,
     openings: `${gig.openings}`,
     timeAgo: getRelativeTime(gig.datePosted),
     description: gig.description,
@@ -255,21 +256,26 @@ export default function Component() {
   };
 
   const JobCard = ({ job }: { job: any }) => {
+    const router = useRouter();
     // Check if user has applied to this gig
     const userGig = userGigs.find((userGig: any) => userGig.gigId === job.id);
     const hasApplied = !!userGig;
     const isBookmarked = userGig?.bookmarked || false;
-
+    console.log(job);
     return (
       <FadeContent duration={500} easing="ease-out" initialOpacity={0}>
-        <Card className="bg-white rounded-2xl shadow-sm h-[200px]">
+        <Card
+          className="bg-white rounded-2xl shadow-sm h-[200px] cursor-pointer hover:shadow-md transition-shadow"
+          onClick={() => router.push(`/zigs/${job.id}`)}
+        >
           <CardContent className="p-4 flex flex-col h-full">
             <div className="flex items-start gap-3 mb-3">
-              <div className="w-12 h-12 bg-yellow-400 rounded-full flex items-center justify-center">
-                <span className="text-black font-bold text-lg">
+              <Avatar className="w-12 h-12 border-2 border-gray-200">
+                <AvatarImage src={job.companyLogo} alt={job.company} />
+                <AvatarFallback className="bg-yellow-400 text-black font-bold text-lg">
                   {job.company.substring(0, 2)}
-                </span>
-              </div>
+                </AvatarFallback>
+              </Avatar>
               <div className="flex-1">
                 <h3 className="font-semibold text-gray-900 mb-1">
                   {job.company}

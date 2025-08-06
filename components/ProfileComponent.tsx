@@ -264,32 +264,21 @@ export default function ProfileComponent({
             {/* Profile Card */}
             <Card className="bg-white rounded-2xl shadow-sm">
               <CardContent className="p-4 text-center">
-                <DropdownMenu>
-                  <DropdownMenuTrigger>
-                    <Avatar className="w-12 h-12 bg-gray-300">
-                      {session?.user?.image ? (
-                        <AvatarImage
-                          src={session.user.image}
-                          alt={session.user.name || "User"}
-                        />
-                      ) : (
-                        <AvatarFallback className="bg-gray-300">
-                          {session?.user?.name
-                            ? session.user.name.substring(0, 2).toUpperCase()
-                            : "GT"}
-                        </AvatarFallback>
-                      )}
-                    </Avatar>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent>
-                    <DropdownMenuItem onClick={() => router.push("/profile")}>
-                      Profile
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => handleLogout()}>
-                      Logout
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                <Avatar className="w-20 h-20 mx-auto mb-4 bg-gray-300">
+                  {session?.user?.image ? (
+                    <AvatarImage
+                      src={session.user.image}
+                      alt={session.user.name || "User"}
+                    />
+                  ) : (
+                    <AvatarFallback className="bg-gray-300">
+                      {session?.user?.name
+                        ? session.user.name.substring(0, 2).toUpperCase()
+                        : "GT"}
+                    </AvatarFallback>
+                  )}
+                </Avatar>
+
                 <h2 className="text-xl font-semibold mb-2">
                   {userData.name || "User Name"}
                 </h2>

@@ -112,25 +112,37 @@ export default function PostGig() {
     e.preventDefault();
     if (!validateFields()) return;
 
-    // Format the data to match the API's expected format
-    const gigData = {
-      companyName: formData.gigTitle, // Using gigTitle as companyName
-      openings: parseInt(formData.numberOfPositions) || 1,
-      description: formData.description,
-      payment: formData.stipend,
-      skills: skills,
-      aboutCompany: formData.additionalRequirements,
-      datePosted: new Date().toISOString(),
-      status: "active",
-      // Additional fields from the form
-      category: formData.category,
-      duration: formData.duration,
-      location: formData.location,
-      requiredExperience: formData.requiredExperience,
-      applicationDeadline: formData.applicationDeadline,
-    };
-
     try {
+      // Fetch company details using the /api/companies/me endpoint which uses the session
+      const companyRes = await fetch('/api/companies/me');
+      if (!companyRes.ok) {
+        throw new Error('Failed to fetch company details');
+      }
+      const company = await companyRes.json();
+      
+      if (!company) {
+        throw new Error('Company details not found');
+      }
+
+      // Format the data to match the API's expected format
+      const gigData = {
+        companyName: company?.name || formData.gigTitle,
+        companyLogo: company?.logoUrl || '',
+        aboutCompany: company?.about || formData.additionalRequirements,
+        openings: parseInt(formData.numberOfPositions) || 1,
+        description: formData.description,
+        payment: formData.stipend,
+        skills: skills,
+        datePosted: new Date().toISOString(),
+        status: "active",
+        // Additional fields from the form
+        category: formData.category,
+        duration: formData.duration,
+        location: formData.location,
+        requiredExperience: formData.requiredExperience,
+        applicationDeadline: formData.applicationDeadline,
+      };
+
       // Post job to MongoDB
       const res = await fetch("/api/gigs", {
         method: "POST",

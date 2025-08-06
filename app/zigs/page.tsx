@@ -327,9 +327,12 @@ export default function Component() {
         <CardContent className="p-4 flex flex-col h-full">
           <div className="flex items-start gap-3 mb-3">
             <div className="w-12 h-12 bg-yellow-400 rounded-full flex items-center justify-center">
-              <span className="text-black font-bold text-lg">
-                {gig.companyName ? gig.companyName.substring(0, 2) : "JS"}
-              </span>
+              <Avatar className="w-12 h-12 border-2 border-gray-200">
+                <AvatarImage src={gig.companyLogo} alt={gig.companyName} />
+                <AvatarFallback className="bg-yellow-400 text-black font-bold text-lg">
+                  {gig.companyName.substring(0, 2)}
+                </AvatarFallback>
+              </Avatar>
             </div>
             <div className="flex-1">
               <h3 className="font-semibold text-gray-900 mb-1">
