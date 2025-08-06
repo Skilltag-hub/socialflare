@@ -26,6 +26,17 @@ export default function LoginForm() {
   const contentRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
 
+  // Check for referral code in URL and store it in localStorage
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search);
+      const refCode = urlParams.get('ref');
+      if (refCode) {
+        localStorage.setItem('referralCode', refCode);
+      }
+    }
+  }, []);
+
   useEffect(() => {
     if (containerRef.current && contentRef.current) {
       const container = containerRef.current;
@@ -115,6 +126,14 @@ export default function LoginForm() {
       className="w-full h-[45px] py-3 border border-gray-300 rounded-lg hover:bg-gray-50 flex items-center justify-center space-x-2 bg-transparent"
       onClick={() => {
         setLoading(true);
+        // Store referral code from URL if present
+        if (typeof window !== 'undefined') {
+          const urlParams = new URLSearchParams(window.location.search);
+          const refCode = urlParams.get('ref');
+          if (refCode) {
+            localStorage.setItem('referralCode', refCode);
+          }
+        }
         signIn("google", { callbackUrl: "/login/details" });
       }}
       disabled={loading}
@@ -147,6 +166,14 @@ export default function LoginForm() {
       className="w-full h-[45px] py-3 border border-gray-300 rounded-lg hover:bg-gray-50 flex items-center justify-center space-x-2 bg-transparent"
       onClick={() => {
         setLoading(true);
+        // Store referral code from URL if present
+        if (typeof window !== 'undefined') {
+          const urlParams = new URLSearchParams(window.location.search);
+          const refCode = urlParams.get('ref');
+          if (refCode) {
+            localStorage.setItem('referralCode', refCode);
+          }
+        }
         signIn("google", { callbackUrl: "/login/details" });
       }}
       disabled={loading}

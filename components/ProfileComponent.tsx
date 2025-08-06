@@ -15,6 +15,7 @@ import {
   Clock3,
   CheckCircle,
   Star,
+  Copy,
 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useState, useEffect } from "react";
@@ -73,6 +74,7 @@ export default function ProfileComponent({
     referredBy: null,
   });
   const [referrals, setReferrals] = useState([]);
+  const [referredBy, setReferredBy] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
 
@@ -163,10 +165,12 @@ export default function ProfileComponent({
             phone: profileData.phone || "+91 8008000988",
           }));
 
-          // Generate referral link based on user email
-          if (profileData.email) {
+          // Generate referral link based on referral code or email
+          if (profileData.referralCode) {
+            setReferralLink(`${window.location.origin}/login?ref=${profileData.referralCode}`);
+          } else if (profileData.email) {
             const encodedEmail = encodeURIComponent(profileData.email);
-            setReferralLink(`www.skilltag.in/signup?ref=${encodedEmail}`);
+            setReferralLink(`${window.location.origin}/login?ref=${encodedEmail}`);
           }
 
           // Fetch referrals data
@@ -174,7 +178,9 @@ export default function ProfileComponent({
 
           if (referralsResponse.ok) {
             const referralsData = await referralsResponse.json();
+            console.log("Referrals data:", referralsData);
             setReferrals(referralsData.referredPeople || []);
+            setReferredBy(referralsData.referredByUser || null);
           }
         } catch (error) {
           console.error("Error fetching profile:", error);
@@ -208,8 +214,8 @@ export default function ProfileComponent({
   const copyReferralLink = () => {
     navigator.clipboard.writeText(referralLink);
     toast({
-      title: "Link Copied",
-      description: "Referral link copied to clipboard",
+      title: "Referral Link Copied!",
+      description: "Share this link with friends to refer them. When they use this link and sign up, their referral code will be automatically filled.",
       variant: "default",
     });
   };
@@ -427,11 +433,46 @@ export default function ProfileComponent({
                     className="bg-green-500 hover:bg-green-600"
                     onClick={copyReferralLink}
                   >
-                    Copy
+                    <Copy className="w-4 h-4" />
                   </Button>
                 </div>
               </CardContent>
             </Card>
+
+            {/* Referred By Card - Added to mobile */}
+            {referredBy && (
+              <Card className="bg-white rounded-2xl shadow-sm">
+                <CardHeader>
+                  <CardTitle className="text-lg">Referred By</CardTitle>
+                </CardHeader>
+                <CardContent className="p-4 pt-0">
+                  <div className="flex items-center gap-3">
+                    <Avatar className="w-10 h-10">
+                      {referredBy.image ? (
+                        <AvatarImage
+                          src={referredBy.image}
+                          alt={referredBy.name}
+                        />
+                      ) : (
+                        <AvatarFallback className="bg-green-400">
+                          {referredBy.name
+                            ?.split(" ")
+                            .map((n) => n[0])
+                            .join("")
+                            .toUpperCase() || "U"}
+                        </AvatarFallback>
+                      )}
+                    </Avatar>
+                    <div className="flex-1">
+                      <p className="font-medium text-sm">{referredBy.name}</p>
+                      <p className="text-xs text-gray-500">
+                        {referredBy.email}
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
 
             {/* My Referrals Card - Added to mobile */}
             <Card className="bg-white rounded-2xl shadow-sm">
@@ -588,7 +629,7 @@ export default function ProfileComponent({
                     className="bg-green-500 hover:bg-green-600"
                     onClick={copyReferralLink}
                   >
-                    Copy
+                    <Copy className="w-4 h-4" />
                   </Button>
                 </div>
                 <div className="space-y-4">
@@ -710,6 +751,41 @@ export default function ProfileComponent({
                 </div>
               </CardContent>
             </Card>
+
+            {/* Referred By Card - Desktop */}
+            {referredBy && (
+              <Card className="bg-white rounded-2xl shadow-sm">
+                <CardHeader>
+                  <CardTitle className="text-xl">Referred By</CardTitle>
+                </CardHeader>
+                <CardContent className="p-6 pt-0">
+                  <div className="flex items-center gap-3">
+                    <Avatar className="w-12 h-12">
+                      {referredBy.image ? (
+                        <AvatarImage
+                          src={referredBy.image}
+                          alt={referredBy.name}
+                        />
+                      ) : (
+                        <AvatarFallback className="bg-green-400">
+                          {referredBy.name
+                            ?.split(" ")
+                            .map((n) => n[0])
+                            .join("")
+                            .toUpperCase() || "U"}
+                        </AvatarFallback>
+                      )}
+                    </Avatar>
+                    <div className="flex-1">
+                      <p className="font-medium">{referredBy.name}</p>
+                      <p className="text-sm text-gray-500">
+                        {referredBy.email}
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
 
             {/* My Referrals Card - Desktop Extended */}
             <Card className="bg-white rounded-2xl shadow-sm">

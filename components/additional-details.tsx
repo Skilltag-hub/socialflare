@@ -30,9 +30,39 @@ export default function AdditionalDetails() {
   const [isUploading, setIsUploading] = useState(false);
   const [idImageUrl, setIdImageUrl] = useState("");
   const [isCheckingStatus, setIsCheckingStatus] = useState(true);
+  const [referralCode, setReferralCode] = useState("");
+  const [isReferralCodeFromUrl, setIsReferralCodeFromUrl] = useState(false);
+  const [originalReferralCode, setOriginalReferralCode] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
   const { data: session, status } = useSession();
+
+  // Check for referral code in URL parameters or localStorage
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      // First check URL parameters
+      const urlParams = new URLSearchParams(window.location.search);
+      const refCode = urlParams.get('ref');
+      
+      if (refCode) {
+        // Store in localStorage for persistence across auth redirects
+        localStorage.setItem('referralCode', refCode);
+        setReferralCode(refCode);
+        setOriginalReferralCode(refCode);
+        setIsReferralCodeFromUrl(true);
+      } else {
+        // Check localStorage for stored referral code
+        const storedRefCode = localStorage.getItem('referralCode');
+        if (storedRefCode) {
+          setReferralCode(storedRefCode);
+          setOriginalReferralCode(storedRefCode);
+          setIsReferralCodeFromUrl(true);
+          // Clear from localStorage after retrieving
+          localStorage.removeItem('referralCode');
+        }
+      }
+    }
+  }, []);
 
   // Check if user has already completed setup
   useEffect(() => {
@@ -85,6 +115,32 @@ export default function AdditionalDetails() {
       setError("Please enter a valid phone number");
       return;
     }
+
+    // If referral code is provided, validate it
+    let referrerInfo = null;
+    if (referralCode.trim() !== "") {
+      try {
+        console.log("Validating referral code:", referralCode);
+        const response = await fetch(`/api/user/validate-referral?code=${encodeURIComponent(referralCode)}`);
+        console.log("Referral validation response status:", response.status);
+        if (response.ok) {
+          referrerInfo = await response.json();
+          console.log("Referrer info:", referrerInfo);
+        } else if (response.status === 404) {
+          // Invalid referral code - show warning but allow submission to continue
+          setError("Invalid referral code. You can continue without it or check the code and try again.");
+          // Clear the referral code so it doesn't get submitted
+          setReferralCode("");
+          setIsReferralCodeFromUrl(false);
+        } else {
+          // Server error - don't block submission, just log it
+          console.error("Error validating referral code:", response.status);
+        }
+      } catch (err) {
+        console.error("Error validating referral code:", err);
+        // Don't block submission on network errors
+      }
+    }
     setIsUploading(true);
 
     let imageUrl = idImageUrl;
@@ -114,7 +170,7 @@ export default function AdditionalDetails() {
       }
     }
 
-    // Now submit the details with the image URL
+    // Now submit the details with the image URL and referral info
     const res = await fetch("/api/user/details", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -124,8 +180,37 @@ export default function AdditionalDetails() {
         graduationYear,
         phone,
         idImageUrl: imageUrl,
+        ...(referrerInfo && { referredBy: referrerInfo.userId })
       }),
     });
+
+    // If submission was successful and there was a valid referrer, update the referrer's record
+    if (res.ok && referrerInfo) {
+      try {
+        console.log("Updating referrer record for:", referrerInfo.userId);
+        const updateResponse = await fetch('/api/user/update-referrer', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            referrerId: referrerInfo.userId,
+            referredUser: {
+              email: session?.user?.email,
+              name: session?.user?.name,
+              image: session?.user?.image,
+              joinedAt: new Date().toISOString()
+            }
+          })
+        });
+        console.log("Update referrer response status:", updateResponse.status);
+        if (!updateResponse.ok) {
+          const errorData = await updateResponse.json();
+          console.error("Update referrer error:", errorData);
+        }
+      } catch (err) {
+        console.error("Error updating referrer's record:", err);
+        // Don't fail the whole submission if this fails
+      }
+    }
     setIsUploading(false);
     if (res.ok) {
       router.push("/home");
@@ -240,6 +325,37 @@ export default function AdditionalDetails() {
                 countryCallingCodeEditable={false}
                 className="w-full border border-gray-300 rounded-lg px-3 py-2"
                 required
+              />
+            </div>
+
+            {/* Referral code field */}
+            <div className="space-y-2">
+              <Label
+                htmlFor="referral-code"
+                className="text-sm font-medium text-gray-700"
+              >
+                Referral Code (Optional)
+                {isReferralCodeFromUrl && (
+                  <span className="ml-2 text-xs text-green-600 bg-green-100 px-2 py-1 rounded">
+                    Pre-filled from link
+                  </span>
+                )}
+              </Label>
+              <input
+                id="referral-code"
+                type="text"
+                value={referralCode}
+                onChange={(e) => {
+                  setReferralCode(e.target.value);
+                  // If user manually changes the code, remove the "pre-filled" indicator
+                  if (isReferralCodeFromUrl && e.target.value !== originalReferralCode) {
+                    setIsReferralCodeFromUrl(false);
+                  }
+                }}
+                placeholder="Enter referral code if you have one"
+                className={`w-full border rounded-lg px-3 py-2 ${
+                  isReferralCodeFromUrl ? 'border-green-300 bg-green-50' : 'border-gray-300'
+                }`}
               />
             </div>
 

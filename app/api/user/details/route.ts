@@ -14,12 +14,33 @@ export async function POST(req: Request) {
   console.log(session.user.email);
   console.log(db);
   
-  // Add setupComplete field to indicate user has completed the setup process
+  // Prepare the update data
+  const updateData = { ...details };
+  
+  // Remove referredBy from the main update if it exists
+  const { referredBy, ...otherDetails } = updateData;
+  
+  // Start with the base update
+  const update: any = { 
+    $set: { ...otherDetails, setupComplete: true } 
+  };
+  
+  // Only set referredBy if it's provided and not already set
+  if (referredBy) {
+    // Check if the user already has a referredBy field
+    const existingUser = await db.collection("users").findOne({ email: session.user.email });
+    if (!existingUser?.referredBy) {
+      update.$set.referredBy = referredBy;
+    }
+  }n
+  
+  // Perform the update
   const result = await db
     .collection("users")
     .updateOne(
-      { email: session.user.email }, 
-      { $set: { ...details, setupComplete: true } }
+      { email: session.user.email },
+      update,
+      { upsert: false }
     );
   
   console.log(

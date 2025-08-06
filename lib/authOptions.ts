@@ -1,6 +1,7 @@
 import GoogleProvider from "next-auth/providers/google";
-import { MongoClient } from "mongodb";
+import { MongoClient, ObjectId } from "mongodb";
 import { SessionStrategy } from "next-auth";
+import { randomInt } from 'crypto';
 
 const uri = process.env.MONGODB_URI;
 const dbName = process.env.MONGODB_DB || "waitlist";
@@ -15,6 +16,25 @@ async function connectToDatabase() {
   cachedClient = client;
   return client;
 }
+
+// Function to generate a unique 6-digit referral code
+const generateUniqueReferralCode = async (db: any): Promise<string> => {
+  let code: string;
+  let isUnique = false;
+  
+  while (!isUnique) {
+    // Generate a 6-digit number and pad with leading zeros if needed
+    code = randomInt(0, 1000000).toString().padStart(6, '0');
+    
+    // Check if code already exists in the database
+    const existingUser = await db.collection("users").findOne({ referralCode: code });
+    if (!existingUser) {
+      isUnique = true;
+    }
+  }
+  
+  return code!;
+};
 
 // Helper function to check if email is a company email
 const isCompanyEmail = (email: string) => {
@@ -87,6 +107,7 @@ export const authOptions = {
               email: user.email,
               name: user.name,
               image: user.image,
+              referralCode: await generateUniqueReferralCode(db),
               institution: "",
               state: "",
               graduationYear: "",

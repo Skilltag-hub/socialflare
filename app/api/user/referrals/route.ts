@@ -30,21 +30,7 @@ export async function GET(req: Request) {
     }
 
     // Get people referred by the user
-    const referredPeopleIds = currentUser.referredPeople || [];
-    let referredPeople = [];
-
-    if (referredPeopleIds.length > 0) {
-      // Convert string IDs to ObjectId if needed
-      const objectIds = referredPeopleIds.map((id) => {
-        return typeof id === "string" ? new ObjectId(id) : id;
-      });
-
-      referredPeople = await db
-        .collection("users")
-        .find({ _id: { $in: objectIds } })
-        .project({ name: 1, email: 1, image: 1 })
-        .toArray();
-    }
+    const referredPeople = currentUser.referredPeople || [];
 
     // Get people who referred the user
     const referredById = currentUser.referredBy;
@@ -63,6 +49,7 @@ export async function GET(req: Request) {
         );
     }
 
+    console.log("Referrals API response:", { referredPeople, referredByUser });
     return new Response(
       JSON.stringify({
         referredPeople,
