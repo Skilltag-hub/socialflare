@@ -58,7 +58,7 @@ export default function ZigworkDashboard() {
       <div className="flex justify-end mb-4 p-6 pb-0">
         <Button
           onClick={handlePostJobClick}
-          className="bg-[#5E17EB] hover:bg-[#4A12C4] text-white px-6 py-1.5 rounded-lg text-sm"
+          className="bg-[#22c55e] hover:bg-[#15803d] text-white px-6 py-1.5 rounded-lg text-sm"
         >
           Post a Job
         </Button>
@@ -73,7 +73,7 @@ export default function ZigworkDashboard() {
               // Loading state
               <Card className="bg-white rounded-xl shadow-sm col-span-2">
                 <CardContent className="p-6 flex items-center justify-center">
-                  <Loader2 className="h-6 w-6 animate-spin text-[#5E17EB] mr-2" />
+                  <Loader2 className="h-6 w-6 animate-spin text-[#22c55e] mr-2" />
                   <span className="text-gray-600">Loading stats...</span>
                 </CardContent>
               </Card>
@@ -97,11 +97,11 @@ export default function ZigworkDashboard() {
                 <Card className="bg-white rounded-xl shadow-sm">
                   <CardContent className="p-3">
                     <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 bg-[#5E17EB]/10 rounded-lg flex items-center justify-center">
-                        <Zap className="w-4 h-4 text-[#5E17EB]" />
+                      <div className="w-8 h-8 bg-[#22c55e]/10 rounded-lg flex items-center justify-center">
+                        <Zap className="w-4 h-4 text-[#22c55e]" />
                       </div>
                       <div>
-                        <div className="text-xl font-bold text-[#5E17EB]">{stats.activeGigs}</div>
+                        <div className="text-xl font-bold text-[#22c55e]">{stats.activeGigs}</div>
                         <div className="text-gray-500 font-normal text-xs">Active Gigs</div>
                       </div>
                     </div>
@@ -111,11 +111,11 @@ export default function ZigworkDashboard() {
                 <Card className="bg-white rounded-xl shadow-sm">
                   <CardContent className="p-3">
                     <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 bg-[#5E17EB]/10 rounded-lg flex items-center justify-center">
-                        <BarChart3 className="w-4 h-4 text-[#5E17EB]" />
+                      <div className="w-8 h-8 bg-[#22c55e]/10 rounded-lg flex items-center justify-center">
+                        <BarChart3 className="w-4 h-4 text-[#22c55e]" />
                       </div>
                       <div>
-                        <div className="text-xl font-bold text-[#5E17EB]">{stats.totalGigs}</div>
+                        <div className="text-xl font-bold text-[#22c55e]">{stats.totalGigs}</div>
                         <div className="text-gray-500 font-normal text-xs">All Gigs</div>
                       </div>
                     </div>
@@ -125,11 +125,11 @@ export default function ZigworkDashboard() {
                 <Card className="bg-white rounded-xl shadow-sm">
                   <CardContent className="p-3">
                     <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 bg-[#5E17EB]/10 rounded-lg flex items-center justify-center">
-                        <Bookmark className="w-4 h-4 text-[#5E17EB]" />
+                      <div className="w-8 h-8 bg-[#22c55e]/10 rounded-lg flex items-center justify-center">
+                        <Bookmark className="w-4 h-4 text-[#22c55e]" />
                       </div>
                       <div>
-                        <div className="text-xl font-bold text-[#5E17EB]">{stats.shortlisted}</div>
+                        <div className="text-xl font-bold text-[#22c55e]">{stats.shortlisted}</div>
                         <div className="text-gray-500 font-normal text-xs">Shortlisted</div>
                       </div>
                     </div>
@@ -139,11 +139,11 @@ export default function ZigworkDashboard() {
                 <Card className="bg-white rounded-xl shadow-sm">
                   <CardContent className="p-3">
                     <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 bg-[#5E17EB]/10 rounded-lg flex items-center justify-center">
-                        <Users className="w-4 h-4 text-[#5E17EB]" />
+                      <div className="w-8 h-8 bg-[#22c55e]/10 rounded-lg flex items-center justify-center">
+                        <Users className="w-4 h-4 text-[#22c55e]" />
                       </div>
                       <div>
-                        <div className="text-xl font-bold text-[#5E17EB]">{stats.totalApplications}</div>
+                        <div className="text-xl font-bold text-[#22c55e]">{stats.totalApplications}</div>
                         <div className="text-gray-500 font-normal text-xs">Total Applications</div>
                       </div>
                     </div>
@@ -158,11 +158,11 @@ export default function ZigworkDashboard() {
             <h2 className="text-xl font-normal mb-3 text-gray-200">Post Ideas</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-w-2xl">
               {/* Create First Zig Card - Clickable, leads to post-gig with pre-fill */}
-              <Card className="bg-transparent border-2 border-dashed border-gray-600 rounded-xl cursor-pointer hover:border-[#5E17EB] transition-colors" onClick={() => {
+              <Card className="bg-transparent border-2 border-dashed border-gray-600 rounded-xl cursor-pointer hover:border-[#22c55e] transition-colors" onClick={() => {
                 window.location.href = "/companies/post-gig?title=My%20First%20Zig&description=Describe%20your%20gig%20here";
               }}>
                 <CardContent className="p-4 h-full flex flex-col items-center justify-center text-center">
-                  <div className="w-8 h-8 bg-gradient-to-br from-[#5E17EB] to-[#4A12C4] rounded-lg flex items-center justify-center mx-auto mb-2 transform -rotate-12">
+                  <div className="w-8 h-8 bg-gradient-to-br from-[#22c55e] to-[#15803d] rounded-lg flex items-center justify-center mx-auto mb-2 transform -rotate-12">
                     <Zap className="w-4 h-4 text-white transform rotate-12" />
                   </div>
                   <div className="text-gray-400 font-normal text-sm">
@@ -183,7 +183,7 @@ export default function ZigworkDashboard() {
                   </div>
                   <div className="flex items-center gap-2 text-xs text-gray-400 mb-1">
                     <div className="flex items-center gap-1">
-                      <Users className="w-3 h-3 text-[#5E17EB]" />
+                      <Users className="w-3 h-3 text-[#22c55e]" />
                       <span>100</span>
                     </div>
                     <div className="flex items-center gap-1">
@@ -193,10 +193,10 @@ export default function ZigworkDashboard() {
                   </div>
                   <div className="flex items-center justify-between mt-1">
                     <div className="flex items-center gap-1">
-                      <Zap className="w-3 h-3 text-[#5E17EB]" />
+                      <Zap className="w-3 h-3 text-[#22c55e]" />
                       <span className="font-bold text-sm">350</span>
                     </div>
-                    <Button className="bg-[#5E17EB] hover:bg-[#4A12C4] text-white px-2 py-0.5 rounded-lg text-xs h-6">
+                    <Button className="bg-[#22c55e] hover:bg-[#15803d] text-white px-2 py-0.5 rounded-lg text-xs h-6">
                       Post
                     </Button>
                   </div>
@@ -223,7 +223,7 @@ export default function ZigworkDashboard() {
                   </div>
                   <div className="flex items-center gap-3 text-xs text-gray-400 mb-2">
                     <div className="flex items-center gap-1">
-                      <Users className="w-3 h-3 text-[#5E17EB]" />
+                      <Users className="w-3 h-3 text-[#22c55e]" />
                       <span>100 Applicants</span>
                     </div>
                     <div className="flex items-center gap-1">
@@ -233,10 +233,10 @@ export default function ZigworkDashboard() {
                   </div>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-1">
-                      <Zap className="w-4 h-4 text-[#5E17EB]" />
+                      <Zap className="w-4 h-4 text-[#22c55e]" />
                       <span className="font-bold text-base">350</span>
                     </div>
-                    <Button className="bg-[#5E17EB] hover:bg-[#4A12C4] text-white px-3 py-1 rounded-lg font-normal text-xs">
+                    <Button className="bg-[#22c55e] hover:bg-[#15803d] text-white px-3 py-1 rounded-lg font-normal text-xs">
                       Post
                     </Button>
                   </div>
@@ -263,7 +263,7 @@ export default function ZigworkDashboard() {
                   </div>
                   <div className="flex items-center gap-3 text-xs text-gray-400 mb-2">
                     <div className="flex items-center gap-1">
-                      <Users className="w-3 h-3 text-[#5E17EB]" />
+                      <Users className="w-3 h-3 text-[#22c55e]" />
                       <span>100 Applicants</span>
                     </div>
                     <div className="flex items-center gap-1">
@@ -273,10 +273,10 @@ export default function ZigworkDashboard() {
                   </div>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-1">
-                      <Zap className="w-4 h-4 text-[#5E17EB]" />
+                      <Zap className="w-4 h-4 text-[#22c55e]" />
                       <span className="font-bold text-base">350</span>
                     </div>
-                    <Button className="bg-[#5E17EB] hover:bg-[#4A12C4] text-white px-3 py-1 rounded-lg font-normal text-xs">
+                    <Button className="bg-[#22c55e] hover:bg-[#15803d] text-white px-3 py-1 rounded-lg font-normal text-xs">
                       Post
                     </Button>
                   </div>

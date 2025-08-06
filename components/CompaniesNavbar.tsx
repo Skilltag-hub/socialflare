@@ -60,8 +60,8 @@ export default function CompaniesNavbar() {
                 asChild
                 className={`w-full justify-start bg-transparent transition-colors duration-150 ${
                   pathname === href
-                    ? "text-[#5E17EB]"
-                    : "text-gray-400 hover:text-[#5E17EB]"
+                    ? "text-[#22c55e]"
+                    : "text-gray-400 hover:text-[#22c55e]"
                 }`}
               >
                 <span className="flex items-center">
@@ -105,8 +105,8 @@ export default function CompaniesNavbar() {
                 variant="ghost"
                 size="icon"
                 className={`h-12 w-12 ${
-                  pathname === href ? "text-white" : "text-purple-200"
-                } hover:bg-purple-500`}
+                  pathname === href ? "text-white" : "text-green-200"
+                } hover:bg-green-500`}
               >
                 <span className="flex flex-col items-center">
                   <Icon className="w-6 h-6 fill-current" />
