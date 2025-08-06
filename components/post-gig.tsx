@@ -165,14 +165,14 @@ export default function PostGig() {
 
   return (
     <div className="min-h-screen bg-black text-white p-6">
-      {/* Header */}
+      {/* Header with enhanced back button */}
       <div className="mb-6">
         <Link
           href="/companies"
-          className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors mb-4"
+          className="flex items-center gap-2 text-white hover:text-gray-300 transition-colors mb-6 p-3 rounded-lg bg-gray-800 w-fit hover:bg-gray-700"
         >
-          <ArrowLeft className="w-4 h-4" />
-          <span>Back</span>
+          <ArrowLeft className="w-5 h-5" />
+          <span className="font-medium">Back to Companies</span>
         </Link>
       </div>
 

@@ -18,6 +18,8 @@ import { upload } from "@imagekit/next";
 import { useSession } from "next-auth/react";
 // Add import for PhoneInput
 import { PhoneInput } from "./phone-input";
+import { Ripples } from "ldrs/react";
+import "ldrs/react/Ripples.css";
 
 export default function AdditionalDetails() {
   const [institution, setInstitution] = useState("cbit");
@@ -27,6 +29,7 @@ export default function AdditionalDetails() {
   const [error, setError] = useState("");
   const [isUploading, setIsUploading] = useState(false);
   const [idImageUrl, setIdImageUrl] = useState("");
+  const [isCheckingStatus, setIsCheckingStatus] = useState(true);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
   const { data: session, status } = useSession();
@@ -35,6 +38,7 @@ export default function AdditionalDetails() {
   useEffect(() => {
     const checkUserStatus = async () => {
       if (status === "authenticated") {
+        setIsCheckingStatus(true);
         try {
           const response = await fetch("/api/user/status");
           const data = await response.json();
@@ -42,10 +46,20 @@ export default function AdditionalDetails() {
           if (data.setupComplete) {
             // User has completed setup, redirect to home
             router.push("/home");
+          } else {
+            // User needs to complete setup, show the form
+            setIsCheckingStatus(false);
           }
         } catch (error) {
           console.error("Error checking user status:", error);
+          setIsCheckingStatus(false);
         }
+      } else if (status === "unauthenticated") {
+        // Not logged in
+        router.push("/login");
+      } else {
+        // Status is "loading", keep the loading state active
+        setIsCheckingStatus(true);
       }
     };
 
@@ -120,6 +134,8 @@ export default function AdditionalDetails() {
     }
   };
 
+  // Loading spinner component removed and replaced with Ripples from ldrs/react
+
   return (
     <div
       className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden"
@@ -131,9 +147,17 @@ export default function AdditionalDetails() {
         `,
       }}
     >
-      <div className="w-full max-w-md bg-white rounded-2xl shadow-lg p-8">
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <h1 className="text-2xl font-bold text-gray-900">One More Step!</h1>
+      {isCheckingStatus ? (
+        <div className="w-full max-w-md bg-white rounded-2xl shadow-lg p-8 flex items-center justify-center" style={{ minHeight: '400px' }}>
+          <div className="flex flex-col items-center justify-center">
+            <Ripples size={45} speed={2} color="#5E17EB" />
+            <p className="mt-4 text-lg font-medium">Loading...</p>
+          </div>
+        </div>
+      ) : (
+        <div className="w-full max-w-md bg-white rounded-2xl shadow-lg p-8">
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <h1 className="text-2xl font-bold text-gray-900">One More Step!</h1>
 
           <div className="space-y-4">
             <div className="space-y-2">
@@ -252,11 +276,7 @@ export default function AdditionalDetails() {
               {isUploading ? "Uploading..." : "Continue"}
             </Button>
 
-            <div className="text-center">
-              <Link href="#" className="text-sm text-blue-600 hover:underline">
-                Skip For Now
-              </Link>
-            </div>
+            {/* Removed 'Skip For Now' option since details are required */}
           </div>
         </form>
         {/* ...footer... */}
@@ -276,6 +296,7 @@ export default function AdditionalDetails() {
           </div>
         </div>
       </div>
+      )}
     </div>
   );
 }

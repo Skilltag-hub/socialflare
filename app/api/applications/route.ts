@@ -126,54 +126,9 @@ export async function POST(req: Request) {
     }
 
     // Check if the user has already applied to this gig by looking in the gig's applications array
-    let existingApplication = gig.applications?.find(
+    const existingApplication = gig.applications?.find(
       (app: any) => app.userId === currentUser._id.toString()
     );
-
-    // Check if the gig is already in user's gigs array
-    let userGigIndex = currentUser.gigs?.findIndex(
-      (userGig: any) => userGig.gigId === gigId
-    );
-
-    // If user has a 'bookmarked' application, update it to 'applied'
-    if (existingApplication && existingApplication.status === "bookmarked" && userGigIndex !== -1 && currentUser.gigs[userGigIndex].status === "bookmarked") {
-      const now = new Date();
-      // Update both gig's applications array and user's gigs array
-      const dbSession = client.startSession();
-      try {
-        await dbSession.withTransaction(async () => {
-          await db.collection("gigs").updateOne(
-            { _id: new ObjectId(gigId), "applications.userId": currentUser._id.toString() },
-            {
-              $set: {
-                "applications.$.status": "applied",
-                "applications.$.lastUpdated": now
-              }
-            },
-            { session: dbSession }
-          );
-          await db.collection("users").updateOne(
-            { _id: currentUser._id, "gigs.gigId": gigId },
-            {
-              $set: {
-                "gigs.$.status": "applied",
-                "gigs.$.updatedAt": now
-              }
-            },
-            { session: dbSession }
-          );
-        });
-      } finally {
-        await dbSession.endSession();
-      }
-      return new Response(
-        JSON.stringify({ message: "Application status updated from bookmarked to applied" }),
-        {
-          status: 200,
-          headers: { "Content-Type": "application/json" },
-        }
-      );
-    }
 
     if (existingApplication) {
       return new Response(
@@ -185,7 +140,12 @@ export async function POST(req: Request) {
       );
     }
 
-    if (userGigIndex !== -1) {
+    // Check if the gig is already in user's gigs array
+    const gigAlreadyInUser = currentUser.gigs?.some(
+      (userGig: any) => userGig.gigId === gigId
+    );
+
+    if (gigAlreadyInUser) {
       return new Response(
         JSON.stringify({ error: "You have already applied to this gig" }),
         {

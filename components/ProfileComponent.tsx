@@ -20,6 +20,16 @@ import { useSession } from "next-auth/react";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { useRouter } from "next/navigation";
+import { signOut } from "next-auth/react";
 
 interface CompanyData {
   _id: string;
@@ -41,7 +51,11 @@ interface ProfileComponentProps {
   companyData?: CompanyData | null;
 }
 
-export default function ProfileComponent({ userId, hideEditButton, companyData }: ProfileComponentProps) {
+export default function ProfileComponent({
+  userId,
+  hideEditButton,
+  companyData,
+}: ProfileComponentProps) {
   const { data: session, status } = useSession();
   const { toast } = useToast();
   const [referralLink, setReferralLink] = useState("");
@@ -60,15 +74,28 @@ export default function ProfileComponent({ userId, hideEditButton, companyData }
   });
   const [referrals, setReferrals] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const router = useRouter();
 
+  const handleLogout = async () => {
+    try {
+      await signOut({ callbackUrl: "/" });
+    } catch (error) {
+      console.error("Error logging out:", error);
+      toast({
+        title: "Error",
+        description: "Failed to logout. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
   // Update user data when companyData changes
   useEffect(() => {
     if (companyData) {
-      setUserData(prev => ({
+      setUserData((prev) => ({
         ...prev,
         name: companyData.contactName,
         email: companyData.email,
-        image: companyData.logoUrl
+        image: companyData.logoUrl,
       }));
     }
   }, [companyData]);
@@ -190,8 +217,12 @@ export default function ProfileComponent({ userId, hideEditButton, companyData }
   return (
     <>
       {/* Mobile Layout - Below 700px */}
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4 lg:hidden">
-        <div className="w-full max-w-sm bg-gradient-to-b from-purple-100 to-purple-200 rounded-3xl shadow-2xl overflow-hidden flex flex-col h-screen">
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center lg:hidden">
+        <div className="w-full bg-gradient-to-b from-purple-100 to-purple-200 flex flex-col relative">
+          <div className="fixed bottom-1 inset-x-0 z-50">
+            <Navbar />
+          </div>
+
           {/* Header */}
           <div className="flex items-center justify-between p-4 pt-8 sticky top-0 z-10 bg-gradient-to-b from-purple-100 to-purple-200">
             <div>
@@ -200,37 +231,65 @@ export default function ProfileComponent({ userId, hideEditButton, companyData }
               </p>
               <p className="text-purple-600 text-xl font-semibold">Profile</p>
             </div>
-            <Avatar className="w-12 h-12 bg-gray-300">
-              {userData.image ? (
-                <AvatarImage
-                  src={userData.image}
-                  alt={userData.name || "User"}
-                />
-              ) : (
-                <AvatarFallback className="bg-gray-300">
-                  {getUserInitials()}
-                </AvatarFallback>
-              )}
-            </Avatar>
-          </div>
-
-          {/* Profile Content - Mobile - Scrollable */}
-          <div className="px-4 space-y-4 pb-4 flex-1 overflow-y-auto">
-            {/* Profile Card */}
-            <Card className="bg-white rounded-2xl shadow-sm">
-              <CardContent className="p-4 text-center">
-                <Avatar className="w-20 h-20 mx-auto mb-4 bg-gray-300">
-                  {userData.image ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger>
+                <Avatar className="w-12 h-12 bg-gray-300">
+                  {session?.user?.image ? (
                     <AvatarImage
-                      src={userData.image}
-                      alt={userData.name || "User"}
+                      src={session.user.image}
+                      alt={session.user.name || "User"}
                     />
                   ) : (
-                    <AvatarFallback className="bg-gray-300 text-2xl">
-                      {getUserInitials()}
+                    <AvatarFallback className="bg-gray-300">
+                      {session?.user?.name
+                        ? session.user.name.substring(0, 2).toUpperCase()
+                        : "GT"}
                     </AvatarFallback>
                   )}
                 </Avatar>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuItem onClick={() => router.push("/profile")}>
+                  Profile
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleLogout()}>
+                  Logout
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+
+          {/* Profile Content - Mobile - Scrollable */}
+          <div className="px-4 space-y-4 pb-[100px] pt-2 flex-1 overflow-y-auto">
+            {/* Profile Card */}
+            <Card className="bg-white rounded-2xl shadow-sm">
+              <CardContent className="p-4 text-center">
+                <DropdownMenu>
+                  <DropdownMenuTrigger>
+                    <Avatar className="w-12 h-12 bg-gray-300">
+                      {session?.user?.image ? (
+                        <AvatarImage
+                          src={session.user.image}
+                          alt={session.user.name || "User"}
+                        />
+                      ) : (
+                        <AvatarFallback className="bg-gray-300">
+                          {session?.user?.name
+                            ? session.user.name.substring(0, 2).toUpperCase()
+                            : "GT"}
+                        </AvatarFallback>
+                      )}
+                    </Avatar>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent>
+                    <DropdownMenuItem onClick={() => router.push("/profile")}>
+                      Profile
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleLogout()}>
+                      Logout
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
                 <h2 className="text-xl font-semibold mb-2">
                   {userData.name || "User Name"}
                 </h2>
@@ -432,49 +491,6 @@ export default function ProfileComponent({ userId, hideEditButton, companyData }
           </div>
 
           {/* Bottom Navigation - Fixed at bottom */}
-          <div className="bg-purple-600 px-4 py-4 rounded-t-3xl sticky bottom-0 z-10">
-            <div className="flex items-center justify-around">
-              <Link href="/home">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="text-white hover:bg-purple-500 h-12 w-12"
-                >
-                  <Home className="w-6 h-6" />
-                </Button>
-              </Link>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="text-white hover:bg-purple-500 h-12 w-12"
-              >
-                <MessageCircle className="w-6 h-6" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="text-white hover:bg-purple-500 h-12 w-12"
-              >
-                <Bell className="w-6 h-6" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="text-white hover:bg-purple-500 h-12 w-12"
-              >
-                <Building2 className="w-6 h-6" />
-              </Button>
-              <Link href="/profile">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="text-white hover:bg-purple-500 h-12 w-12 bg-purple-500"
-                >
-                  <User className="w-6 h-6 fill-current" />
-                </Button>
-              </Link>
-            </div>
-          </div>
         </div>
       </div>
 

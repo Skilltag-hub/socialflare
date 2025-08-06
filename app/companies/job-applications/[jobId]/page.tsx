@@ -108,138 +108,140 @@ export default function CompaniesJobApplicationsPage({
     initializeParams();
   }, [params]);
 
-  useEffect(() => {
+  // Define fetchJob outside of useEffect so it can be called from other functions
+  const fetchJob = async () => {
     if (!jobId) return;
-
-    async function fetchJob() {
-      try {
-        setLoading(true);
-        const res = await fetch(`/api/gigs/${jobId}`);
-        if (!res.ok)
-          throw new Error(
-            `Failed to fetch job: ${res.status} ${res.statusText}`
-          );
-
-        const response = await res.json();
-        const gigData = response.gig || response; // Handle both { gig: {...} } and direct response
-
-        console.log("Raw API Response:", JSON.stringify(response, null, 2));
-        console.log("Processed Gig Data:", JSON.stringify(gigData, null, 2));
-        console.log(
-          "Applications array:",
-          JSON.stringify(gigData.applications || [], null, 2)
+    
+    try {
+      setLoading(true);
+      const res = await fetch(`/api/gigs/${jobId}`);
+      if (!res.ok)
+        throw new Error(
+          `Failed to fetch job: ${res.status} ${res.statusText}`
         );
 
-        // Transform the data to match our Job interface
-        const jobData: Job = {
-          _id: gigData._id,
-          companyName: gigData.companyName,
-          description: gigData.description,
-          datePosted: gigData.datePosted,
-          status: gigData.status || "applied",
-          // Map applications to applicants format with real user data
-          applicants: [],
-          openings: gigData.openings,
-          payment: gigData.payment,
-          skills: gigData.skills || [],
-          aboutCompany: gigData.aboutCompany || "",
-        };
+      const response = await res.json();
+      const gigData = response.gig || response; // Handle both { gig: {...} } and direct response
 
-        // Fetch real user data for each applicant
-        const newUserDataMap: Record<string, UserData | null> = {};
-        const applicantsWithUserData: Applicant[] = [];
+      console.log("Raw API Response:", JSON.stringify(response, null, 2));
+      console.log("Processed Gig Data:", JSON.stringify(gigData, null, 2));
+      console.log(
+        "Applications array:",
+        JSON.stringify(gigData.applications || [], null, 2)
+      );
 
-        if (gigData.applications && gigData.applications.length > 0) {
-          for (const app of gigData.applications) {
-            try {
-              // Fetch user data by userId
-              const userRes = await fetch(`/api/user/${app.userId}`);
-              let userData: UserData | null = null;
+      // Transform the data to match our Job interface
+      const jobData: Job = {
+        _id: gigData._id,
+        companyName: gigData.companyName,
+        description: gigData.description,
+        datePosted: gigData.datePosted,
+        status: gigData.status || "applied",
+        // Map applications to applicants format with real user data
+        applicants: [],
+        openings: gigData.openings,
+        payment: gigData.payment,
+        skills: gigData.skills || [],
+        aboutCompany: gigData.aboutCompany || "",
+      };
 
-              if (userRes.ok) {
-                userData = await userRes.json();
-                console.log(`Fetched user data for ${app.userId}:`, userData);
-              } else {
-                console.warn(
-                  `Failed to fetch user data for ${app.userId}:`,
-                  userRes.status
-                );
-              }
+      // Fetch real user data for each applicant
+      const newUserDataMap: Record<string, UserData | null> = {};
+      const applicantsWithUserData: Applicant[] = [];
 
-              // Create applicant with real user data or fallback
-              const appId =
-                app._id?.toString() ||
-                `app-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-              const applicant: Applicant = {
-                _id: app.userId,
-                email: userData?.email || `user-${app.userId}@example.com`,
-                name: userData?.name || "Unknown User",
-                status: app.status || "applied",
-                appliedAt: app.timeApplied
-                  ? new Date(app.timeApplied).toISOString()
-                  : new Date().toISOString(),
-                profileImage: userData?.profileImage || "",
-                upiId:
-                  app.withdrawals && app.withdrawals.length > 0
-                    ? app.withdrawals[0].upiId
-                    : "",
-                upiName:
-                  app.withdrawals && app.withdrawals.length > 0
-                    ? app.withdrawals[0].upiName
-                    : "",
-              };
+      if (gigData.applications && gigData.applications.length > 0) {
+        for (const app of gigData.applications) {
+          try {
+            // Fetch user data by userId
+            const userRes = await fetch(`/api/user/${app.userId}`);
+            let userData: UserData | null = null;
 
-              applicantsWithUserData.push(applicant);
-
-              // Store user data in map using email as key
-              if (applicant.email) {
-                newUserDataMap[applicant.email] = userData;
-              }
-            } catch (error) {
-              console.error(
-                `Error fetching user data for ${app.userId}:`,
-                error
+            if (userRes.ok) {
+              userData = await userRes.json();
+              console.log(`Fetched user data for ${app.userId}:`, userData);
+            } else {
+              console.warn(
+                `Failed to fetch user data for ${app.userId}:`,
+                userRes.status
               );
-
-              // Add applicant with fallback data if user fetch fails
-              const appId =
-                app._id?.toString() ||
-                `app-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-              const fallbackApplicant: Applicant = {
-                _id: app.userId,
-                email: `user-${app.userId}@example.com`,
-                name: "Unknown User",
-                status: app.status || "applied",
-                appliedAt: app.timeApplied
-                  ? new Date(app.timeApplied).toISOString()
-                  : new Date().toISOString(),
-                profileImage: "",
-                upiId:
-                  app.withdrawals && app.withdrawals.length > 0
-                    ? app.withdrawals[0].upiId
-                    : "",
-                upiName:
-                  app.withdrawals && app.withdrawals.length > 0
-                    ? app.withdrawals[0].upiName
-                    : "",
-              };
-
-              applicantsWithUserData.push(fallbackApplicant);
-              newUserDataMap[fallbackApplicant.email] = null;
             }
+
+            // Create applicant with real user data or fallback
+            const appId =
+              app._id?.toString() ||
+              `app-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+            const applicant: Applicant = {
+              _id: app.userId,
+              email: userData?.email || `user-${app.userId}@example.com`,
+              name: userData?.name || "Unknown User",
+              status: app.status || "applied",
+              appliedAt: app.timeApplied
+                ? new Date(app.timeApplied).toISOString()
+                : new Date().toISOString(),
+              profileImage: userData?.profileImage || "",
+              upiId:
+                app.withdrawals && app.withdrawals.length > 0
+                  ? app.withdrawals[0].upiId
+                  : "",
+              upiName:
+                app.withdrawals && app.withdrawals.length > 0
+                  ? app.withdrawals[0].upiName
+                  : "",
+            };
+
+            applicantsWithUserData.push(applicant);
+
+            // Store user data in map using email as key
+            if (applicant.email) {
+              newUserDataMap[applicant.email] = userData;
+            }
+          } catch (error) {
+            console.error(
+              `Error fetching user data for ${app.userId}:`,
+              error
+            );
+
+            // Add applicant with fallback data if user fetch fails
+            const appId =
+              app._id?.toString() ||
+              `app-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+            const fallbackApplicant: Applicant = {
+              _id: app.userId,
+              email: `user-${app.userId}@example.com`,
+              name: "Unknown User",
+              status: app.status || "applied",
+              appliedAt: app.timeApplied
+                ? new Date(app.timeApplied).toISOString()
+                : new Date().toISOString(),
+              profileImage: "",
+              upiId:
+                app.withdrawals && app.withdrawals.length > 0
+                  ? app.withdrawals[0].upiId
+                  : "",
+              upiName:
+                app.withdrawals && app.withdrawals.length > 0
+                  ? app.withdrawals[0].upiName
+                  : "",
+            };
+
+            applicantsWithUserData.push(fallbackApplicant);
+            newUserDataMap[fallbackApplicant.email] = null;
           }
         }
-
-        jobData.applicants = applicantsWithUserData;
-        setJob(jobData);
-        setUserDataMap(newUserDataMap);
-      } catch (error) {
-        console.error("Error fetching job:", error);
-      } finally {
-        setLoading(false);
       }
-    }
 
+      jobData.applicants = applicantsWithUserData;
+      setJob(jobData);
+      setUserDataMap(newUserDataMap);
+    } catch (error) {
+      console.error("Error fetching job:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (!jobId) return;
     fetchJob();
   }, [jobId]);
 
@@ -300,30 +302,33 @@ export default function CompaniesJobApplicationsPage({
   };
 
   // Show toast notification
-  const showToast = (message: string, type: 'success' | 'error' | 'info' = 'info') => {
+  const showToast = (
+    message: string,
+    type: "success" | "error" | "info" = "info"
+  ) => {
     const style = {
-      success: { background: 'green', color: 'white' },
-      error: { background: 'red', color: 'white' },
-      info: { background: 'blue', color: 'white' }
+      success: { background: "green", color: "white" },
+      error: { background: "red", color: "white" },
+      info: { background: "blue", color: "white" },
     }[type];
-    
-    const toast = document.createElement('div');
+
+    const toast = document.createElement("div");
     toast.textContent = message;
-    toast.style.position = 'fixed';
-    toast.style.bottom = '20px';
-    toast.style.right = '20px';
-    toast.style.padding = '12px 24px';
-    toast.style.borderRadius = '4px';
+    toast.style.position = "fixed";
+    toast.style.bottom = "20px";
+    toast.style.right = "20px";
+    toast.style.padding = "12px 24px";
+    toast.style.borderRadius = "4px";
     toast.style.color = style.color;
     toast.style.backgroundColor = style.background;
-    toast.style.zIndex = '1000';
-    toast.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
-    toast.style.transition = 'opacity 0.3s ease-in-out';
-    
+    toast.style.zIndex = "1000";
+    toast.style.boxShadow = "0 4px 12px rgba(0,0,0,0.15)";
+    toast.style.transition = "opacity 0.3s ease-in-out";
+
     document.body.appendChild(toast);
-    
+
     setTimeout(() => {
-      toast.style.opacity = '0';
+      toast.style.opacity = "0";
       setTimeout(() => {
         document.body.removeChild(toast);
       }, 300);
@@ -395,8 +400,8 @@ export default function CompaniesJobApplicationsPage({
     newStatus: ApplicationStatus
   ) {
     try {
-      setIsUpdating(prev => ({ ...prev, [applicantId]: true }));
-      
+      setIsUpdating((prev) => ({ ...prev, [applicantId]: true }));
+
       const res = await fetch(`/api/gigs/${jobId}/applications`, {
         method: "PATCH",
         headers: {
@@ -410,19 +415,24 @@ export default function CompaniesJobApplicationsPage({
 
       if (!res.ok) {
         const errorData = await res.json().catch(() => ({}));
-        throw new Error(errorData.message || `Failed to update status: ${res.statusText}`);
+        throw new Error(
+          errorData.message || `Failed to update status: ${res.statusText}`
+        );
       }
 
       // Show success message
-      showToast(`Status updated to ${newStatus}`, 'success');
-      
+      showToast(`Status updated to ${newStatus}`, "success");
+
       // Refresh the job data to get updated applicant statuses
       await fetchJob();
     } catch (error) {
       console.error("Error updating applicant status:", error);
-      showToast(error instanceof Error ? error.message : 'Failed to update status', 'error');
+      showToast(
+        error instanceof Error ? error.message : "Failed to update status",
+        "error"
+      );
     } finally {
-      setIsUpdating(prev => ({ ...prev, [applicantId]: false }));
+      setIsUpdating((prev) => ({ ...prev, [applicantId]: false }));
     }
   }
 
@@ -508,7 +518,7 @@ export default function CompaniesJobApplicationsPage({
   async function handlePaymentProcess(applicantId: string) {
     try {
       setIsProcessingPayment(true);
-      
+
       // Update the status to withdrawal_processed
       const res = await fetch(`/api/gigs/${jobId}/applications`, {
         method: "PATCH",
@@ -523,11 +533,13 @@ export default function CompaniesJobApplicationsPage({
 
       if (!res.ok) {
         const errorData = await res.json().catch(() => ({}));
-        throw new Error(errorData.message || `Failed to process payment: ${res.statusText}`);
+        throw new Error(
+          errorData.message || `Failed to process payment: ${res.statusText}`
+        );
       }
 
       // Show success message
-      showToast('Payment processed successfully', 'success');
+      showToast("Payment processed successfully", "success");
 
       // Close the payment modal
       setShowPaymentModal(false);
@@ -536,7 +548,10 @@ export default function CompaniesJobApplicationsPage({
       await fetchJob();
     } catch (error) {
       console.error("Error processing payment:", error);
-      showToast(error instanceof Error ? error.message : 'Failed to process payment', 'error');
+      showToast(
+        error instanceof Error ? error.message : "Failed to process payment",
+        "error"
+      );
     } finally {
       setIsProcessingPayment(false);
     }
@@ -709,7 +724,9 @@ export default function CompaniesJobApplicationsPage({
                             <Button
                               variant="outline"
                               className="text-sm px-3 py-1 border-blue-300 text-blue-700 hover:bg-blue-50 bg-transparent"
-                              onClick={() => handleViewSubmission(applicant._id)}
+                              onClick={() =>
+                                handleViewSubmission(applicant._id)
+                              }
                             >
                               <Eye className="w-4 h-4 mr-1" />
                               View
@@ -718,7 +735,12 @@ export default function CompaniesJobApplicationsPage({
                               <Tooltip>
                                 <TooltipTrigger asChild>
                                   <Button
-                                    onClick={() => handleStatusUpdate(applicant._id, "work_accepted")}
+                                    onClick={() =>
+                                      handleStatusUpdate(
+                                        applicant._id,
+                                        "work_accepted"
+                                      )
+                                    }
                                     className="bg-white hover:bg-green-500 text-green-500 hover:text-white transition-colors p-1.5 rounded-full"
                                     aria-label="Accept Work"
                                   >
@@ -730,7 +752,12 @@ export default function CompaniesJobApplicationsPage({
                               <Tooltip>
                                 <TooltipTrigger asChild>
                                   <Button
-                                    onClick={() => handleStatusUpdate(applicant._id, "work_rejected")}
+                                    onClick={() =>
+                                      handleStatusUpdate(
+                                        applicant._id,
+                                        "work_rejected"
+                                      )
+                                    }
                                     variant="outline"
                                     className="bg-white hover:bg-red-500 text-red-500 hover:text-white transition-colors p-1.5 rounded-full"
                                     aria-label="Reject Work"

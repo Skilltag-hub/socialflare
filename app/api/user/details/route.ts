@@ -13,9 +13,15 @@ export async function POST(req: Request) {
   const db = client.db("waitlist");
   console.log(session.user.email);
   console.log(db);
+  
+  // Add setupComplete field to indicate user has completed the setup process
   const result = await db
     .collection("users")
-    .updateOne({ email: session.user.email }, { $set: { ...details } });
+    .updateOne(
+      { email: session.user.email }, 
+      { $set: { ...details, setupComplete: true } }
+    );
+  
   console.log(
     "Matched:",
     result.matchedCount,

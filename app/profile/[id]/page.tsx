@@ -8,5 +8,11 @@ interface ProfilePageProps {
 export default function ProfilePage({ params }: ProfilePageProps) {
   // Pass the userId from the route to the UserProfile component
   // Do not render the edit profile button in this context
-  return <ProfileComponent userId={params.id} hideEditButton={true} />;
+  return (
+    <div className="min-h-screen bg-black flex flex-col items-center">
+      <div className="w-full max-w-screen-md px-4">
+        <ProfileComponent userId={params.id} hideEditButton={true} />
+      </div>
+    </div>
+  );
 }

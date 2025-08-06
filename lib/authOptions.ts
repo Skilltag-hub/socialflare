@@ -99,6 +99,7 @@ export const authOptions = {
               dateOfBirth: null,
               referredPeople: [],
               referredBy: null,
+              setupComplete: false,
               createdAt: new Date(),
               updatedAt: new Date(),
               emailVerified: new Date()

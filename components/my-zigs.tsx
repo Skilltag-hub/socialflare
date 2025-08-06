@@ -63,6 +63,8 @@ export default function MyZigs() {
 
   async function fetchJobs() {
     try {
+      setIsLoading(true);
+      setError(null);
       console.log("Fetching jobs from /api/gigs...");
       const res = await fetch("/api/gigs");
       console.log("Response status:", res.status);
@@ -131,13 +133,16 @@ export default function MyZigs() {
         message: error.message,
         stack: error.stack,
       });
+      setError(error.message || 'Failed to load jobs');
       setJobs([]); // Ensure jobs is always an array
+    } finally {
+      setIsLoading(false);
     }
   }
 
   useEffect(() => {
     fetchJobs();
-  }, []);
+  }, [companyId]); // Add companyId as a dependency to refetch when it changes
 
   const filteredJobs =
     activeFilter === "all"

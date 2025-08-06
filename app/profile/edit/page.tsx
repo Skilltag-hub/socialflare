@@ -202,8 +202,8 @@ export default function Component() {
   return (
     <>
       {/* Mobile Layout - Below 700px */}
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4 lg:hidden">
-        <div className="w-full max-w-sm bg-gradient-to-b from-purple-100 to-purple-200 rounded-3xl shadow-2xl overflow-hidden">
+      <div className="min-h-screen bg-black flex flex-col lg:hidden">
+        <div className="w-full max-w-sm mx-auto bg-gradient-to-b from-purple-100 to-purple-200 rounded-3xl shadow-2xl overflow-hidden flex flex-col relative overflow-y-auto">
           {/* Header */}
           <div className="flex items-center justify-between p-4 pt-8">
             <div className="flex items-center gap-2">
@@ -455,7 +455,7 @@ export default function Component() {
         </div>
 
         {/* Main Content - Desktop Edit Form */}
-        <div className="flex-1 flex items-center justify-center p-8 lg:ml-64">
+        <div className="flex-1 flex items-center justify-center p-8">
           <div className="w-full max-w-2xl">
             {/* Back Button */}
             <div className="mb-6">

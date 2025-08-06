@@ -17,10 +17,19 @@ import { useEffect, useState } from "react";
 import { Ripples } from "ldrs/react";
 import "ldrs/react/Ripples.css";
 
-import { useSession } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 import Navbar from "@/components/Navbar";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { useRouter } from "next/navigation";
 
 export default function Component() {
   const [applications, setApplications] = useState<any[]>([]);
@@ -28,7 +37,21 @@ export default function Component() {
   const [loading, setLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState("applied");
 
+  const router = useRouter();
   const { data: session, status } = useSession();
+
+  const handleLogout = async () => {
+    try {
+      await signOut({ callbackUrl: "/" });
+    } catch (error) {
+      console.error("Error logging out:", error);
+      toast({
+        title: "Error",
+        description: "Failed to logout. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
 
   // Define filter tabs with dynamic counts
   const getFilterTabs = () => [
@@ -55,34 +78,32 @@ export default function Component() {
     },
   ];
 
-  // Fetch applications from API
-  useEffect(() => {
-    const fetchApplications = async () => {
-      if (status !== "authenticated") return;
+  // Define fetchApplications function outside useEffect for reuse
+  const fetchApplications = async () => {
+    if (status !== "authenticated") return;
 
-      try {
-        setLoading(true);
-        const response = await fetch("/api/applications");
-        if (!response.ok) {
-          throw new Error("Failed to fetch applications");
-        }
-        const data = await response.json();
-        setApplications(data.applications || []);
-      } catch (error) {
-        console.error("Error fetching applications:", error);
-        toast.error(
-          "Failed to load your applications. Please try again later.",
-          {
-            style: { background: "red", border: "none", color: "white" },
-          }
-        );
-      } finally {
-        setLoading(false);
+    try {
+      setLoading(true);
+      const response = await fetch("/api/applications");
+      if (!response.ok) {
+        throw new Error("Failed to fetch applications");
       }
-    };
+      const data = await response.json();
+      setApplications(data.applications || []);
+    } catch (error) {
+      console.error("Error fetching applications:", error);
+      toast.error("Failed to load your applications. Please try again later.", {
+        style: { background: "red", border: "none", color: "white" },
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  // Fetch applications from API on component mount
+  useEffect(() => {
     fetchApplications();
-  }, [toast, status]);
+  }, [status, toast]); // Include toast in dependencies since fetchApplications uses it
 
   // Filter applications based on active filter
   useEffect(() => {
@@ -128,6 +149,13 @@ export default function Component() {
     if (diffInDays === 0) return "Today";
     if (diffInDays === 1) return "1d ago";
     return `${diffInDays}d ago`;
+  };
+
+  // Function to truncate description text
+  const truncateDescription = (text: string, maxLength: number = 100) => {
+    if (!text) return "";
+    if (text.length <= maxLength) return text;
+    return text.substring(0, maxLength);
   };
 
   const JobCard = ({ application }: { application: any }) => {
@@ -194,6 +222,9 @@ export default function Component() {
         toast.success("Work submitted!", {
           style: { background: "green", border: "none", color: "white" },
         });
+
+        // Refresh applications data to update UI immediately
+        await fetchApplications();
       } catch (err) {
         setIsSubmitting(false);
         toast.error((err as any).message, {
@@ -230,6 +261,9 @@ export default function Component() {
             style: { background: "green", border: "none", color: "white" },
           }
         );
+
+        // Refresh applications data to update UI immediately
+        await fetchApplications();
       } catch (error) {
         console.error("Error updating boost status:", error);
         toast.error("Failed to update boost status. Please try again.", {
@@ -275,6 +309,9 @@ export default function Component() {
         toast.success("Withdrawal request submitted successfully!", {
           style: { background: "green", border: "none", color: "white" },
         });
+
+        // Refresh applications data to update UI immediately
+        await fetchApplications();
       } catch (error) {
         console.error("Error processing withdrawal:", error);
         toast.error("Failed to process withdrawal. Please try again.", {
@@ -286,8 +323,8 @@ export default function Component() {
     };
 
     return (
-      <Card className="bg-white rounded-2xl shadow-sm max-h-[200px]">
-        <CardContent className="p-4">
+      <Card className="bg-white rounded-2xl shadow-sm h-[200px]">
+        <CardContent className="p-4 flex flex-col h-full">
           <div className="flex items-start gap-3 mb-3">
             <div className="w-12 h-12 bg-yellow-400 rounded-full flex items-center justify-center">
               <span className="text-black font-bold text-lg">
@@ -311,11 +348,20 @@ export default function Component() {
             </div>
           </div>
 
-          <p className="text-gray-700 text-sm mb-4 leading-relaxed">
-            {gig.description || "No description available"}
-          </p>
+          <div className="text-gray-700 text-sm h-[60px] overflow-hidden">
+            <p className="leading-relaxed">
+              {truncateDescription(
+                gig.description || "No description available"
+              )}
+              {gig.description && gig.description.length > 100 && (
+                <span className="inline-flex items-center ml-1 bg-gray-100 text-gray-600 text-xs px-2 py-0.5 rounded-full">
+                  ...
+                </span>
+              )}
+            </p>
+          </div>
 
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between mt-auto">
             <div className="flex items-center gap-1">
               <span className="text-purple-600 text-lg">
                 {gig.payment?.startsWith("$") ? "$" : "₹"}
@@ -555,8 +601,8 @@ export default function Component() {
   return (
     <>
       {/* Mobile Layout - Below 700px */}
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4 lg:hidden">
-        <div className="w-full max-w-sm bg-gradient-to-b from-purple-100 to-purple-200 rounded-3xl shadow-2xl overflow-hidden relative min-h-screen flex flex-col">
+      <div className="min-h-screen bg-gray-100 flex flex-col lg:hidden">
+        <div className="w-full max-w-sm mx-auto bg-gradient-to-b from-purple-100 to-purple-200 rounded-3xl shadow-2xl overflow-hidden flex flex-col h-screen relative">
           <Navbar />
           {/* Header */}
           <div className="flex items-center justify-between p-4 pt-8">
@@ -566,13 +612,25 @@ export default function Component() {
               </p>
               <p className="text-purple-600 text-xl font-semibold">My Zigs</p>
             </div>
-            <Avatar className="w-12 h-12 bg-gray-300">
-              <AvatarImage
-                src={session?.user?.image || ""}
-                alt={session?.user?.name || "User"}
-                className="bg-gray-300"
-              />
-            </Avatar>
+            <DropdownMenu>
+              <DropdownMenuTrigger>
+                <Avatar className="w-12 h-12 bg-gray-300">
+                  <AvatarImage
+                    src={session?.user?.image || ""}
+                    alt={session?.user?.name || "User"}
+                    className="bg-gray-300"
+                  />
+                </Avatar>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuItem onClick={() => router.push("/profile")}>
+                  Profile
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleLogout()}>
+                  Logout
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
 
           {/* Filter Tabs - Mobile */}
@@ -596,49 +654,19 @@ export default function Component() {
             </div>
           </div>
 
-          {/* Job Cards */}
-          <div className="px-4 space-y-4 pb-4 flex-1 flex flex-col">
+          {/* Job Cards - Scrollable area */}
+          <div className="px-4 space-y-4 pb-[100px] flex-1 overflow-y-auto">
             {loading ? (
-              // Show loading state
-              <div className="flex-1">
-                {Array(3)
-                  .fill(fallbackJobCard)
-                  .map((_, index) => (
-                    <Card
-                      key={index}
-                      className="bg-white rounded-2xl shadow-sm animate-pulse mb-4"
-                    >
-                      <CardContent className="p-4">
-                        <div className="flex items-start gap-3 mb-3">
-                          <div className="w-12 h-12 bg-gray-200 rounded-full"></div>
-                          <div className="flex-1">
-                            <div className="h-5 bg-gray-200 rounded w-1/2 mb-2"></div>
-                            <div className="flex items-center gap-4">
-                              <div className="h-4 bg-gray-200 rounded w-20"></div>
-                              <div className="h-4 bg-gray-200 rounded w-16"></div>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="h-4 bg-gray-200 rounded w-full mb-2"></div>
-                        <div className="h-4 bg-gray-200 rounded w-3/4 mb-4"></div>
-                        <div className="flex items-center justify-between">
-                          <div className="h-6 bg-gray-200 rounded w-16"></div>
-                          <div className="h-8 bg-gray-200 rounded w-24"></div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
+              <div className="w-full flex items-center justify-center min-h-[300px]">
+                <Ripples size={45} speed={2} color="#5E17EB" />
               </div>
             ) : filteredApplications.length > 0 ? (
-              // Show applications
-              <div className="flex-1">
-                {filteredApplications.map((application, index) => (
-                  <JobCard
-                    key={application._id || index}
-                    application={application}
-                  />
-                ))}
-              </div>
+              filteredApplications.map((application, index) => (
+                <JobCard
+                  key={application._id || index}
+                  application={application}
+                />
+              ))
             ) : (
               // Show empty state
               <div className="flex-1 flex items-center justify-center">
@@ -663,10 +691,10 @@ export default function Component() {
 
       {/* Desktop Layout - Above 700px */}
       <div className="hidden lg:flex min-h-screen bg-black">
+        {/* Sidebar */}
         <Navbar />
-
         {/* Main Content */}
-        <div className="flex-1 p-8 flex flex-col lg:ml-64">
+        <div className="flex-1 p-8 lg:ml-64">
           {/* Filter Tabs */}
           <div className="flex items-center justify-between mb-8">
             <div className="flex gap-4">

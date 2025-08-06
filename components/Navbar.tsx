@@ -11,7 +11,6 @@ import {
   LogOut,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
-import TransitionLink from "./TransitionLink";
 import { signOut } from "next-auth/react";
 
 const navItems = [
@@ -23,12 +22,9 @@ const navItems = [
 
 export default function Navbar() {
   const pathname = usePathname();
-  const showNavbar = [
-    "/home",
-    "/zigs",
-    "/notifications",
-    "/profile"
-  ].includes(pathname);
+  const showNavbar = ["/home", "/zigs", "/notifications", "/profile"].includes(
+    pathname
+  );
   if (!showNavbar) return null;
 
   const handleLogout = async () => {
@@ -98,7 +94,7 @@ export default function Navbar() {
       </div>
 
       {/* Mobile Navbar (hidden on large screens) */}
-      <div className="absolute bottom-4 inset-x-0 w-full px-4 py-4 rounded-3xl z-40 lg:hidden bg-transparent">
+      <div className="absolute bottom-4 inset-x-0 w-[65%] mx-auto px-4 py-4 rounded-3xl z-40 lg:hidden bg-[#5E17EB] py-16">
         <div className="flex items-center justify-around">
           {navItems.map(({ name, href, icon: Icon }) => (
             <Link href={href} key={href}>
@@ -106,16 +102,13 @@ export default function Navbar() {
                 asChild
                 variant="ghost"
                 size="icon"
-                className={`h-12 w-12 transition-colors duration-150 ${
+                className={`h-12 w-12 transition-colors duration-150 hover:bg-transparent ${
                   pathname === href
-                    ? "text-[#5E17EB]"
-                    : "text-gray-400 hover:text-[#5E17EB]"
+                    ? "text-white"
+                    : "text-gray-400 hover:text-white"
                 }`}
               >
-                <span className="flex flex-col items-center">
-                  <Icon className="w-6 h-6 fill-current" />
-                  <span className="text-xs mt-1">{name}</span>
-                </span>
+                <Icon className="w-6 h-6" />
               </Button>
             </Link>
           ))}
