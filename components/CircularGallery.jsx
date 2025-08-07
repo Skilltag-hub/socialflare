@@ -29,6 +29,20 @@ const profiles = [
     avatar: "/profiles/3.jpeg",
     trending: true,
   },
+  {
+    id: 4,
+    name: "Alex Johnson",
+    role: "UI/UX Designer",
+    avatar: "/profiles/4.avif",
+    trending: true,
+  },
+  {
+    id: 5,
+    name: "Sarah Williams",
+    role: "Content Writer",
+    avatar: "/profiles/5.avif",
+    trending: true,
+  },
 ]
 
 export default function CircularGallery() {

@@ -47,7 +47,7 @@ export default function HomePage() {
 
   return (
     <>
-      <div className="relative h-screen w-screen bg-black overflow-x-hidden">
+      <div className="relative min-h-screen w-screen bg-black overflow-x-hidden pb-12 sm:pb-0">
         {/* Top nav with tabs */}
         <div className="absolute top-[8vh] sm:top-[15vh] left-0 w-full flex items-center justify-center gap-2 z-10 px-2 sm:left-[10vw] sm:w-auto sm:justify-start">
           <button
@@ -113,31 +113,29 @@ export default function HomePage() {
             </div>
 
               {/* Browse All Skill Gigs! */}
-            <div className="w-full bg-[#F6F9FF] pt-12">
-              <div className="mx-auto max-w-5xl px-6">
-                <div className="flex flex-col md:flex-row items-center justify-center gap-12">
-                  
-                  {/* Heading */}
-                  <h2 className="text-4xl sm:text-5xl font-poppins font-bold text-[#1F2E47] text-center md:text-left">
+            <div className="w-full bg-[#F6F9FF] pt-16 pb-16">
+              <div className="mx-auto max-w-5xl px-8 md:px-12">
+                <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
+                  {/* Heading - centered on mobile, pushed right on desktop */}
+                  <h2 className="text-4xl sm:text-5xl font-poppins font-bold text-[#1F2E47] w-full md:w-1/2 text-center md:text-left pl-0 md:pl-8">
                     Browse All Skill Gigs!
                   </h2>
                   
-                  {/* Card: description + button */}
-                  <div className="bg-white border-2 border-[#ADFF00] rounded-3xl p-6 max-w-lg text-center md:text-left">
-                    <p className="text-base sm:text-lg font-poppins font-light text-[#1F2E47] mb-4">
+                  {/* Right side - centered on mobile, aligned start on desktop */}
+                  <div className="w-full md:w-1/2 flex flex-col items-center md:items-start space-y-3">
+                    <p className="text-base sm:text-lg font-poppins font-light text-[#1F2E47] leading-relaxed text-center md:text-left">
                       A dynamic group of innovators who ignite ideas and transform them into impactful work!
                     </p>
                     <Link
                       href="/"
-                      className="inline-flex items-center bg-[#ADFF00] text-[#1F2E47] font-bold font-poppins rounded-full px-6 py-2 hover:scale-105 transition-transform gap-2 mx-auto md:mx-0"
+                      className="inline-flex items-center bg-[#ADFF00] text-[#1F2E47] font-bold font-poppins rounded-full px-6 py-2 hover:scale-105 transition-transform gap-2 mt-2"
                     >
                       View All Jobs <FaArrowRight className="rotate-45" />
                     </Link>
                   </div>
-      
-    </div>
-  </div>
-</div>
+                </div>
+              </div>
+            </div>
 
             {/* Flying banners */}
             <div className="hidden sm:block">
@@ -229,7 +227,7 @@ export default function HomePage() {
           <>
             {/* Companies View */}
             <Lanyard position={[0, 0, 15]} gravity={[0, -40, 0]} />
-            <div className="absolute top-[75vh] sm:top-[35vh] left-0 sm:left-[10vw] z-20 w-full sm:w-auto flex flex-col items-center sm:items-start">
+            <div className="absolute top-[75vh] sm:top-[35vh] left-0 sm:left-[10vw] z-20 w-full sm:w-auto flex flex-col items-center p-4 sm:items-start mb-24 sm:mb-0">
               <div className="w-full max-w-[95vw] sm:max-w-[45vw] px-4 sm:px-0 flex flex-col items-center sm:items-start justify-center gap-2 sm:gap-0">
                 <div className="text-white text-4xl sm:text-5xl md:text-6xl font-black font-poppins text-center sm:text-left mb-2 sm:mb-0 w-full">
                   <div className="whitespace-nowrap">INDIA'S #1</div>
@@ -262,33 +260,15 @@ export default function HomePage() {
               <TrustedBy />
             </div>
 
-            {/* Browse All Skill Gigs! */}
-            <div className="w-full bg-[#F6F9FF] pt-12">
-              <div className="mx-auto max-w-5xl px-6">
-                <div className="flex flex-col md:flex-row items-center justify-center gap-12">
-                  {/* Heading */}
-                  <h2 className="text-4xl sm:text-5xl font-poppins font-bold text-[#1F2E47] text-center md:text-left">
-                    Recent Gigs
-                  </h2>
-                  
-                  {/* Card: description + button */}
-                  <div className="bg-white border-2 border-[#ADFF00] rounded-3xl p-6 max-w-lg w-full">
-                    <div className="space-y-2 mb-4">
-                      <p className="text-base sm:text-lg font-poppins font-light text-[#1F2E47] outline-none border-none">
-                        Claim Your Free, Sharable Skill Tag.
-                      </p>
-                      <p className="text-base sm:text-lg font-poppins font-light text-[#1F2E47]">
-                        Start In Seconds, Start Looking For Gigs At Your Own Pace.
-                      </p>
-                    </div>
-                    <Link
-                      href="/login"
-                      className="inline-flex items-center bg-[#ADFF00] text-[#1F2E47] font-bold font-poppins rounded-full px-6 py-2 hover:scale-105 transition-transform gap-2"
-                    >
-                      View All Jobs <FaArrowRight className="rotate-45" />
-                    </Link>
-                  </div>
-                </div>
+            {/* Recent Gigs - Simplified layout */}
+            <div className="w-full bg-[#F6F9FF] pt-12 pb-8">
+              <div className="mx-auto max-w-5xl px-8 md:px-12 flex flex-col items-center">
+                <h2 className="text-3xl sm:text-4xl font-poppins font-bold text-[#1F2E47] mb-4">
+                  Recent Gigs
+                </h2>
+                <p className="text-base font-poppins font-light text-[#1F2E47] mb-8 max-w-2xl text-center">
+                  Claim Your Free, Sharable Skill Tag. Start In Seconds, Start Looking For Gigs At Your Own Pace.
+                </p>
               </div>
             </div>
 
@@ -318,8 +298,8 @@ export default function HomePage() {
             </div>
 
             {/* Stack Carousel */}
-            <div className="relative z-10 bg-[#F6F9FF] -mt-2">
-              <div className="mx-auto max-w-[1100px] px-2 sm:px-8 pt-4 pb-8 flex flex-col items-center">
+            <div className="relative z-10 bg-[#F6F9FF]">
+              <div className="mx-auto max-w-[1100px] px-2 sm:px-8 pt-4 pb-2 sm:pb-4 flex flex-col items-center">
                 <div className="relative flex justify-center items-center" style={{ minHeight: 220 }}>
                   <button
                     onClick={handleStackLeft}
@@ -355,8 +335,8 @@ export default function HomePage() {
             </div>
 
             {/* Circular gallery for Companies */}
-            <div className="bg-[#F6F9FF]">
-              <div style={{ height: "600px", position: "relative" }}>
+            <div className="bg-[#F6F9FF] -mt-8 sm:-mt-6">
+              <div style={{ height: "600px", position: "relative", width: "100%" }}>
                 <CircularGallery />
               </div>
             </div>
