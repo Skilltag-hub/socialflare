@@ -108,12 +108,12 @@ export default function HomePage() {
             </div>
 
             {/* Trusted By */}
-            <div className="w-full flex justify-center mt-8 mb-2">
+            <div className="w-full flex justify-center">
               <TrustedBy />
             </div>
 
               {/* Browse All Skill Gigs! */}
-            <div className="w-full bg-[#F6F9FF] py-12">
+            <div className="w-full bg-[#F6F9FF] pt-12">
               <div className="mx-auto max-w-5xl px-6">
                 <div className="flex flex-col md:flex-row items-center justify-center gap-12">
                   
@@ -230,11 +230,11 @@ export default function HomePage() {
             {/* Companies View */}
             <Lanyard position={[0, 0, 15]} gravity={[0, -40, 0]} />
             <div className="absolute top-[75vh] sm:top-[35vh] left-0 sm:left-[10vw] z-20 w-full sm:w-auto flex flex-col items-center sm:items-start">
-              <div className="w-full max-w-[95vw] sm:max-w-[45vw] px-2 sm:px-0 flex flex-col sm:block items-center sm:items-start justify-center gap-2 sm:gap-0">
-                <div className="text-white text-4xl sm:text-6xl font-black font-poppins text-center sm:text-left mb-2 sm:mb-0 max-w-[40vw] mx-auto">
-                  <div>INDIA'S #1</div>
-                  <div>EARLY TALENT</div>
-                  <div>GATEWAY</div>
+              <div className="w-full max-w-[95vw] sm:max-w-[45vw] px-4 sm:px-0 flex flex-col items-center sm:items-start justify-center gap-2 sm:gap-0">
+                <div className="text-white text-4xl sm:text-5xl md:text-6xl font-black font-poppins text-center sm:text-left mb-2 sm:mb-0 w-full">
+                  <div className="whitespace-nowrap">INDIA'S #1</div>
+                  <div className="whitespace-nowrap">EARLY TALENT</div>
+                  <div className="whitespace-nowrap">GATEWAY</div>
                 </div>
                 <div className="flex items-center justify-center sm:justify-start gap-x-4 mt-2 sm:mt-8">
                   <div className="bg-[#ADFF0038] rounded-full p-1 sm:p-2">
@@ -258,24 +258,35 @@ export default function HomePage() {
             </div>
 
             {/* Trusted By */}
-            <div className="w-full flex justify-center mt-8 mb-2">
+            <div className="w-full flex justify-center">
               <TrustedBy />
             </div>
 
-            {/* Recent Gigs */}
-            <div className="relative z-10 -mt-2">
-              <div className="w-full bg-[#F6F9FF] rounded-none sm:rounded-t-4xl py-8 sm:py-12">
-                <div className="mx-auto max-w-4xl px-4 sm:px-6 flex flex-col items-center text-center">
-                  <h2 className="text-3xl sm:text-5xl font-poppins font-bold mb-4 text-[#1F2E47]">
+            {/* Browse All Skill Gigs! */}
+            <div className="w-full bg-[#F6F9FF] pt-12">
+              <div className="mx-auto max-w-5xl px-6">
+                <div className="flex flex-col md:flex-row items-center justify-center gap-12">
+                  {/* Heading */}
+                  <h2 className="text-4xl sm:text-5xl font-poppins font-bold text-[#1F2E47] text-center md:text-left">
                     Recent Gigs
                   </h2>
-                  <div className="space-y-2 max-w-2xl">
-                    <p className="text-base sm:text-xl font-poppins font-light text-[#1F2E47]">
-                      Claim Your Free, Sharable Skill Tag.
-                    </p>
-                    <p className="text-base sm:text-xl font-poppins font-light text-[#1F2E47]">
-                      Start In Seconds, Start Looking For Gigs At Your Own Pace.
-                    </p>
+                  
+                  {/* Card: description + button */}
+                  <div className="bg-white border-2 border-[#ADFF00] rounded-3xl p-6 max-w-lg w-full">
+                    <div className="space-y-2 mb-4">
+                      <p className="text-base sm:text-lg font-poppins font-light text-[#1F2E47] outline-none border-none">
+                        Claim Your Free, Sharable Skill Tag.
+                      </p>
+                      <p className="text-base sm:text-lg font-poppins font-light text-[#1F2E47]">
+                        Start In Seconds, Start Looking For Gigs At Your Own Pace.
+                      </p>
+                    </div>
+                    <Link
+                      href="/login"
+                      className="inline-flex items-center bg-[#ADFF00] text-[#1F2E47] font-bold font-poppins rounded-full px-6 py-2 hover:scale-105 transition-transform gap-2"
+                    >
+                      View All Jobs <FaArrowRight className="rotate-45" />
+                    </Link>
                   </div>
                 </div>
               </div>
