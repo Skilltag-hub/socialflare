@@ -7,7 +7,7 @@ import FlyingBanner from "../components/FlyingBanner";
 import Lanyard from "../components/Lanyard";
 import Stack from "../components/Stack";
 import CircularGallery from "../components/CircularGallery.jsx";
-import AnimatedList from "../components/AnimatedList.jsx";
+import AnimatedList from "../components/AnimatedList";
 import TrustedBy from "../components/TrustedBy";
 import FloatingLogos from "../components/FloatingLogos.jsx";
 import Link from "next/link";
@@ -39,15 +39,17 @@ export default function HomePage() {
   const stackRef = useRef<any>(null);
 
   const handleStackLeft = () => {
-    if (stackRef.current && stackRef.current.prevCard) stackRef.current.prevCard();
+    if (stackRef.current && stackRef.current.prevCard)
+      stackRef.current.prevCard();
   };
   const handleStackRight = () => {
-    if (stackRef.current && stackRef.current.nextCard) stackRef.current.nextCard();
+    if (stackRef.current && stackRef.current.nextCard)
+      stackRef.current.nextCard();
   };
 
   return (
     <>
-      <div className="relative min-h-screen w-screen bg-black overflow-x-hidden pb-12 sm:pb-0">
+      <div className="relative h-screen w-screen bg-black overflow-x-hidden">
         {/* Top nav with tabs */}
         <div className="absolute top-[8vh] sm:top-[15vh] left-0 w-full flex items-center justify-center gap-2 z-10 px-2 sm:left-[10vw] sm:w-auto sm:justify-start">
           <button
@@ -69,7 +71,11 @@ export default function HomePage() {
             onClick={() => setTab("companies")}
           >
             For Companies
-            <img src="/forcompaniessvg.svg" alt="icon" className="w-3 h-3 sm:w-4 sm:h-4" />
+            <img
+              src="/forcompaniessvg.svg"
+              alt="icon"
+              className="w-3 h-3 sm:w-4 sm:h-4"
+            />
           </button>
         </div>
 
@@ -79,12 +85,11 @@ export default function HomePage() {
             <Lanyard position={[0, 0, 15]} gravity={[0, -40, 0]} />
             <div className="absolute top-[75vh] sm:top-[35vh] left-0 sm:left-[10vw] z-20 w-full sm:w-auto flex flex-col items-center sm:items-start">
               <div className="w-full max-w-[95vw] sm:max-w-[45vw] px-2 sm:px-0 flex flex-col sm:block items-center sm:items-start justify-center gap-2 sm:gap-0">
-                <div className="text-white text-lg sm:text-6xl font-poppins text-center sm:text-left mb-2 sm:mb-0 font-extrabold">
+                <div className="text-white text-3xl sm:text-7xl font-poppins text-center sm:text-left mb-2 sm:mb-0 font-extrabold">
                   100+ GIG-JOBS
                   <br />
                   DROP EVERY FRIDAY,
-                  <br />
-                  5 PM
+                  <br />5 PM
                 </div>
                 <div className="flex items-center justify-center sm:justify-start mt-2 sm:mt-8 gap-x-4">
                   <div className="bg-[#ADFF0038] rounded-full p-1 sm:p-2">
@@ -102,33 +107,36 @@ export default function HomePage() {
                   >
                     <FaPlay className="text-[#ADFF00] text-base sm:text-xl" />
                   </button>
-                  <span className="text-white font-poppins text-xs sm:text-lg">Watch Video</span>
+                  <span className="text-white font-poppins text-xs sm:text-lg">
+                    Watch Video
+                  </span>
                 </div>
               </div>
             </div>
 
             {/* Trusted By */}
-            <div className="w-full flex justify-center">
+            <div className="w-full flex justify-center mt-8">
               <TrustedBy />
             </div>
 
-              {/* Browse All Skill Gigs! */}
-            <div className="w-full bg-[#F6F9FF] pt-16 pb-16">
-              <div className="mx-auto max-w-5xl px-8 md:px-12">
-                <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
-                  {/* Heading - centered on mobile, pushed right on desktop */}
-                  <h2 className="text-4xl sm:text-5xl font-poppins font-bold text-[#1F2E47] w-full md:w-1/2 text-center md:text-left pl-0 md:pl-8">
+            {/* Browse All Skill Gigs! */}
+            <div className="w-full bg-[#F6F9FF] py-12">
+              <div className="mx-auto max-w-5xl px-6">
+                <div className="flex flex-col md:flex-row items-center justify-center gap-12">
+                  {/* Heading */}
+                  <h2 className="text-4xl sm:text-5xl font-poppins font-bold text-[#1F2E47] text-center md:text-left">
                     Browse All Skill Gigs!
                   </h2>
-                  
-                  {/* Right side - centered on mobile, aligned start on desktop */}
-                  <div className="w-full md:w-1/2 flex flex-col items-center md:items-start space-y-3">
-                    <p className="text-base sm:text-lg font-poppins font-light text-[#1F2E47] leading-relaxed text-center md:text-left">
-                      A dynamic group of innovators who ignite ideas and transform them into impactful work!
+
+                  {/* Card: description + button */}
+                  <div className="bg-white border-2 border-[#ADFF00] rounded-3xl p-6 max-w-lg text-center md:text-left">
+                    <p className="text-base sm:text-lg font-poppins font-light text-[#1F2E47] mb-4">
+                      A dynamic group of innovators who ignite ideas and
+                      transform them into impactful work!
                     </p>
                     <Link
                       href="/"
-                      className="inline-flex items-center bg-[#ADFF00] text-[#1F2E47] font-bold font-poppins rounded-full px-6 py-2 hover:scale-105 transition-transform gap-2 mt-2"
+                      className="inline-flex items-center bg-[#ADFF00] text-[#1F2E47] font-bold font-poppins rounded-full px-6 py-2 hover:scale-105 transition-transform gap-2 mx-auto md:mx-0"
                     >
                       View All Jobs <FaArrowRight className="rotate-45" />
                     </Link>
@@ -143,20 +151,36 @@ export default function HomePage() {
                 style={{ position: "absolute", top: "30%", left: "50%" }}
                 className="float-animate-y float-delay-0"
                 title="10k+ Micro Gigs"
-                avatars={["/avatars/avatar1.png","/avatars/avatar2.png","/avatars/avatar3.png","/avatars/avatar4.png"]}
+                avatars={[
+                  "/avatars/avatar1.png",
+                  "/avatars/avatar2.png",
+                  "/avatars/avatar3.png",
+                  "/avatars/avatar4.png",
+                ]}
                 extra={<div className="w-5 h-5 bg-black rounded-full ml-1" />}
               />
               <FlyingBanner
                 style={{ position: "absolute", bottom: "18%", left: "65%" }}
                 className="float-animate-x float-delay-1"
                 title="10k+ Skill Tags"
-                avatars={["/avatars/avatar1.png","/avatars/avatar2.png","/avatars/avatar3.png","/avatars/avatar4.png"]}
+                avatars={[
+                  "/avatars/avatar1.png",
+                  "/avatars/avatar2.png",
+                  "/avatars/avatar3.png",
+                  "/avatars/avatar4.png",
+                ]}
                 extra={<div className="w-5 h-5 bg-black rounded-full ml-1" />}
               />
               <FlyingBanner
                 style={{ position: "absolute", top: "22%", right: "15%" }}
                 className="float-animate-y float-delay-2"
-                title={<><span className="font-bold">₹10L</span><br />Disbursed</>}
+                title={
+                  <>
+                    <span className="font-bold">₹10L</span>
+                    <br />
+                    Disbursed
+                  </>
+                }
                 avatars={[]}
                 extra={null}
               />
@@ -169,47 +193,13 @@ export default function HomePage() {
                   <div className="h-2 sm:h-[4vh]"></div>
                   <div className="relative w-full flex justify-center items-center mt-8">
                     <FloatingLogos />
-                    <div className="w-full max-w-2xl mx-auto z-20">
+                    <div className="w-full max-w-2xl mx-auto z-20 h-[300px] sm:h-[400px] md:h-[500px]">
                       <AnimatedList
-                        items={animatedItems}
                         onItemSelect={(item, index) => console.log(item, index)}
                         showGradients
                         enableArrowNavigation
                         displayScrollbar
                       />
-                    </div>
-                  </div>
-                  <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-16 mt-8 sm:mt-16 w-full max-w-[1100px] mx-auto">
-                    <div className="text-center sm:text-left max-w-full sm:max-w-[30vw] text-lg sm:text-5xl font-poppins font-bold text-[#1F2E47] leading-tight">
-                      100+ Verified Skilled Talent!
-                    </div>
-                    <div className="flex flex-col items-center sm:items-start gap-2 sm:gap-6 w-full sm:w-[28vw] min-w-[180px] sm:min-w-[320px]">
-                      <div className="text-[#1F2E47] text-sm sm:text-lg font-poppins font-normal text-center sm:text-left">
-                        A dynamic group of innovators who ignite ideas and transform them into impactful work!
-                      </div>
-                      <div className="flex items-center justify-center">
-                        <div className="rounded-full p-[2px] bg-white/30 backdrop-blur-md" style={{ boxShadow: "0 0 0 4px rgba(173,255,0,0.15)" }}>
-                          <button
-                            onClick={() => window.alert("Coming soon")}
-                            className="px-4 py-1 rounded-full border-2 flex items-center gap-2"
-                            style={{
-                              background: "#ADFF00",
-                              borderColor: "#ADFF00",
-                              color: "#1F2E47",
-                              fontWeight: 600,
-                              fontFamily: "Poppins, sans-serif",
-                              fontSize: "1rem",
-                              boxShadow: "0 2px 16px #ADFF0033",
-                              zIndex: 20,
-                            }}
-                          >
-                            View All Jobs
-                            <svg width="16" height="16" fill="none" stroke="#1F2E47" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
-                              <path d="M5 12h14M13 6l6 6-6 6" />
-                            </svg>
-                          </button>
-                        </div>
-                      </div>
                     </div>
                   </div>
                 </div>
@@ -227,12 +217,13 @@ export default function HomePage() {
           <>
             {/* Companies View */}
             <Lanyard position={[0, 0, 15]} gravity={[0, -40, 0]} />
-            <div className="absolute top-[75vh] sm:top-[35vh] left-0 sm:left-[10vw] z-20 w-full sm:w-auto flex flex-col items-center p-4 sm:items-start mb-24 sm:mb-0">
-              <div className="w-full max-w-[95vw] sm:max-w-[45vw] px-4 sm:px-0 flex flex-col items-center sm:items-start justify-center gap-2 sm:gap-0">
-                <div className="text-white text-4xl sm:text-5xl md:text-6xl font-black font-poppins text-center sm:text-left mb-2 sm:mb-0 w-full">
-                  <div className="whitespace-nowrap">INDIA'S #1</div>
-                  <div className="whitespace-nowrap">EARLY TALENT</div>
-                  <div className="whitespace-nowrap">GATEWAY</div>
+            <div className="absolute top-[75vh] sm:top-[35vh] left-0 sm:left-[10vw] z-20 w-full sm:w-auto flex flex-col items-center sm:items-start">
+              <div className="w-full max-w-[95vw] sm:max-w-[45vw] px-2 sm:px-0 flex flex-col sm:block items-center sm:items-start justify-center gap-2 sm:gap-0">
+                <div className="text-white text-4xl sm:text-8xl font-poppins text-center sm:text-left mb-2 sm:mb-0 font-extrabold">
+                  India's #1
+                  <br />
+                  Early Talent <br />
+                  Gateway
                 </div>
                 <div className="flex items-center justify-center sm:justify-start gap-x-4 mt-2 sm:mt-8">
                   <div className="bg-[#ADFF0038] rounded-full p-1 sm:p-2">
@@ -250,25 +241,34 @@ export default function HomePage() {
                   >
                     <FaPlay className="text-[#ADFF00] text-base sm:text-xl" />
                   </button>
-                  <span className="text-white font-poppins text-xs sm:text-lg">Watch Video</span>
+                  <span className="text-white font-poppins text-xs sm:text-lg">
+                    Watch Video
+                  </span>
                 </div>
               </div>
             </div>
 
             {/* Trusted By */}
-            <div className="w-full flex justify-center">
+            <div className="w-full flex justify-center mt-8 mb-2">
               <TrustedBy />
             </div>
 
-            {/* Recent Gigs - Simplified layout */}
-            <div className="w-full bg-[#F6F9FF] pt-12 pb-8">
-              <div className="mx-auto max-w-5xl px-8 md:px-12 flex flex-col items-center">
-                <h2 className="text-3xl sm:text-4xl font-poppins font-bold text-[#1F2E47] mb-4">
-                  Recent Gigs
-                </h2>
-                <p className="text-base font-poppins font-light text-[#1F2E47] mb-8 max-w-2xl text-center">
-                  Claim Your Free, Sharable Skill Tag. Start In Seconds, Start Looking For Gigs At Your Own Pace.
-                </p>
+            {/* Recent Gigs */}
+            <div className="relative z-10 -mt-2">
+              <div className="w-full bg-[#F6F9FF] rounded-none sm:rounded-t-4xl py-8 sm:py-12">
+                <div className="mx-auto max-w-4xl px-4 sm:px-6 flex flex-col items-center text-center">
+                  <h2 className="text-3xl sm:text-5xl font-poppins font-bold mb-4 text-[#1F2E47]">
+                    Recent Gigs
+                  </h2>
+                  <div className="space-y-2 max-w-2xl">
+                    <p className="text-base sm:text-xl font-poppins font-light text-[#1F2E47]">
+                      Claim Your Free, Sharable Skill Tag.
+                    </p>
+                    <p className="text-base sm:text-xl font-poppins font-light text-[#1F2E47]">
+                      Start In Seconds, Start Looking For Gigs At Your Own Pace.
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -278,29 +278,48 @@ export default function HomePage() {
                 style={{ position: "absolute", top: "30%", left: "50%" }}
                 className="float-animate-y float-delay-0"
                 title="10k+ Micro Gigs"
-                avatars={["/avatars/avatar1.png","/avatars/avatar2.png","/avatars/avatar3.png","/avatars/avatar4.png"]}
+                avatars={[
+                  "/avatars/avatar1.png",
+                  "/avatars/avatar2.png",
+                  "/avatars/avatar3.png",
+                  "/avatars/avatar4.png",
+                ]}
                 extra={<div className="w-5 h-5 bg-black rounded-full ml-1" />}
               />
               <FlyingBanner
                 style={{ position: "absolute", bottom: "18%", left: "65%" }}
                 className="float-animate-x float-delay-1"
                 title="10k+ Skill Tags"
-                avatars={["/avatars/avatar1.png","/avatars/avatar2.png","/avatars/avatar3.png","/avatars/avatar4.png"]}
+                avatars={[
+                  "/avatars/avatar1.png",
+                  "/avatars/avatar2.png",
+                  "/avatars/avatar3.png",
+                  "/avatars/avatar4.png",
+                ]}
                 extra={<div className="w-5 h-5 bg-black rounded-full ml-1" />}
               />
               <FlyingBanner
                 style={{ position: "absolute", top: "22%", right: "15%" }}
                 className="float-animate-y float-delay-2"
-                title={<><span className="font-bold">₹10L</span><br />Disbursed</>}
+                title={
+                  <>
+                    <span className="font-bold">₹10L</span>
+                    <br />
+                    Disbursed
+                  </>
+                }
                 avatars={[]}
                 extra={null}
               />
             </div>
 
             {/* Stack Carousel */}
-            <div className="relative z-10 bg-[#F6F9FF]">
-              <div className="mx-auto max-w-[1100px] px-2 sm:px-8 pt-4 pb-2 sm:pb-4 flex flex-col items-center">
-                <div className="relative flex justify-center items-center" style={{ minHeight: 220 }}>
+            <div className="relative z-10 bg-[#F6F9FF] -mt-2">
+              <div className="mx-auto max-w-[1100px] px-2 sm:px-8 pt-4 pb-8 flex flex-col items-center">
+                <div
+                  className="relative flex justify-center items-center"
+                  style={{ minHeight: 220 }}
+                >
                   <button
                     onClick={handleStackLeft}
                     className="absolute left-0 z-20 bg-[#ADFF00] text-black rounded-full w-8 h-8 flex items-center justify-center shadow hover:scale-110 transition-transform"
@@ -335,8 +354,8 @@ export default function HomePage() {
             </div>
 
             {/* Circular gallery for Companies */}
-            <div className="bg-[#F6F9FF] -mt-8 sm:-mt-6">
-              <div style={{ height: "600px", position: "relative", width: "100%" }}>
+            <div className="bg-[#F6F9FF]">
+              <div style={{ height: "600px", position: "relative" }}>
                 <CircularGallery />
               </div>
             </div>
@@ -346,14 +365,14 @@ export default function HomePage() {
         {/* ——— DYNAMIC BANNER ——— */}
         <div className="gig-banner-section relative w-full flex justify-center py-6 sm:py-12 bg-[#F6F9FF]">
           <div className="w-full max-w-[340px] sm:max-w-[900px] rounded-2xl sm:rounded-3xl bg-black shadow-xl border border-[#222] flex flex-col md:flex-row items-center justify-between px-4 py-4 sm:px-10 sm:py-8 gap-4 sm:gap-6">
-            {tab === 'companies' ? (
+            {tab === "companies" ? (
               <>
                 <h3 className="text-base sm:text-xl md:text-2xl font-bold text-[#ADFF00] text-center md:text-left">
                   Got a Gig to be completed?
                 </h3>
                 <button
                   className="px-4 py-2 sm:px-7 sm:py-3 bg-[#181F13] text-[#ADFF00] rounded-full border-2 border-[#ADFF00] font-semibold flex items-center gap-2 shadow-md hover:scale-105 transition-transform duration-150 text-sm sm:text-base"
-                  onClick={() => router.push('/companies/login')}
+                  onClick={() => router.push("/companies/login")}
                 >
                   Post a Gig <FaArrowRight className="text-[#ADFF00]" />
                 </button>
@@ -365,7 +384,7 @@ export default function HomePage() {
                 </h3>
                 <button
                   className="px-4 py-2 sm:px-7 sm:py-3 bg-[#181F13] text-[#ADFF00] rounded-full border-2 border-[#ADFF00] font-semibold flex items-center gap-2 shadow-md hover:scale-105 transition-transform duration-150 text-sm sm:text-base"
-                  onClick={() => router.push('/login')}
+                  onClick={() => router.push("/login")}
                 >
                   Join Skilltag <FaArrowRight className="text-[#ADFF00]" />
                 </button>
@@ -385,11 +404,17 @@ export default function HomePage() {
                 </div>
                 <div className="flex flex-col gap-1 sm:gap-2 text-base sm:text-lg font-semibold">
                   <div className="flex flex-wrap justify-center sm:justify-start items-center gap-2 sm:gap-4">
-                    <Link className="hover:text-[#ADFF00] transition-colors cursor-pointer" href="/">
+                    <Link
+                      className="hover:text-[#ADFF00] transition-colors cursor-pointer"
+                      href="/"
+                    >
                       Features
                     </Link>
                     <span className="text-[#E6EAF1]">/</span>
-                    <Link className="hover:text-[#ADFF00] transition-colors cursor-pointer" href="/">
+                    <Link
+                      className="hover:text-[#ADFF00] transition-colors cursor-pointer"
+                      href="/"
+                    >
                       Product
                     </Link>
                   </div>

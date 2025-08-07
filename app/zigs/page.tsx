@@ -340,11 +340,11 @@ export default function Component() {
               </h3>
               <div className="flex items-center gap-4 text-sm text-gray-500">
                 <div className="flex items-center gap-1">
-                  <Users className="w-4 h-4 text-purple-500" />
+                  <Users className="w-4 h-4 text-skill" />
                   <span>{gig.openings || 0} Openings</span>
                 </div>
                 <div className="flex items-center gap-1">
-                  <Clock className="w-4 h-4" />
+                  <Clock className="w-4 h-4 text-skill" />
                   <span>Applied {appliedAt}</span>
                 </div>
               </div>
@@ -366,10 +366,10 @@ export default function Component() {
 
           <div className="flex items-center justify-between mt-auto">
             <div className="flex items-center gap-1">
-              <span className="text-purple-600 text-lg">
+              <span className="text-skill text-lg">
                 {gig.payment?.startsWith("$") ? "$" : "₹"}
               </span>
-              <span className="text-purple-600 font-semibold text-lg">
+              <span className="text-skill font-semibold text-lg">
                 {gig.payment?.replace(/[^0-9]/g, "") || "0"}
               </span>
             </div>
@@ -378,7 +378,7 @@ export default function Component() {
                 className={`px-6 py-2 rounded-full ${
                   isBoosted
                     ? "bg-green-600 hover:bg-green-700 text-white"
-                    : "bg-purple-600 hover:bg-purple-700 text-white"
+                    : "bg-skill hover:bg-purple-700 text-white"
                 }`}
                 onClick={handleBoost}
                 disabled={isBoostLoading}
@@ -421,7 +421,7 @@ export default function Component() {
               </div>
             ) : (
               <Button
-                className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-full"
+                className="bg-skill hover:bg-purple-700 text-white px-6 py-2 rounded-full"
                 disabled={application.status !== "selected"}
               >
                 {application.status === "selected" ? "Start Work" : "Applied"}
@@ -480,7 +480,7 @@ export default function Component() {
                       <input
                         type="checkbox"
                         id="agreement"
-                        className="mr-2 accent-purple-600"
+                        className="mr-2 accent-skill"
                         required
                       />
                       <label
@@ -493,7 +493,7 @@ export default function Component() {
                     <div className="flex gap-2">
                       <Button
                         type="submit"
-                        className="bg-purple-600 hover:bg-purple-700 text-white flex-1"
+                        className="bg-skill hover:bg-purple-700 text-white flex-1"
                         disabled={isSubmitting}
                       >
                         Submit
@@ -613,7 +613,7 @@ export default function Component() {
               <p className="text-gray-600 text-sm mb-1">
                 Good morning, {session?.user?.name || "User"}!
               </p>
-              <p className="text-purple-600 text-xl font-semibold">My Zigs</p>
+              <p className="text-skill text-xl font-semibold">My Zigs</p>
             </div>
             <DropdownMenu>
               <DropdownMenuTrigger>
@@ -661,7 +661,7 @@ export default function Component() {
           <div className="px-4 space-y-4 pb-[100px] flex-1 overflow-y-auto">
             {loading ? (
               <div className="w-full flex items-center justify-center min-h-[300px]">
-                <Ripples size={45} speed={2} color="#5E17EB" />
+                <Ripples size={45} speed={2} color="#22c55e" />
               </div>
             ) : filteredApplications.length > 0 ? (
               filteredApplications.map((application, index) => (
@@ -679,7 +679,7 @@ export default function Component() {
                   </p>
                   {activeFilter === "applied" && (
                     <Button
-                      className="mt-4 bg-purple-600 hover:bg-purple-700 text-white"
+                      className="mt-4 bg-skill hover:bg-purple-700 text-white"
                       onClick={() => (window.location.href = "/home")}
                     >
                       Browse Jobs
@@ -729,7 +729,7 @@ export default function Component() {
           <div className="flex-1 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl">
             {loading ? (
               <div className="col-span-3 flex items-center justify-center min-h-[400px]">
-                <Ripples size={90} speed={2} color="#5E17EB" />
+                <Ripples size={90} speed={2} color="#22c55e" />
               </div>
             ) : filteredApplications.length > 0 ? (
               // Show applications
@@ -748,7 +748,7 @@ export default function Component() {
                   </p>
                   {activeFilter === "applied" && (
                     <Button
-                      className="mt-4 bg-purple-600 hover:bg-purple-700 text-white"
+                      className="mt-4 bg-skill hover:bg-purple-700 text-white"
                       onClick={() => (window.location.href = "/home")}
                     >
                       Browse Jobs

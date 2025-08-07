@@ -282,7 +282,7 @@ export default function Component() {
                 </h3>
                 <div className="flex items-center gap-4 text-sm text-gray-500">
                   <div className="flex items-center gap-1">
-                    <Users className="w-4 h-4 text-purple-500" />
+                    <Users className="w-4 h-4 text-skill" />
                     <span>{job.openings}</span>
                   </div>
                   <div className="flex items-center gap-1">
@@ -306,10 +306,10 @@ export default function Component() {
 
             <div className="flex items-center justify-between mt-auto">
               <div className="flex items-center gap-1">
-                <span className="text-purple-600 text-lg">
+                <span className="text-skill text-lg">
                   {job.payment.startsWith("$") ? "$" : "₹"}
                 </span>
-                <span className="text-purple-600 font-semibold text-lg">
+                <span className="text-skill font-semibold text-lg">
                   {job.payment.replace(/[^0-9]/g, "")}
                 </span>
               </div>
@@ -322,9 +322,7 @@ export default function Component() {
                 >
                   <Bookmark
                     className={`w-4 h-4 ${
-                      isBookmarked
-                        ? "text-purple-600 fill-current"
-                        : "text-gray-400"
+                      isBookmarked ? "text-skill fill-current" : "text-gray-400"
                     }`}
                   />
                 </Button>
@@ -332,7 +330,7 @@ export default function Component() {
                   className={`px-6 py-2 rounded-full ${
                     hasApplied
                       ? "bg-gray-400 text-white cursor-not-allowed"
-                      : "bg-purple-600 hover:bg-purple-700 text-white"
+                      : "bg-skill hover:bg-purple-700 text-white"
                   }`}
                   onClick={() => !hasApplied && handleApply(job.id)}
                   disabled={hasApplied}
@@ -381,9 +379,7 @@ export default function Component() {
               <p className="text-gray-600 text-sm mb-1">
                 Good morning, {session?.user?.name || "Guest"}!
               </p>
-              <p className="text-purple-600 text-xl font-semibold">
-                You Earned ₹0
-              </p>
+              <p className="text-skill text-xl font-semibold">You Earned ₹0</p>
             </div>
             <div className="flex items-center gap-2">
               <DropdownMenu>
@@ -418,7 +414,7 @@ export default function Component() {
           <div className="px-4 space-y-4 pb-[100px] flex-1 overflow-y-auto">
             {loading ? (
               <div className="w-full flex items-center justify-center min-h-[300px]">
-                <Ripples size={45} speed={2} color="#5E17EB" />
+                <Ripples size={45} speed={2} color="#22c55e" />
               </div>
             ) : activeTab === "all" ? (
               gigs.map((gig, index) => (
@@ -467,7 +463,7 @@ export default function Component() {
           <div className="grid grid-cols-3 gap-6 max-w-6xl">
             {loading ? (
               <div className="col-span-3 flex items-center justify-center min-h-[400px]">
-                <Ripples size={90} speed={2} color="#5E17EB" />
+                <Ripples size={90} speed={2} color="#22c55e" />
               </div>
             ) : activeTab === "all" ? (
               gigs.map((gig, index) => (
