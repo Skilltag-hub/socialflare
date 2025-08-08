@@ -58,7 +58,10 @@ module.exports = {
           5: "hsl(var(--chart-5))",
         },
         skill: {
-          DEFAULT: "#22c55e",
+          DEFAULT: "#000000",
+        },
+        skillText: {
+          DEFAULT: "#B4E140",
         },
       },
     },

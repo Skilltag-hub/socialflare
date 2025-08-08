@@ -16,6 +16,9 @@ import {
   CheckCircle,
   Star,
   Copy,
+  Github,
+  Linkedin,
+  File,
 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useState, useEffect } from "react";
@@ -70,8 +73,12 @@ export default function ProfileComponent({
     gender: "",
     dateOfBirth: "",
     phone: "",
+    institution: "",
     referredPeople: [],
     referredBy: null,
+    githubUrl: "",
+    linkedinUrl: "",
+    resumeUrl: "",
   });
   const [referrals, setReferrals] = useState([]);
   const [referredBy, setReferredBy] = useState(null);
@@ -123,6 +130,10 @@ export default function ProfileComponent({
             gender: profileData.gender || "",
             dateOfBirth: profileData.dateOfBirth || "",
             phone: profileData.phone || "+91 8008000988",
+            institution: profileData.institution || "",
+            githubUrl: profileData.githubUrl || "",
+            linkedinUrl: profileData.linkedinUrl || "",
+            resumeUrl: profileData.resumeUrl || "",
           }));
         } catch (error) {
           console.error("Error fetching profile:", error);
@@ -163,14 +174,22 @@ export default function ProfileComponent({
             gender: profileData.gender || "",
             dateOfBirth: profileData.dateOfBirth || "",
             phone: profileData.phone || "+91 8008000988",
+            institution: profileData.institution,
+            githubUrl: profileData.githubUrl || "",
+            linkedinUrl: profileData.linkedinUrl || "",
+            resumeUrl: profileData.resumeUrl || "",
           }));
 
           // Generate referral link based on referral code or email
           if (profileData.referralCode) {
-            setReferralLink(`${window.location.origin}/login?ref=${profileData.referralCode}`);
+            setReferralLink(
+              `${window.location.origin}/login?ref=${profileData.referralCode}`
+            );
           } else if (profileData.email) {
             const encodedEmail = encodeURIComponent(profileData.email);
-            setReferralLink(`${window.location.origin}/login?ref=${encodedEmail}`);
+            setReferralLink(
+              `${window.location.origin}/login?ref=${encodedEmail}`
+            );
           }
 
           // Fetch referrals data
@@ -215,7 +234,8 @@ export default function ProfileComponent({
     navigator.clipboard.writeText(referralLink);
     toast({
       title: "Referral Link Copied!",
-      description: "Share this link with friends to refer them. When they use this link and sign up, their referral code will be automatically filled.",
+      description:
+        "Share this link with friends to refer them. When they use this link and sign up, their referral code will be automatically filled.",
       variant: "default",
     });
   };
@@ -295,17 +315,6 @@ export default function ProfileComponent({
                     ? "Busy"
                     : "Offline"}
                 </Badge>
-                <div className="flex justify-center items-center gap-1 mb-4">
-                  {Array(5)
-                    .fill(0)
-                    .map((_, i) => (
-                      <Star
-                        key={i}
-                        className="w-4 h-4 fill-yellow-400 text-yellow-400"
-                      />
-                    ))}
-                  <span className="ml-1 text-sm text-gray-600">5.0</span>
-                </div>
                 {!hideEditButton && (
                   <Link href="/profile/edit">
                     <Button variant="outline" className="w-full bg-transparent">
@@ -336,6 +345,49 @@ export default function ProfileComponent({
                   ) : (
                     <p className="text-gray-500 text-sm">No skills added yet</p>
                   )}
+                </div>
+              </CardContent>
+            </Card>
+            {/* Connect Card - Added to mobile */}
+            <Card className="bg-white rounded-2xl shadow-sm">
+              <CardHeader>
+                <CardTitle className="text-lg">Connect</CardTitle>
+              </CardHeader>
+              <CardContent className="p-4 pt-0 space-y-3 text-sm">
+                <div className="flex items-center gap-2">
+                  <Linkedin className="w-5 h-5 text-blue-600" />
+                  <a
+                    href={userData.linkedinUrl || "#"}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 hover:underline break-all text-sm"
+                  >
+                    {userData.linkedinUrl || "Not provided"}
+                  </a>
+                </div>
+
+                <div className="flex items-center gap-2 mt-3">
+                  <Github className="w-5 h-5 text-gray-800" />
+                  <a
+                    href={userData.githubUrl || "#"}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 hover:underline break-all text-sm"
+                  >
+                    {userData.githubUrl || "Not provided"}
+                  </a>
+                </div>
+
+                <div className="flex items-center gap-2 mt-3">
+                  <File className="w-5 h-5 text-gray-800" />
+                  <a
+                    href={userData.resumeUrl || "#"}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block text-blue-600 hover:underline break-all"
+                  >
+                    View Resume
+                  </a>
                 </div>
               </CardContent>
             </Card>
@@ -675,9 +727,50 @@ export default function ProfileComponent({
                 </div>
               </CardContent>
             </Card>
+            {/* Links Card */}
+            <Card className="bg-white rounded-2xl shadow-sm col-span-1">
+              <CardHeader>
+                <CardTitle className="text-xl">Connect</CardTitle>
+              </CardHeader>
+              <CardContent className="p-6 pt-0 space-y-4">
+                <div className="flex items-center gap-2">
+                  <Linkedin className="w-5 h-5 text-blue-600" />
+                  <a
+                    href={userData.linkedinUrl || "#"}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block text-blue-600 hover:underline truncate"
+                  >
+                    {userData.linkedinUrl || "Not provided"}
+                  </a>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Github className="w-5 h-5 text-gray-800" />
+                  <a
+                    href={userData.githubUrl || "#"}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block text-skill hover:underline truncate"
+                  >
+                    {userData.githubUrl || "Not provided"}
+                  </a>
+                </div>
+                <div className="flex items-center gap-2">
+                  <File className="w-5 h-5 text-gray-800" />
+                  <a
+                    href={userData.resumeUrl || "#"}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block text-blue-600 hover:underline truncate"
+                  >
+                    View Resume
+                  </a>
+                </div>
+              </CardContent>
+            </Card>
 
             {/* Description Card */}
-            <Card className="bg-white rounded-2xl shadow-sm col-span-3">
+            <Card className="bg-white rounded-2xl shadow-sm col-span-2">
               <CardHeader>
                 <CardTitle className="text-xl">Description</CardTitle>
               </CardHeader>
@@ -710,7 +803,7 @@ export default function ProfileComponent({
                     </AvatarFallback>
                   </Avatar>
                   <div>
-                    <h3 className="font-semibold">College Name</h3>
+                    <h3 className="font-semibold">{userData.institution}</h3>
                     <p className="text-sm text-gray-500">CSE | 2009-2013</p>
                   </div>
                 </div>

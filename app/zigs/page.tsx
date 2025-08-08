@@ -378,7 +378,7 @@ export default function Component() {
                 className={`px-6 py-2 rounded-full ${
                   isBoosted
                     ? "bg-green-600 hover:bg-green-700 text-white"
-                    : "bg-skill hover:bg-purple-700 text-white"
+                    : "bg-skill hover:bg-skillText hover:text-skill text-skillText"
                 }`}
                 onClick={handleBoost}
                 disabled={isBoostLoading}
@@ -661,7 +661,7 @@ export default function Component() {
           <div className="px-4 space-y-4 pb-[100px] flex-1 overflow-y-auto">
             {loading ? (
               <div className="w-full flex items-center justify-center min-h-[300px]">
-                <Ripples size={45} speed={2} color="#22c55e" />
+                <Ripples size={45} speed={2} color="#B4E140" />
               </div>
             ) : filteredApplications.length > 0 ? (
               filteredApplications.map((application, index) => (
@@ -729,7 +729,7 @@ export default function Component() {
           <div className="flex-1 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl">
             {loading ? (
               <div className="col-span-3 flex items-center justify-center min-h-[400px]">
-                <Ripples size={90} speed={2} color="#22c55e" />
+                <Ripples size={90} speed={2} color="#B4E140" />
               </div>
             ) : filteredApplications.length > 0 ? (
               // Show applications

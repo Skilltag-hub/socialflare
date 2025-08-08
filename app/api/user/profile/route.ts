@@ -67,6 +67,9 @@ export async function PUT(req: Request) {
       phone,
       referredBy,
       referredPeople,
+      githubUrl,
+      linkedinUrl,
+      resumeUrl,
     } = profileData;
 
     // Create update object with only provided fields
@@ -84,7 +87,9 @@ export async function PUT(req: Request) {
     if (referredPeople !== undefined && Array.isArray(referredPeople)) {
       updateData.referredPeople = referredPeople;
     }
-
+    if (githubUrl !== undefined) updateData.githubUrl = githubUrl;
+    if (linkedinUrl !== undefined) updateData.linkedinUrl = linkedinUrl;
+    if (resumeUrl !== undefined) updateData.resumeUrl = resumeUrl;
     const client = await clientPromise;
     const db = client.db("waitlist");
 

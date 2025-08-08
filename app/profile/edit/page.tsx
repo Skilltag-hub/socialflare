@@ -45,6 +45,11 @@ export default function Component() {
     phone: "+91 8008000988",
     email: "",
     status: "available",
+    gender: "",
+    dateOfBirth: "",
+    githubUrl: "",
+    linkedinUrl: "",
+    resumeUrl: "",
   });
 
   const [newSkill, setNewSkill] = useState("");
@@ -95,6 +100,11 @@ export default function Component() {
             description: profileData.description || "",
             phone: profileData.phone || "+91 8008000988",
             status: profileData.status || "available",
+            gender: profileData.gender || "",
+            dateOfBirth: profileData.dateOfBirth || "",
+            githubUrl: profileData.githubUrl || "",
+            linkedinUrl: profileData.linkedinUrl || "",
+            resumeUrl: profileData.resumeUrl || "",
           }));
 
           // Update skills if available
@@ -164,6 +174,11 @@ export default function Component() {
           status: formData.status,
           skills: selectedSkills,
           phone: formData.phone,
+          gender: formData.gender,
+          dateOfBirth: formData.dateOfBirth,
+          githubUrl: formData.githubUrl,
+          linkedinUrl: formData.linkedinUrl,
+          resumeUrl: formData.resumeUrl,
           // Only include email if it's not from the session (to avoid overwriting)
           ...(!session?.user?.email && { email: formData.email }),
         }),
@@ -234,226 +249,183 @@ export default function Component() {
           <div className="px-4 pb-4">
             <Card className="bg-white rounded-2xl shadow-sm">
               <CardContent className="p-4 space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="name">Name</Label>
-                  <Input
-                    id="name"
-                    placeholder="Name"
-                    value={formData.name}
-                    onChange={handleChange}
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="description">Description</Label>
-                  <Textarea
-                    id="description"
-                    placeholder="Enter Your Thought Process"
-                    className="min-h-[100px] resize-none"
-                    value={formData.description}
-                    onChange={handleChange}
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="skills">Skills Required</Label>
-                  <Input
-                    id="skills"
-                    placeholder="Skills Required"
-                    value={newSkill}
-                    onChange={(e) => setNewSkill(e.target.value)}
-                    onKeyPress={(e) => e.key === "Enter" && addSkill()}
-                  />
-                  <div className="flex flex-wrap gap-2 mt-2">
-                    {selectedSkills.map((skill, index) => (
-                      <Badge
-                        key={index}
-                        variant="secondary"
-                        className="bg-gray-100 flex items-center gap-1"
+                <div className="space-y-4">
+                  <div className="grid grid-cols-1 gap-4">
+                    <div>
+                      <Label htmlFor="name">Full Name</Label>
+                      <Input
+                        id="name"
+                        value={formData.name}
+                        onChange={handleChange}
+                        placeholder="Enter your full name"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="gender">Gender</Label>
+                      <Select
+                        value={formData.gender}
+                        onValueChange={(value) =>
+                          setFormData((prev) => ({ ...prev, gender: value }))
+                        }
                       >
-                        {skill}
-                        <X
-                          className="w-3 h-3 cursor-pointer"
-                          onClick={() => removeSkill(skill)}
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select gender" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="male">Male</SelectItem>
+                          <SelectItem value="female">Female</SelectItem>
+                          <SelectItem value="non-binary">Non-binary</SelectItem>
+                          <SelectItem value="prefer-not-to-say">
+                            Prefer not to say
+                          </SelectItem>
+                          <SelectItem value="other">Other</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label htmlFor="dateOfBirth">Date of Birth</Label>
+                      <Input
+                        id="dateOfBirth"
+                        type="date"
+                        value={formData.dateOfBirth}
+                        onChange={handleChange}
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="githubUrl">GitHub Profile</Label>
+                      <Input
+                        id="githubUrl"
+                        type="url"
+                        value={formData.githubUrl}
+                        onChange={handleChange}
+                        placeholder="https://github.com/username"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="linkedinUrl">LinkedIn Profile</Label>
+                      <Input
+                        id="linkedinUrl"
+                        type="url"
+                        value={formData.linkedinUrl}
+                        onChange={handleChange}
+                        placeholder="https://linkedin.com/in/username"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="resumeUrl">Resume/CV Link</Label>
+                      <Input
+                        id="resumeUrl"
+                        type="url"
+                        value={formData.resumeUrl}
+                        onChange={handleChange}
+                        placeholder="https://example.com/resume.pdf"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="phone">Phone Number</Label>
+                      <Input
+                        id="phone"
+                        value={formData.phone}
+                        onChange={handleChange}
+                        placeholder="+1 (555) 000-0000"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="email">Email Address</Label>
+                      <Input
+                        id="email"
+                        value={formData.email}
+                        onChange={handleChange}
+                        placeholder="your.email@example.com"
+                        disabled={!!session?.user?.email}
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="description">About</Label>
+                      <Textarea
+                        id="description"
+                        value={formData.description}
+                        onChange={handleChange}
+                        placeholder="Tell us about yourself..."
+                        rows={4}
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="skills">Skills</Label>
+                      <div className="flex gap-2">
+                        <Input
+                          id="skills"
+                          placeholder="Add a skill"
+                          value={newSkill}
+                          onChange={(e) => setNewSkill(e.target.value)}
+                          onKeyPress={(e) => e.key === "Enter" && addSkill()}
                         />
-                      </Badge>
-                    ))}
+                        <Button type="button" onClick={addSkill}>
+                          <Plus className="w-4 h-4" />
+                        </Button>
+                      </div>
+                      <div className="flex flex-wrap gap-2 mt-2">
+                        {selectedSkills.map((skill, index) => (
+                          <Badge
+                            key={index}
+                            variant="secondary"
+                            className="bg-gray-100 flex items-center gap-1"
+                          >
+                            {skill}
+                            <X
+                              className="w-3 h-3 cursor-pointer"
+                              onClick={() => removeSkill(skill)}
+                            />
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                    <div>
+                      <Label htmlFor="status">Status</Label>
+                      <Select
+                        value={formData.status}
+                        onValueChange={handleStatusChange}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select status" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="available">
+                            Available for Zigs
+                          </SelectItem>
+                          <SelectItem value="busy">Busy</SelectItem>
+                          <SelectItem value="offline">Offline</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
                   </div>
-                </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="status">Status</Label>
-                  <Select
-                    value={formData.status}
-                    onValueChange={handleStatusChange}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select DropDown" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="available">
-                        Available for Zigs
-                      </SelectItem>
-                      <SelectItem value="busy">Busy</SelectItem>
-                      <SelectItem value="offline">Offline</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="phone">Phone Number</Label>
-                  <Input
-                    id="phone"
-                    placeholder="Enter Your Phone Number"
-                    value={formData.phone}
-                    onChange={handleChange}
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email Address</Label>
-                  <Input
-                    id="email"
-                    placeholder="Enter Your Email Address"
-                    value={formData.email}
-                    onChange={handleChange}
-                    disabled={!!session?.user?.email}
-                  />
-                </div>
-
-                <div className="flex gap-3 pt-4">
-                  <Button
-                    className="flex-1 bg-purple-600 hover:bg-purple-700"
-                    onClick={handleSubmit}
-                  >
-                    Save
-                  </Button>
-                  <Button
-                    variant="outline"
-                    className="flex-1 bg-transparent"
-                    onClick={handleCancel}
-                  >
-                    Cancel
-                  </Button>
+                  <div className="flex gap-3 pt-4">
+                    <Button
+                      className="flex-1 bg-purple-600 hover:bg-purple-700"
+                      onClick={handleSubmit}
+                    >
+                      Save
+                    </Button>
+                    <Button
+                      variant="outline"
+                      className="flex-1 bg-transparent"
+                      onClick={handleCancel}
+                    >
+                      Cancel
+                    </Button>
+                  </div>
                 </div>
               </CardContent>
             </Card>
           </div>
 
           {/* Bottom Navigation */}
-          <div className="bg-purple-600 px-4 py-4 mt-4 rounded-t-3xl">
-            <div className="flex items-center justify-around">
-              <Link href="/home">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="text-white hover:bg-purple-500 h-12 w-12"
-                >
-                  <Home className="w-6 h-6" />
-                </Button>
-              </Link>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="text-white hover:bg-purple-500 h-12 w-12"
-              >
-                <MessageCircle className="w-6 h-6" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="text-white hover:bg-purple-500 h-12 w-12"
-              >
-                <Bell className="w-6 h-6" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="text-white hover:bg-purple-500 h-12 w-12"
-              >
-                <Building2 className="w-6 h-6" />
-              </Button>
-              <Link href="/profile">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="text-white hover:bg-purple-500 h-12 w-12 bg-purple-500"
-                >
-                  <User className="w-6 h-6 fill-current" />
-                </Button>
-              </Link>
-            </div>
-          </div>
         </div>
       </div>
 
       {/* Desktop Layout - Above 700px */}
       <div className="hidden lg:flex min-h-screen bg-black">
-        {/* Sidebar */}
-        <div className="w-64 bg-black p-6 flex flex-col">
-          {/* Logo */}
-          <div className="flex flex-col items-center mb-8">
-            <div className="w-16 h-16 bg-purple-600 rounded-lg flex items-center justify-center mb-4">
-              <div className="w-8 h-12 bg-white transform rotate-12 rounded-sm"></div>
-            </div>
-            <span className="text-white text-2xl font-light text-center">
-              zig<span className="font-normal">work</span>
-            </span>
-          </div>
-
-          {/* Navigation */}
-          <nav className="flex-1 space-y-2 flex flex-col justify-center">
-            <Link href="/home">
-              <Button
-                variant="ghost"
-                className="w-full justify-start text-gray-400 hover:text-white hover:bg-gray-800"
-              >
-                <Home className="w-5 h-5 mr-3" />
-                Home
-              </Button>
-            </Link>
-            <Button
-              variant="ghost"
-              className="w-full justify-start text-gray-400 hover:text-white hover:bg-gray-800"
-            >
-              <FileText className="w-5 h-5 mr-3" />
-              Applied
-            </Button>
-            <Button
-              variant="ghost"
-              className="w-full justify-start text-gray-400 hover:text-white hover:bg-gray-800"
-            >
-              <Clock3 className="w-5 h-5 mr-3" />
-              Ongoing
-            </Button>
-            <Button
-              variant="ghost"
-              className="w-full justify-start text-gray-400 hover:text-white hover:bg-gray-800"
-            >
-              <CheckCircle className="w-5 h-5 mr-3" />
-              Completed
-            </Button>
-            <Link href="/profile">
-              <Button
-                variant="ghost"
-                className="w-full justify-start text-purple-400 bg-purple-900/20 hover:bg-purple-900/30"
-              >
-                <User className="w-5 h-5 mr-3" />
-                Profile
-              </Button>
-            </Link>
-          </nav>
-
-          {/* Footer Links */}
-          <div className="space-y-2 text-sm text-gray-500">
-            <div className="flex gap-4">
-              <button className="hover:text-gray-300">Support</button>
-              <button className="hover:text-gray-300">Privacy Policy</button>
-            </div>
-            <button className="hover:text-gray-300">Terms & Conditions</button>
-          </div>
-        </div>
-
         {/* Main Content - Desktop Edit Form */}
         <div className="flex-1 flex items-center justify-center p-8">
           <div className="w-full max-w-2xl">
@@ -469,125 +441,262 @@ export default function Component() {
               </Button>
             </div>
 
-            {/* Edit Form Card */}
-            <Card className="bg-white rounded-2xl shadow-2xl">
-              <CardHeader className="text-center pb-6">
-                <CardTitle className="text-2xl font-semibold">
-                  Edit Profile
+            <Card className="bg-white border-gray-800 mb-6">
+              <CardHeader>
+                <CardTitle className="text-black">
+                  Personal Information
                 </CardTitle>
               </CardHeader>
-              <CardContent className="p-8 pt-0">
+              <CardContent className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <Label htmlFor="name-desktop">Name</Label>
+                  <div>
+                    <Label htmlFor="name-desktop" className="text-black">
+                      Full Name
+                    </Label>
                     <Input
                       id="name-desktop"
-                      placeholder="Name"
+                      className="bg-white border-gray-700 text-gray-700 mt-1"
                       value={formData.name}
                       onChange={handleChange}
+                      placeholder="Enter your full name"
                     />
                   </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="phone-desktop">Phone Number</Label>
-                    <Input
-                      id="phone-desktop"
-                      placeholder="Enter Your Phone Number"
-                      value={formData.phone}
-                      onChange={handleChange}
-                    />
-                  </div>
-
-                  <div className="space-y-2 md:col-span-2">
-                    <Label htmlFor="description-desktop">Description</Label>
-                    <Textarea
-                      id="description-desktop"
-                      placeholder="Enter Your Thought Process"
-                      className="min-h-[120px] resize-none"
-                      value={formData.description}
-                      onChange={handleChange}
-                    />
-                  </div>
-
-                  <div className="space-y-2 md:col-span-2">
-                    <Label htmlFor="skills-desktop">Skills Required</Label>
-                    <div className="flex gap-2">
-                      <Input
-                        id="skills-desktop"
-                        placeholder="Skills Required"
-                        value={newSkill}
-                        onChange={(e) => setNewSkill(e.target.value)}
-                        onKeyPress={(e) => e.key === "Enter" && addSkill()}
-                      />
-                      <Button onClick={addSkill}>
-                        <Plus className="w-4 h-4 mr-1" /> Add
-                      </Button>
-                    </div>
-                    <div className="flex flex-wrap gap-2 mt-3">
-                      {selectedSkills.map((skill, index) => (
-                        <Badge
-                          key={index}
-                          variant="secondary"
-                          className="bg-gray-100 flex items-center gap-2 py-2 px-3"
-                        >
-                          {skill}
-                          <X
-                            className="w-4 h-4 cursor-pointer hover:text-red-500"
-                            onClick={() => removeSkill(skill)}
-                          />
-                        </Badge>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="status-desktop">Status</Label>
+                  <div>
+                    <Label htmlFor="gender-desktop" className="text-black">
+                      Gender
+                    </Label>
                     <Select
-                      value={formData.status}
-                      onValueChange={handleStatusChange}
+                      value={formData.gender}
+                      onValueChange={(value) =>
+                        setFormData((prev) => ({ ...prev, gender: value }))
+                      }
                     >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select DropDown" />
+                      <SelectTrigger className="bg-white border-gray-700 text-gray-700 mt-1">
+                        <SelectValue placeholder="Select gender" />
                       </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="available">
-                          Available for Zigs
+                      <SelectContent className="bg-gray-800 border-gray-700 text-white">
+                        <SelectItem value="male" className="hover:bg-gray-700">
+                          Male
                         </SelectItem>
-                        <SelectItem value="busy">Busy</SelectItem>
-                        <SelectItem value="offline">Offline</SelectItem>
+                        <SelectItem
+                          value="female"
+                          className="hover:bg-gray-700"
+                        >
+                          Female
+                        </SelectItem>
+                        <SelectItem
+                          value="non-binary"
+                          className="hover:bg-gray-700"
+                        >
+                          Non-binary
+                        </SelectItem>
+                        <SelectItem
+                          value="prefer-not-to-say"
+                          className="hover:bg-gray-700"
+                        >
+                          Prefer not to say
+                        </SelectItem>
+                        <SelectItem value="other" className="hover:bg-gray-700">
+                          Other
+                        </SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="email-desktop">Email Address</Label>
+                  <div>
+                    <Label htmlFor="dateOfBirth-desktop" className="text-black">
+                      Date of Birth
+                    </Label>
+                    <Input
+                      id="dateOfBirth-desktop"
+                      type="date"
+                      className="bg-white border-gray-700 text-gray-700 mt-1"
+                      value={formData.dateOfBirth}
+                      onChange={handleChange}
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="status-desktop" className="text-black">
+                      Status
+                    </Label>
+                    <Select
+                      value={formData.status}
+                      onValueChange={handleStatusChange}
+                    >
+                      <SelectTrigger className="bg-white border-gray-700 text-gray-700 mt-1">
+                        <SelectValue placeholder="Select status" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-gray-800 border-gray-700 text-white">
+                        <SelectItem
+                          value="available"
+                          className="hover:bg-gray-700"
+                        >
+                          Available for Zigs
+                        </SelectItem>
+                        <SelectItem value="busy" className="hover:bg-gray-700">
+                          Busy
+                        </SelectItem>
+                        <SelectItem
+                          value="offline"
+                          className="hover:bg-gray-700"
+                        >
+                          Offline
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="phone-desktop" className="text-black">
+                      Phone Number
+                    </Label>
+                    <Input
+                      id="phone-desktop"
+                      className="bg-white border-gray-700 text-gray-700 mt-1"
+                      value={formData.phone}
+                      onChange={handleChange}
+                      placeholder="+1 (555) 000-0000"
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="email-desktop" className="text-black">
+                      Email Address
+                    </Label>
                     <Input
                       id="email-desktop"
-                      placeholder="Enter Your Email Address"
+                      className="bg-white border-gray-700 text-gray-700 mt-1 disabled:opacity-50"
                       value={formData.email}
                       onChange={handleChange}
+                      placeholder="your.email@example.com"
                       disabled={!!session?.user?.email}
                     />
                   </div>
                 </div>
 
-                <div className="flex gap-4 pt-8 justify-center">
-                  <Button
-                    className="px-12 bg-purple-600 hover:bg-purple-700"
-                    onClick={handleSubmit}
-                  >
-                    Save
-                  </Button>
-                  <Button
-                    variant="outline"
-                    className="px-12 bg-transparent"
-                    onClick={handleCancel}
-                  >
-                    Cancel
-                  </Button>
+                <div>
+                  <Label htmlFor="description-desktop" className="text-black">
+                    About
+                  </Label>
+                  <Textarea
+                    id="description-desktop"
+                    className="bg-white border-gray-700 text-gray-700 mt-1 min-h-[120px]"
+                    value={formData.description}
+                    onChange={handleChange}
+                    placeholder="Tell us about yourself..."
+                  />
                 </div>
               </CardContent>
             </Card>
+
+            <Card className="bg-white border-gray-800 mb-6">
+              <CardHeader>
+                <CardTitle className="text-black">Skills</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="flex gap-2">
+                    <Input
+                      className="bg-white border-gray-700 text-gray-700 flex-1"
+                      placeholder="Add a skill"
+                      value={newSkill}
+                      onChange={(e) => setNewSkill(e.target.value)}
+                      onKeyPress={(e) => e.key === "Enter" && addSkill()}
+                    />
+                    <Button
+                      type="button"
+                      onClick={addSkill}
+                      className="bg-purple-600 hover:bg-purple-700"
+                    >
+                      <Plus className="w-4 h-4" />
+                    </Button>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {selectedSkills.map((skill, index) => (
+                      <Badge
+                        key={index}
+                        variant="secondary"
+                        className="bg-gray-800 text-white flex items-center gap-1 hover:bg-gray-700"
+                      >
+                        {skill}
+                        <X
+                          className="w-3 h-3 cursor-pointer"
+                          onClick={() => removeSkill(skill)}
+                        />
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-white border-gray-800">
+              <CardHeader>
+                <CardTitle className="text-black">Online Profiles</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div>
+                  <Label htmlFor="githubUrl-desktop" className="text-black">
+                    GitHub Profile
+                  </Label>
+                  <Input
+                    id="githubUrl-desktop"
+                    type="url"
+                    className="bg-white border-gray-700 text-gray-700 mt-1"
+                    value={formData.githubUrl}
+                    onChange={handleChange}
+                    placeholder="https://github.com/username"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="linkedinUrl-desktop" className="text-black">
+                    LinkedIn Profile
+                  </Label>
+                  <Input
+                    id="linkedinUrl-desktop"
+                    type="url"
+                    className="bg-white border-gray-700 text-gray-700 mt-1"
+                    value={formData.linkedinUrl}
+                    onChange={handleChange}
+                    placeholder="https://linkedin.com/in/username"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="resumeUrl-desktop" className="text-black">
+                    Resume/CV Link
+                  </Label>
+                  <Input
+                    id="resumeUrl-desktop"
+                    type="url"
+                    className="bg-white border-gray-700 text-gray-700 mt-1"
+                    value={formData.resumeUrl}
+                    onChange={handleChange}
+                    placeholder="https://example.com/resume.pdf"
+                  />
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Save and Cancel Buttons */}
+            <div className="flex justify-end gap-4 mt-6">
+              <Button
+                variant="outline"
+                className="px-6 py-2 text-purple-600 border-purple-600 hover:bg-purple-50"
+                onClick={handleCancel}
+              >
+                Cancel
+              </Button>
+              <Button
+                className="px-6 py-2 bg-purple-600 hover:bg-purple-700 text-white"
+                onClick={handleSubmit}
+              >
+                Save Changes
+              </Button>
+            </div>
           </div>
         </div>
       </div>

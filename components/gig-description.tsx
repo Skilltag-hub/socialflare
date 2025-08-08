@@ -27,6 +27,7 @@ interface UserGig {
   gigId: string;
   bookmarked: boolean;
   applied: boolean;
+  status: string;
 }
 
 export default function GigDescription({ gig }: { gig: Gig }) {
@@ -232,28 +233,28 @@ export default function GigDescription({ gig }: { gig: Gig }) {
             <Button
               variant="ghost"
               size="icon"
-              className={`h-8 w-8 ${isBookmarked ? "text-purple-600" : ""}`}
+              className={`h-8 w-8 ${isBookmarked ? "text-skillText" : ""}`}
               onClick={handleBookmark}
               disabled={!session || isSubmitting}
             >
               {isBookmarked ? (
-                <BookmarkCheck className="w-4 h-4 fill-purple-600" />
+                <BookmarkCheck className="w-4 h-4 fill-skillText" />
               ) : (
                 <Bookmark className="w-4 h-4" />
               )}
             </Button>
             <Button
               className={`px-6 py-2 rounded-full text-sm ${
-                userGig?.applied
+                userGig?.status === "applied"
                   ? "bg-gray-300 text-gray-600 cursor-not-allowed"
-                  : "bg-purple-600 hover:bg-purple-700 text-white"
+                  : "bg-skill text-skillText hover:bg-skillText hover:text-skill"
               }`}
               onClick={handleApply}
-              disabled={isSubmitting || userGig?.applied}
+              disabled={isSubmitting || userGig?.status === "applied"}
             >
               {isSubmitting ? (
                 "Applying..."
-              ) : userGig?.applied ? (
+              ) : userGig?.status === "applied" ? (
                 <span className="flex items-center gap-1">
                   <CheckCircle className="w-4 h-4" /> Applied
                 </span>

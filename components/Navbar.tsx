@@ -60,8 +60,8 @@ export default function Navbar() {
                 asChild
                 className={`w-full justify-start bg-transparent transition-colors duration-150 ${
                   pathname === href
-                    ? "text-[#22c55e]"
-                    : "text-gray-400 hover:text-[#22c55e]"
+                    ? "text-skillText"
+                    : "text-gray-400 hover:text-skillText"
                 }`}
               >
                 <span className="flex items-center">
@@ -94,7 +94,7 @@ export default function Navbar() {
       </div>
 
       {/* Mobile Navbar (hidden on large screens) */}
-      <div className="absolute bottom-4 inset-x-0 w-[65%] mx-auto px-4 rounded-3xl z-40 lg:hidden bg-[#22c55e] py-4">
+      <div className="absolute bottom-4 inset-x-0 w-[65%] mx-auto px-4 rounded-3xl z-40 lg:hidden bg-skillText py-4">
         <div className="flex items-center justify-around">
           {navItems.map(({ name, href, icon: Icon }) => (
             <Link href={href} key={href}>
@@ -104,8 +104,8 @@ export default function Navbar() {
                 size="icon"
                 className={`h-12 w-12 transition-colors duration-150 hover:bg-transparent ${
                   pathname === href
-                    ? "text-white"
-                    : "text-gray-400 hover:text-white"
+                    ? "text-skill"
+                    : "text-gray-400 hover:text-skill"
                 }`}
               >
                 <Icon className="w-6 h-6" />
