@@ -349,48 +349,7 @@ export default function ProfileComponent({
               </CardContent>
             </Card>
             {/* Connect Card - Added to mobile */}
-            <Card className="bg-white rounded-2xl shadow-sm">
-              <CardHeader>
-                <CardTitle className="text-lg">Connect</CardTitle>
-              </CardHeader>
-              <CardContent className="p-4 pt-0 space-y-3 text-sm">
-                <div className="flex items-center gap-2">
-                  <Linkedin className="w-5 h-5 text-blue-600" />
-                  <a
-                    href={userData.linkedinUrl || "#"}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-600 hover:underline break-all text-sm"
-                  >
-                    {userData.linkedinUrl || "Not provided"}
-                  </a>
-                </div>
-
-                <div className="flex items-center gap-2 mt-3">
-                  <Github className="w-5 h-5 text-gray-800" />
-                  <a
-                    href={userData.githubUrl || "#"}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-600 hover:underline break-all text-sm"
-                  >
-                    {userData.githubUrl || "Not provided"}
-                  </a>
-                </div>
-
-                <div className="flex items-center gap-2 mt-3">
-                  <File className="w-5 h-5 text-gray-800" />
-                  <a
-                    href={userData.resumeUrl || "#"}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="block text-blue-600 hover:underline break-all"
-                  >
-                    View Resume
-                  </a>
-                </div>
-              </CardContent>
-            </Card>
+            {/* Connect card removed */}
 
             {/* Description Card - Added to mobile */}
             <Card className="bg-white rounded-2xl shadow-sm">
@@ -582,7 +541,7 @@ export default function ProfileComponent({
         <Navbar />
 
         {/* Main Content */}
-        <div className="flex-1 p-8">
+        <div className="flex-1 p-8 lg:ml-64">
           <div className="grid grid-cols-3 gap-6 max-w-6xl">
             {/* Profile Card */}
             <Card className="bg-white rounded-2xl shadow-sm">
@@ -617,16 +576,39 @@ export default function ProfileComponent({
                     ? "Busy"
                     : "Offline"}
                 </Badge>
-                <div className="flex justify-center items-center gap-1 mb-6">
-                  {Array(5)
-                    .fill(0)
-                    .map((_, i) => (
-                      <Star
-                        key={i}
-                        className="w-5 h-5 fill-yellow-400 text-yellow-400"
-                      />
-                    ))}
-                  <span className="ml-2 text-lg font-medium">5.0</span>
+
+                {/* Icons below status chip */}
+                <div className="flex items-center justify-center gap-4 mb-6">
+                  {userData.linkedinUrl && (
+                    <a
+                      href={userData.linkedinUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label="LinkedIn"
+                    >
+                      <Linkedin className="w-6 h-6 text-blue-600 hover:opacity-80" />
+                    </a>
+                  )}
+                  {userData.githubUrl && (
+                    <a
+                      href={userData.githubUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label="GitHub"
+                    >
+                      <Github className="w-6 h-6 text-gray-800 hover:opacity-80" />
+                    </a>
+                  )}
+                  {userData.resumeUrl && (
+                    <a
+                      href={userData.resumeUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label="Resume"
+                    >
+                      <File className="w-6 h-6 text-gray-800 hover:opacity-80" />
+                    </a>
+                  )}
                 </div>
                 {!hideEditButton && (
                   <Link href="/profile/edit">
@@ -664,113 +646,117 @@ export default function ProfileComponent({
               </CardContent>
             </Card>
 
-            {/* Referral Card */}
-            <Card className="bg-white rounded-2xl shadow-sm">
-              <CardContent className="p-6">
-                <h3 className="text-lg font-semibold mb-4">
-                  Refer Friends and Earn 10% of their earning for life.
-                </h3>
-                <div className="flex gap-2 mb-6">
-                  <input
-                    type="text"
-                    value={referralLink}
-                    readOnly
-                    className="flex-1 px-3 py-2 border rounded-md bg-gray-50"
-                  />
-                  <Button
-                    className="bg-green-500 hover:bg-green-600"
-                    onClick={copyReferralLink}
-                  >
-                    <Copy className="w-4 h-4" />
-                  </Button>
-                </div>
-                <div className="space-y-4">
-                  <h4 className="font-semibold">
-                    My Referrals ({referrals.length})
-                  </h4>
-                  {referrals.length > 0 ? (
-                    <div className="space-y-3 max-h-40 overflow-y-auto">
-                      {referrals.map((referral, index) => (
-                        <div key={index} className="flex items-center gap-3">
-                          <Avatar className="w-8 h-8">
-                            {referral.image ? (
-                              <AvatarImage
-                                src={referral.image}
-                                alt={referral.name}
-                              />
-                            ) : (
-                              <AvatarFallback className="bg-yellow-400 text-xs">
-                                {referral.name
-                                  ?.split(" ")
-                                  .map((n) => n[0])
-                                  .join("")
-                                  .toUpperCase() || "U"}
-                              </AvatarFallback>
-                            )}
-                          </Avatar>
-                          <div className="flex-1">
-                            <p className="font-medium text-sm">
-                              {referral.name}
-                            </p>
-                            <p className="text-xs text-gray-500">
-                              {referral.email}
-                            </p>
+            {/* Personal Details Card - move to top row for public profiles */}
+            {userId && (
+              <Card className="bg-white rounded-2xl shadow-sm">
+                <CardHeader>
+                  <CardTitle className="text-xl">Personal Details</CardTitle>
+                </CardHeader>
+                <CardContent className="p-6 pt-0 space-y-3">
+                  <div>
+                    <span className="font-medium">Mobile Number:</span>
+                    <span className="ml-2 text-gray-600">
+                      {userData.phone || "Not provided"}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="font-medium">Email:</span>
+                    <span className="ml-2 text-gray-600">
+                      {userData.email || "Not provided"}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="font-medium">Gender:</span>
+                    <span className="ml-2 text-gray-600">
+                      {userData.gender || "Not provided"}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="font-medium">Date of Birth:</span>
+                    <span className="ml-2 text-gray-600">
+                      {userData.dateOfBirth
+                        ? new Date(userData.dateOfBirth).toLocaleDateString()
+                        : "Not provided"}
+                    </span>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Referral Card - hidden on public profile view */}
+            {!userId && (
+              <Card className="bg-white rounded-2xl shadow-sm">
+                <CardContent className="p-6">
+                  <h3 className="text-lg font-semibold mb-4">
+                    Refer Friends and Earn 10% of their earning for life.
+                  </h3>
+                  <div className="flex gap-2 mb-6">
+                    <input
+                      type="text"
+                      value={referralLink}
+                      readOnly
+                      className="flex-1 px-3 py-2 border rounded-md bg-gray-50"
+                    />
+                    <Button
+                      className="bg-green-500 hover:bg-green-600"
+                      onClick={copyReferralLink}
+                    >
+                      <Copy className="w-4 h-4" />
+                    </Button>
+                  </div>
+                  <div className="space-y-4">
+                    <h4 className="font-semibold">
+                      My Referrals ({referrals.length})
+                    </h4>
+                    {referrals.length > 0 ? (
+                      <div className="space-y-3 max-h-40 overflow-y-auto">
+                        {referrals.map((referral, index) => (
+                          <div key={index} className="flex items-center gap-3">
+                            <Avatar className="w-8 h-8">
+                              {referral.image ? (
+                                <AvatarImage
+                                  src={referral.image}
+                                  alt={referral.name}
+                                />
+                              ) : (
+                                <AvatarFallback className="bg-yellow-400 text-xs">
+                                  {referral.name
+                                    ?.split(" ")
+                                    .map((n) => n[0])
+                                    .join("")
+                                    .toUpperCase() || "U"}
+                                </AvatarFallback>
+                              )}
+                            </Avatar>
+                            <div className="flex-1">
+                              <p className="font-medium text-sm">
+                                {referral.name}
+                              </p>
+                              <p className="text-xs text-gray-500">
+                                {referral.email}
+                              </p>
+                            </div>
                           </div>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="text-gray-500 text-sm">
-                      You haven't referred anyone yet.
-                    </p>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-gray-500 text-sm">
+                        You haven't referred anyone yet.
+                      </p>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
             {/* Links Card */}
-            <Card className="bg-white rounded-2xl shadow-sm col-span-1">
-              <CardHeader>
-                <CardTitle className="text-xl">Connect</CardTitle>
-              </CardHeader>
-              <CardContent className="p-6 pt-0 space-y-4">
-                <div className="flex items-center gap-2">
-                  <Linkedin className="w-5 h-5 text-blue-600" />
-                  <a
-                    href={userData.linkedinUrl || "#"}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="block text-blue-600 hover:underline truncate"
-                  >
-                    {userData.linkedinUrl || "Not provided"}
-                  </a>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Github className="w-5 h-5 text-gray-800" />
-                  <a
-                    href={userData.githubUrl || "#"}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="block text-skill hover:underline truncate"
-                  >
-                    {userData.githubUrl || "Not provided"}
-                  </a>
-                </div>
-                <div className="flex items-center gap-2">
-                  <File className="w-5 h-5 text-gray-800" />
-                  <a
-                    href={userData.resumeUrl || "#"}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="block text-blue-600 hover:underline truncate"
-                  >
-                    View Resume
-                  </a>
-                </div>
-              </CardContent>
-            </Card>
+            {/* Connect card removed */}
 
             {/* Description Card */}
-            <Card className="bg-white rounded-2xl shadow-sm col-span-2">
+            <Card
+              className={`bg-white rounded-2xl shadow-sm ${
+                !userId ? "col-span-3" : "col-span-2"
+              }`}
+            >
               <CardHeader>
                 <CardTitle className="text-xl">Description</CardTitle>
               </CardHeader>
@@ -810,43 +796,45 @@ export default function ProfileComponent({
               </CardContent>
             </Card>
 
-            {/* Personal Details Card */}
-            <Card className="bg-white rounded-2xl shadow-sm">
-              <CardHeader>
-                <CardTitle className="text-xl">Personal Details</CardTitle>
-              </CardHeader>
-              <CardContent className="p-6 pt-0 space-y-3">
-                <div>
-                  <span className="font-medium">Mobile Number:</span>
-                  <span className="ml-2 text-gray-600">
-                    {userData.phone || "Not provided"}
-                  </span>
-                </div>
-                <div>
-                  <span className="font-medium">Email:</span>
-                  <span className="ml-2 text-gray-600">
-                    {userData.email || "Not provided"}
-                  </span>
-                </div>
-                <div>
-                  <span className="font-medium">Gender:</span>
-                  <span className="ml-2 text-gray-600">
-                    {userData.gender || "Not provided"}
-                  </span>
-                </div>
-                <div>
-                  <span className="font-medium">Date of Birth:</span>
-                  <span className="ml-2 text-gray-600">
-                    {userData.dateOfBirth
-                      ? new Date(userData.dateOfBirth).toLocaleDateString()
-                      : "Not provided"}
-                  </span>
-                </div>
-              </CardContent>
-            </Card>
+            {/* Personal Details Card (only on own profile; hidden for public where it's shown above) */}
+            {!userId && (
+              <Card className="bg-white rounded-2xl shadow-sm">
+                <CardHeader>
+                  <CardTitle className="text-xl">Personal Details</CardTitle>
+                </CardHeader>
+                <CardContent className="p-6 pt-0 space-y-3">
+                  <div>
+                    <span className="font-medium">Mobile Number:</span>
+                    <span className="ml-2 text-gray-600">
+                      {userData.phone || "Not provided"}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="font-medium">Email:</span>
+                    <span className="ml-2 text-gray-600">
+                      {userData.email || "Not provided"}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="font-medium">Gender:</span>
+                    <span className="ml-2 text-gray-600">
+                      {userData.gender || "Not provided"}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="font-medium">Date of Birth:</span>
+                    <span className="ml-2 text-gray-600">
+                      {userData.dateOfBirth
+                        ? new Date(userData.dateOfBirth).toLocaleDateString()
+                        : "Not provided"}
+                    </span>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
 
-            {/* Referred By Card - Desktop */}
-            {referredBy && (
+            {/* Referred By Card - Desktop (hide on public profile) */}
+            {referredBy && !userId && (
               <Card className="bg-white rounded-2xl shadow-sm">
                 <CardHeader>
                   <CardTitle className="text-xl">Referred By</CardTitle>
@@ -880,50 +868,52 @@ export default function ProfileComponent({
               </Card>
             )}
 
-            {/* My Referrals Card - Desktop Extended */}
-            <Card className="bg-white rounded-2xl shadow-sm">
-              <CardHeader>
-                <CardTitle className="text-xl">
-                  My Referrals ({referrals.length})
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-6 pt-0">
-                {referrals.length > 0 ? (
-                  <div className="space-y-3 max-h-80 overflow-y-auto">
-                    {referrals.map((referral, index) => (
-                      <div key={index} className="flex items-center gap-3">
-                        <Avatar className="w-10 h-10">
-                          {referral.image ? (
-                            <AvatarImage
-                              src={referral.image}
-                              alt={referral.name}
-                            />
-                          ) : (
-                            <AvatarFallback className="bg-yellow-400">
-                              {referral.name
-                                ?.split(" ")
-                                .map((n) => n[0])
-                                .join("")
-                                .toUpperCase() || "U"}
-                            </AvatarFallback>
-                          )}
-                        </Avatar>
-                        <div className="flex-1">
-                          <p className="font-medium">{referral.name}</p>
-                          <p className="text-sm text-gray-500">
-                            {referral.email}
-                          </p>
+            {/* My Referrals Card - Desktop Extended (hide on public profile) */}
+            {!userId && (
+              <Card className="bg-white rounded-2xl shadow-sm">
+                <CardHeader>
+                  <CardTitle className="text-xl">
+                    My Referrals ({referrals.length})
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-6 pt-0">
+                  {referrals.length > 0 ? (
+                    <div className="space-y-3 max-h-80 overflow-y-auto">
+                      {referrals.map((referral, index) => (
+                        <div key={index} className="flex items-center gap-3">
+                          <Avatar className="w-10 h-10">
+                            {referral.image ? (
+                              <AvatarImage
+                                src={referral.image}
+                                alt={referral.name}
+                              />
+                            ) : (
+                              <AvatarFallback className="bg-yellow-400">
+                                {referral.name
+                                  ?.split(" ")
+                                  .map((n) => n[0])
+                                  .join("")
+                                  .toUpperCase() || "U"}
+                              </AvatarFallback>
+                            )}
+                          </Avatar>
+                          <div className="flex-1">
+                            <p className="font-medium">{referral.name}</p>
+                            <p className="text-sm text-gray-500">
+                              {referral.email}
+                            </p>
+                          </div>
                         </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-gray-500 text-sm">
-                    You haven't referred anyone yet.
-                  </p>
-                )}
-              </CardContent>
-            </Card>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-gray-500 text-sm">
+                      You haven't referred anyone yet.
+                    </p>
+                  )}
+                </CardContent>
+              </Card>
+            )}
           </div>
         </div>
       </div>

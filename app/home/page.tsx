@@ -151,6 +151,24 @@ export default function Component() {
 
     try {
       setLoading(true);
+      // Pre-check profile completeness before attempting to apply
+      try {
+        const profileRes = await fetch("/api/user/profile");
+        if (profileRes.ok) {
+          const profile = await profileRes.json();
+          if (!profile?.profileFilled) {
+            toast({
+              title: "Profile incomplete",
+              description: "Please complete your profile to apply for gigs.",
+              variant: "destructive",
+            });
+            window.location.href = "/profile/edit";
+            return;
+          }
+        }
+      } catch (e) {
+        // If profile check fails, proceed to server validation
+      }
       const response = await fetch("/api/applications", {
         method: "POST",
         headers: {
@@ -162,6 +180,21 @@ export default function Component() {
       const data = await response.json();
 
       if (!response.ok) {
+        // If the server indicates profile is incomplete, guide the user
+        if (
+          (data?.code && data.code === "PROFILE_INCOMPLETE") ||
+          (typeof data?.error === "string" &&
+            data.error.toLowerCase().includes("profile") &&
+            data.error.toLowerCase().includes("complete"))
+        ) {
+          toast({
+            title: "Profile incomplete",
+            description: "Please complete your profile to apply for gigs.",
+            variant: "destructive",
+          });
+          window.location.href = "/profile/edit";
+          return;
+        }
         throw new Error(data.error || "Failed to apply");
       }
 
@@ -259,9 +292,9 @@ export default function Component() {
     const router = useRouter();
     // Check if user has applied to this gig
     const userGig = userGigs.find((userGig: any) => userGig.gigId === job.id);
-    const hasApplied = !!userGig;
+    const hasApplied = userGig?.status === "applied" || false;
     const isBookmarked = userGig?.bookmarked || false;
-    console.log(job);
+    console.log("user gig: ", userGig);
     return (
       <FadeContent duration={500} easing="ease-out" initialOpacity={0}>
         <Card

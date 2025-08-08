@@ -1,7 +1,7 @@
 import GoogleProvider from "next-auth/providers/google";
 import { MongoClient, ObjectId } from "mongodb";
 import { SessionStrategy } from "next-auth";
-import { randomInt } from 'crypto';
+import { randomInt } from "crypto";
 
 const uri = process.env.MONGODB_URI;
 const dbName = process.env.MONGODB_DB || "waitlist";
@@ -21,28 +21,41 @@ async function connectToDatabase() {
 const generateUniqueReferralCode = async (db: any): Promise<string> => {
   let code: string;
   let isUnique = false;
-  
+
   while (!isUnique) {
     // Generate a 6-digit number and pad with leading zeros if needed
-    code = randomInt(0, 1000000).toString().padStart(6, '0');
-    
+    code = randomInt(0, 1000000).toString().padStart(6, "0");
+
     // Check if code already exists in the database
-    const existingUser = await db.collection("users").findOne({ referralCode: code });
+    const existingUser = await db
+      .collection("users")
+      .findOne({ referralCode: code });
     if (!existingUser) {
       isUnique = true;
     }
   }
-  
+
   return code!;
 };
 
-// Helper function to check if email is a company email
+// Helper function to check if email is a company email using a whitelist
+const COMPANY_DOMAIN_WHITELIST = (
+  process.env.COMPANY_EMAIL_DOMAINS || "mlrit.ac.in,enterprise.com"
+)
+  .split(",")
+  .map((d) => d.trim().toLowerCase())
+  .filter(Boolean);
+
 const isCompanyEmail = (email: string) => {
-  // Only mark as company email if it matches specific company domains
-  const companyDomains = ['mlrit.ac.in', 'enterprise.com']; // Add your actual company domains here
-  const domain = email.split('@')[1];
-  const isCompany = companyDomains.some(d => domain.endsWith(d));
-  console.log(`Checking company email ${email}: ${isCompany ? 'company' : 'regular user'}`);
+  const domain = (email || "").split("@")[1]?.toLowerCase() || "";
+  const isCompany = COMPANY_DOMAIN_WHITELIST.some(
+    (d) => domain === d || domain.endsWith(`.${d}`)
+  );
+  console.log(
+    `Checking company email ${email}: ${
+      isCompany ? "company (whitelisted)" : "regular user / not whitelisted"
+    }`
+  );
   return isCompany;
 };
 
@@ -55,12 +68,12 @@ export const authOptions = {
         params: {
           prompt: "consent",
           access_type: "offline",
-          response_type: "code"
-        }
-      }
+          response_type: "code",
+        },
+      },
     }),
   ],
-  session: { 
+  session: {
     strategy: "jwt" as SessionStrategy,
     maxAge: 30 * 24 * 60 * 60, // 30 days
     updateAge: 24 * 60 * 60, // 24 hours
@@ -70,21 +83,29 @@ export const authOptions = {
       name: `__Secure-next-auth.session-token`,
       options: {
         httpOnly: true,
-        sameSite: 'lax',
-        path: '/',
+        sameSite: "lax",
+        path: "/",
         secure: true,
       },
     },
   },
   callbacks: {
-    async signIn({ user, account, profile }: { user: any; account: any; profile: any }) {
-      console.log('🔑 Sign in attempt:', { 
-        email: user?.email, 
+    async signIn({
+      user,
+      account,
+      profile,
+    }: {
+      user: any;
+      account: any;
+      profile: any;
+    }) {
+      console.log("🔑 Sign in attempt:", {
+        email: user?.email,
         provider: account?.provider,
-        name: user?.name
+        name: user?.name,
       });
-      
-      if (account?.provider === 'google') {
+
+      if (account?.provider === "google") {
         // Don't close the client connection - let it be managed by the connection pool
         const client = await connectToDatabase();
         try {
@@ -93,16 +114,18 @@ export const authOptions = {
           // Check if this is a company login
           const isCompany = isCompanyEmail(user.email);
           if (isCompany) {
-            console.log('🏢 Company login detected, skipping regular user creation');
+            console.log("🏢 Company login detected (domain whitelisted)");
             return true;
           }
 
           // Regular user flow
-          console.log('👤 Looking for existing user in database...');
-          const existingUser = await db.collection("users").findOne({ email: user.email });
+          console.log("👤 Looking for existing user in database...");
+          const existingUser = await db
+            .collection("users")
+            .findOne({ email: user.email });
 
           if (!existingUser) {
-            console.log('🆕 No existing user found, creating new user...');
+            console.log("🆕 No existing user found, creating new user...");
             const newUser = {
               email: user.email,
               name: user.name,
@@ -123,33 +146,37 @@ export const authOptions = {
               setupComplete: false,
               createdAt: new Date(),
               updatedAt: new Date(),
-              emailVerified: new Date()
+              emailVerified: new Date(),
             };
-            
-            console.log('📝 New user data:', JSON.stringify(newUser, null, 2));
-            
+
+            console.log("📝 New user data:", JSON.stringify(newUser, null, 2));
+
             const result = await db.collection("users").insertOne(newUser);
             if (result.insertedId) {
-              console.log('✅ New user created with ID:', result.insertedId);
+              console.log("✅ New user created with ID:", result.insertedId);
               // Verify the user was actually created
-              const createdUser = await db.collection("users").findOne({ _id: result.insertedId });
-              console.log('🔍 Verifying user creation:', createdUser ? 'Success' : 'Failed');
+              const createdUser = await db
+                .collection("users")
+                .findOne({ _id: result.insertedId });
+              console.log(
+                "🔍 Verifying user creation:",
+                createdUser ? "Success" : "Failed"
+              );
               return true;
             } else {
-              console.error('❌ Failed to create user: No insertedId returned');
+              console.error("❌ Failed to create user: No insertedId returned");
               return false;
             }
           }
-          
-          console.log('👤 Existing user found with ID:', existingUser._id);
+
+          console.log("👤 Existing user found with ID:", existingUser._id);
           return true; // Always allow login
-          
         } catch (error) {
-          console.error('❌ Error in signIn callback:', error);
+          console.error("❌ Error in signIn callback:", error);
           return false;
         }
       }
-      
+
       // For non-Google auth, just allow
       return true;
     },
@@ -159,7 +186,15 @@ export const authOptions = {
       }
       return session;
     },
-    async jwt({ token, user, account }: { token: any; user: any; account: any }) {
+    async jwt({
+      token,
+      user,
+      account,
+    }: {
+      token: any;
+      user: any;
+      account: any;
+    }) {
       // Initial sign in
       if (account && user) {
         token.accessToken = account.access_token;
@@ -169,5 +204,5 @@ export const authOptions = {
     },
   },
   secret: process.env.NEXTAUTH_SECRET,
-  debug: process.env.NODE_ENV === 'development',
+  debug: process.env.NODE_ENV === "development",
 };

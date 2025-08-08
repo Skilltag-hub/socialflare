@@ -30,6 +30,20 @@ export async function GET(req: Request) {
       });
     }
 
+    // Ensure the user's profile is complete before allowing applications
+    if (!currentUser.profileFilled) {
+      return new Response(
+        JSON.stringify({
+          error: "Please complete your profile to apply for gigs",
+          code: "PROFILE_INCOMPLETE",
+        }),
+        {
+          status: 400,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+    }
+
     // Get all gigs that have applications from this user
     const gigsWithUserApplications = await db
       .collection("gigs")
@@ -43,7 +57,7 @@ export async function GET(req: Request) {
       const userApplication = gig.applications.find(
         (app: any) => app.userId === currentUser._id.toString()
       );
-      
+
       return {
         ...userApplication,
         gigId: gig._id.toString(),
@@ -125,27 +139,70 @@ export async function POST(req: Request) {
       });
     }
 
-    // Check if the user has already applied to this gig by looking in the gig's applications array
+    // Check if there's an existing record (applied or bookmarked)
     const existingApplication = gig.applications?.find(
       (app: any) => app.userId === currentUser._id.toString()
     );
-
-    if (existingApplication) {
-      return new Response(
-        JSON.stringify({ error: "You have already applied to this gig" }),
-        {
-          status: 400,
-          headers: { "Content-Type": "application/json" },
-        }
-      );
-    }
-
-    // Check if the gig is already in user's gigs array
-    const gigAlreadyInUser = currentUser.gigs?.some(
+    const existingUserGig = currentUser.gigs?.find(
       (userGig: any) => userGig.gigId === gigId
     );
 
-    if (gigAlreadyInUser) {
+    const now = new Date();
+
+    // If previously bookmarked, upgrade to applied instead of erroring out
+    if (
+      (existingApplication && existingApplication.status === "bookmarked") ||
+      (existingUserGig && existingUserGig.status === "bookmarked")
+    ) {
+      // Use a transaction to promote bookmarked -> applied
+      const dbSession = client.startSession();
+      try {
+        await dbSession.withTransaction(async () => {
+          await db.collection("gigs").updateOne(
+            {
+              _id: new ObjectId(gigId),
+              "applications.userId": currentUser._id.toString(),
+            },
+            {
+              $set: {
+                "applications.$.status": "applied",
+                "applications.$.lastUpdated": now,
+                "applications.$.timeApplied": now,
+              },
+            },
+            { session: dbSession }
+          );
+
+          await db.collection("users").updateOne(
+            { _id: currentUser._id, "gigs.gigId": gigId },
+            {
+              $set: {
+                "gigs.$.status": "applied",
+                "gigs.$.updatedAt": now,
+                "gigs.$.appliedAt": now,
+              },
+            },
+            { session: dbSession }
+          );
+        });
+      } finally {
+        await dbSession.endSession();
+      }
+
+      return new Response(
+        JSON.stringify({ message: "Application submitted successfully" }),
+        {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+    }
+
+    // If an application exists in gig or user already with non-bookmarked status, block
+    if (
+      (existingApplication && existingApplication.status !== "bookmarked") ||
+      (existingUserGig && existingUserGig.status !== "bookmarked")
+    ) {
       return new Response(
         JSON.stringify({ error: "You have already applied to this gig" }),
         {
@@ -154,8 +211,6 @@ export async function POST(req: Request) {
         }
       );
     }
-
-    const now = new Date();
 
     // Create the application object to be added to the gig's applications array
     const application: any = {
@@ -274,16 +329,16 @@ export async function PUT(req: Request) {
     }
 
     // Check if the gig exists and user has applied
-    const gig = await db
-      .collection("gigs")
-      .findOne({
-        _id: new ObjectId(gigId),
-        "applications.userId": currentUser._id.toString(),
-      });
+    const gig = await db.collection("gigs").findOne({
+      _id: new ObjectId(gigId),
+      "applications.userId": currentUser._id.toString(),
+    });
 
     if (!gig) {
       return new Response(
-        JSON.stringify({ error: "Gig not found or user has not applied to this gig" }),
+        JSON.stringify({
+          error: "Gig not found or user has not applied to this gig",
+        }),
         {
           status: 404,
           headers: { "Content-Type": "application/json" },
@@ -424,7 +479,7 @@ export async function PATCH(req: Request) {
             timeApplied: now,
             lastUpdated: now,
             boosted: false,
-            bookmarked: true
+            bookmarked: true,
           };
           const userGig = {
             gigId,
@@ -432,33 +487,37 @@ export async function PATCH(req: Request) {
             appliedAt: now,
             updatedAt: now,
             bookmarked: true,
-            boosted: false
+            boosted: false,
           };
-          await db.collection("gigs").updateOne(
-            { _id: new ObjectId(gigId) },
-            { $push: { applications: application } },
-            { session: dbSession }
-          );
-          await db.collection("users").updateOne(
-            { _id: currentUser._id },
-            { $push: { gigs: userGig } },
-            { session: dbSession }
-          );
+          await db
+            .collection("gigs")
+            .updateOne(
+              { _id: new ObjectId(gigId) },
+              { $push: { applications: application } },
+              { session: dbSession }
+            );
+          await db
+            .collection("users")
+            .updateOne(
+              { _id: currentUser._id },
+              { $push: { gigs: userGig } },
+              { session: dbSession }
+            );
         } else if (action === "withdraw") {
           // Handle withdrawal request
           const { upiId, upiName } = reqBody;
-          
+
           if (!upiId || !upiName) {
             throw new Error("UPI ID and UPI Name are required for withdrawal");
           }
-          
+
           const withdrawalData = {
             upiId,
             upiName,
             status: "pending",
             requestedAt: now,
           };
-          
+
           // Update user's gig with withdrawal request
           await db.collection("users").updateOne(
             {
@@ -467,14 +526,14 @@ export async function PATCH(req: Request) {
             },
             {
               $push: { "gigs.$.withdrawals": withdrawalData },
-              $set: { 
+              $set: {
                 "gigs.$.updatedAt": now,
-                "gigs.$.status": "withdrawal_requested" 
+                "gigs.$.status": "withdrawal_requested",
               },
             },
             { session: dbSession }
           );
-          
+
           // Update gig's application with withdrawal request
           await db.collection("gigs").updateOne(
             {
@@ -483,26 +542,25 @@ export async function PATCH(req: Request) {
             },
             {
               $push: { "applications.$.withdrawals": withdrawalData },
-              $set: { 
+              $set: {
                 "applications.$.lastUpdated": now,
-                "applications.$.status": "withdrawal_requested" 
+                "applications.$.status": "withdrawal_requested",
               },
             },
             { session: dbSession }
           );
-          
         } else if (action === "submitWork") {
           // Add a submission to both user's gigs and gig's applications
           const { submission } = reqBody;
           if (!submission) throw new Error("No submission provided");
-          
+
           // Create submission object with required fields
           const submissionData = {
             ...submission,
             submittedAt: now,
-            status: "submitted"
+            status: "submitted",
           };
-          
+
           // Add to user's gigs array
           await db.collection("users").updateOne(
             {
@@ -511,14 +569,14 @@ export async function PATCH(req: Request) {
             },
             {
               $push: { "gigs.$.submissions": submissionData },
-              $set: { 
-                "gigs.$.updatedAt": now, 
-                "gigs.$.status": "completed" 
+              $set: {
+                "gigs.$.updatedAt": now,
+                "gigs.$.status": "completed",
               },
             },
             { session: dbSession }
           );
-          
+
           // Add to gig's applications array for this user
           await db.collection("gigs").updateOne(
             {
@@ -527,9 +585,9 @@ export async function PATCH(req: Request) {
             },
             {
               $push: { "applications.$.submissions": submissionData },
-              $set: { 
-                "applications.$.lastUpdated": now, 
-                "applications.$.status": "completed" 
+              $set: {
+                "applications.$.lastUpdated": now,
+                "applications.$.status": "completed",
               },
             },
             { session: dbSession }
@@ -574,7 +632,10 @@ export async function PATCH(req: Request) {
       });
     } catch (error) {
       await dbSession.endSession();
-      if (error instanceof Error && error.message === "Gig not found in user's applications") {
+      if (
+        error instanceof Error &&
+        error.message === "Gig not found in user's applications"
+      ) {
         return new Response(
           JSON.stringify({ error: "Gig not found in user's applications" }),
           {

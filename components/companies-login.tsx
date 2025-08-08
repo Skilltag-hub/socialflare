@@ -19,25 +19,25 @@ export default function CompaniesLoginPage() {
       const result = await signIn("google", {
         redirect: false,
       });
-      
+
       if (result?.ok) {
         // After successful Google sign-in, get session and create/update company in MongoDB
         // Wait a moment for session to be established
         setTimeout(async () => {
           try {
-            const response = await fetch('/api/auth/companies', {
-              method: 'POST',
+            const response = await fetch("/api/auth/companies", {
+              method: "POST",
               headers: {
-                'Content-Type': 'application/json',
+                "Content-Type": "application/json",
               },
               body: JSON.stringify({
                 // Session will be available in the API route
               }),
             });
-            
+
             if (response.ok) {
               const { company } = await response.json();
-              
+
               // Redirect based on onboarding status
               if (company.isOnboarded) {
                 router.push("/companies");
@@ -48,7 +48,7 @@ export default function CompaniesLoginPage() {
               setError("Failed to create company profile");
             }
           } catch (error) {
-            console.error('Company creation error:', error);
+            console.error("Company creation error:", error);
             setError("Failed to create company profile");
           }
         }, 1000);
@@ -56,7 +56,7 @@ export default function CompaniesLoginPage() {
         setError("Failed to sign in with Google");
       }
     } catch (error) {
-      console.error('Google sign-in error:', error);
+      console.error("Google sign-in error:", error);
       setError("Failed to sign in with Google");
     } finally {
       setLoading(false);
@@ -79,7 +79,7 @@ export default function CompaniesLoginPage() {
           <h1 className="text-2xl font-bold text-gray-900 mb-6 text-center">
             Company Sign In
           </h1>
-          
+
           {error && (
             <div className="mb-4 p-3 bg-red-50 text-red-700 text-sm rounded-md">
               {error}
@@ -120,9 +120,8 @@ export default function CompaniesLoginPage() {
             </svg>
             {loading ? "Signing in with Google..." : "Sign in with Google"}
           </Button>
-          
+
           <div className="mt-8 pt-6 border-t border-gray-200">
-            
             <div className="flex justify-center space-x-6 text-sm text-gray-600 font-sans">
               <Link href="/support" className="hover:text-gray-900">
                 Support

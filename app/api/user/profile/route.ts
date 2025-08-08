@@ -2,6 +2,28 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/authOptions";
 import clientPromise from "@/lib/mongodb";
 
+function isNonEmpty(value: any): boolean {
+  if (typeof value === "string") return value.trim().length > 0;
+  if (Array.isArray(value)) return value.length > 0;
+  return Boolean(value);
+}
+
+function isProfileComplete(user: any): boolean {
+  // Define the fields required to consider a profile complete
+  return (
+    isNonEmpty(user?.name) &&
+    isNonEmpty(user?.description) &&
+    isNonEmpty(user?.phone) &&
+    isNonEmpty(user?.gender) &&
+    isNonEmpty(user?.dateOfBirth) &&
+    isNonEmpty(user?.githubUrl) &&
+    isNonEmpty(user?.linkedinUrl) &&
+    isNonEmpty(user?.resumeUrl) &&
+    Array.isArray(user?.skills) &&
+    user.skills.length > 0
+  );
+}
+
 export async function GET(req: Request) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.email) {
@@ -92,6 +114,22 @@ export async function PUT(req: Request) {
     if (resumeUrl !== undefined) updateData.resumeUrl = resumeUrl;
     const client = await clientPromise;
     const db = client.db("waitlist");
+
+    // Load existing user to compute profile completeness after this update
+    const existingUser = await db
+      .collection("users")
+      .findOne({ email: session.user.email });
+
+    if (!existingUser) {
+      return new Response(JSON.stringify({ error: "User not found" }), {
+        status: 404,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    const mergedUser = { ...existingUser, ...updateData } as any;
+    const profileFilled = isProfileComplete(mergedUser);
+    (updateData as any).profileFilled = profileFilled;
 
     const result = await db
       .collection("users")

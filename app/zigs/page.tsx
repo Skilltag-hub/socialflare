@@ -36,6 +36,11 @@ export default function Component() {
   const [filteredApplications, setFilteredApplications] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState("applied");
+  const [showFilter, setShowFilter] = useState(false);
+  const [filterCompany, setFilterCompany] = useState("");
+  const [minPrice, setMinPrice] = useState<string>("");
+  const [maxPrice, setMaxPrice] = useState<string>("");
+  const [jobType, setJobType] = useState<string>("");
 
   const router = useRouter();
   const { data: session, status } = useSession();
@@ -45,11 +50,7 @@ export default function Component() {
       await signOut({ callbackUrl: "/" });
     } catch (error) {
       console.error("Error logging out:", error);
-      toast({
-        title: "Error",
-        description: "Failed to logout. Please try again.",
-        variant: "destructive",
-      });
+      toast.error("Failed to logout. Please try again.");
     }
   };
 
@@ -107,23 +108,65 @@ export default function Component() {
 
   // Filter applications based on active filter
   useEffect(() => {
-    if (applications.length > 0) {
-      const filtered = applications.filter((app) => {
-        if (activeFilter === "completed") {
-          // Include completed, work_accepted, work_rejected and withdrawal statuses in the completed tab
-          return [
-            "completed",
-            "work_accepted",
-            "work_rejected",
-            "withdrawal_requested",
-            "withdrawal_processed",
-          ].includes(app.status);
-        }
-        return app.status === activeFilter;
-      });
-      setFilteredApplications(filtered);
+    if (applications.length === 0) {
+      setFilteredApplications([]);
+      return;
     }
-  }, [applications, activeFilter]);
+
+    const parsePrice = (payment: string | undefined): number => {
+      if (!payment) return 0;
+      const num = Number(String(payment).replace(/[^0-9.]/g, ""));
+      return isNaN(num) ? 0 : num;
+    };
+
+    const normalizedCompany = filterCompany.trim().toLowerCase();
+    const min = minPrice ? Number(minPrice) : undefined;
+    const max = maxPrice ? Number(maxPrice) : undefined;
+    const normalizedType = jobType.trim().toLowerCase();
+
+    const filtered = applications.filter((app) => {
+      // status filter
+      const statusOk =
+        activeFilter === "completed"
+          ? [
+              "completed",
+              "work_accepted",
+              "work_rejected",
+              "withdrawal_requested",
+              "withdrawal_processed",
+            ].includes(app.status)
+          : app.status === activeFilter;
+
+      if (!statusOk) return false;
+
+      const gig = app.gig || {};
+
+      // company filter
+      if (
+        normalizedCompany &&
+        !(gig.companyName || "").toLowerCase().includes(normalizedCompany)
+      ) {
+        return false;
+      }
+
+      // price filter
+      const price = parsePrice(gig.payment);
+      if (min !== undefined && price < min) return false;
+      if (max !== undefined && price > max) return false;
+
+      // type/category filter
+      if (
+        normalizedType &&
+        !(gig.category || "").toLowerCase().includes(normalizedType)
+      ) {
+        return false;
+      }
+
+      return true;
+    });
+
+    setFilteredApplications(filtered);
+  }, [applications, activeFilter, filterCompany, minPrice, maxPrice, jobType]);
 
   // Handle filter tab click
   const handleFilterClick = (status: string) => {
@@ -699,7 +742,7 @@ export default function Component() {
         {/* Main Content */}
         <div className="flex-1 p-8 lg:ml-64">
           {/* Filter Tabs */}
-          <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center justify-between mb-8 relative">
             <div className="flex gap-4">
               {getFilterTabs().map((tab, index) => (
                 <Button
@@ -716,13 +759,94 @@ export default function Component() {
                 </Button>
               ))}
             </div>
-            <Button
-              variant="outline"
-              className="bg-transparent border-gray-600 text-gray-400 hover:bg-gray-800 hover:text-white"
-            >
-              <Filter className="w-4 h-4 mr-2" />
-              Filter
-            </Button>
+            <div className="relative">
+              <Button
+                variant="outline"
+                className="bg-transparent border-gray-600 text-gray-400 hover:bg-gray-800 hover:text-white"
+                onClick={() => setShowFilter((s) => !s)}
+              >
+                <Filter className="w-4 h-4 mr-2" />
+                Filter
+              </Button>
+              {showFilter && (
+                <div className="absolute right-0 mt-2 w-80 bg-white text-black rounded-xl shadow-xl p-4 z-10">
+                  <div className="space-y-3">
+                    <div>
+                      <label className="block text-xs font-semibold mb-1">
+                        Company
+                      </label>
+                      <input
+                        type="text"
+                        value={filterCompany}
+                        onChange={(e) => setFilterCompany(e.target.value)}
+                        placeholder="e.g., Acme Corp"
+                        className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-200"
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <label className="block text-xs font-semibold mb-1">
+                          Min Price
+                        </label>
+                        <input
+                          type="number"
+                          min="0"
+                          value={minPrice}
+                          onChange={(e) => setMinPrice(e.target.value)}
+                          placeholder="0"
+                          className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-200"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-semibold mb-1">
+                          Max Price
+                        </label>
+                        <input
+                          type="number"
+                          min="0"
+                          value={maxPrice}
+                          onChange={(e) => setMaxPrice(e.target.value)}
+                          placeholder="5000"
+                          className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-200"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold mb-1">
+                        Job Type
+                      </label>
+                      <input
+                        type="text"
+                        value={jobType}
+                        onChange={(e) => setJobType(e.target.value)}
+                        placeholder="e.g., design, marketing, ..."
+                        className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-200"
+                      />
+                    </div>
+                    <div className="flex gap-2 pt-2">
+                      <Button
+                        className="bg-skill hover:bg-purple-700 text-white flex-1"
+                        onClick={() => setShowFilter(false)}
+                      >
+                        Apply
+                      </Button>
+                      <Button
+                        variant="outline"
+                        className="flex-1"
+                        onClick={() => {
+                          setFilterCompany("");
+                          setMinPrice("");
+                          setMaxPrice("");
+                          setJobType("");
+                        }}
+                      >
+                        Clear
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Job Cards Grid */}
