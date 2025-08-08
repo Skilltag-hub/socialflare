@@ -1,7 +1,7 @@
 "use client";
 
 import { ArrowLeft, Bookmark, BookmarkCheck } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/Button";
 import Link from "next/link";
 import { Users, Clock, CheckCircle } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
