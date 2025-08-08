@@ -111,14 +111,12 @@ export default function CompaniesJobApplicationsPage({
   // Define fetchJob outside of useEffect so it can be called from other functions
   const fetchJob = async () => {
     if (!jobId) return;
-    
+
     try {
       setLoading(true);
       const res = await fetch(`/api/gigs/${jobId}`);
       if (!res.ok)
-        throw new Error(
-          `Failed to fetch job: ${res.status} ${res.statusText}`
-        );
+        throw new Error(`Failed to fetch job: ${res.status} ${res.statusText}`);
 
       const response = await res.json();
       const gigData = response.gig || response; // Handle both { gig: {...} } and direct response
@@ -196,10 +194,7 @@ export default function CompaniesJobApplicationsPage({
               newUserDataMap[applicant.email] = userData;
             }
           } catch (error) {
-            console.error(
-              `Error fetching user data for ${app.userId}:`,
-              error
-            );
+            console.error(`Error fetching user data for ${app.userId}:`, error);
 
             // Add applicant with fallback data if user fetch fails
             const appId =

@@ -96,16 +96,16 @@ export async function PATCH(
     });
   } catch (error) {
     console.error("Error updating application status:", error);
-    const errorMessage = error instanceof Error ? error.message : "Unknown error";
-    
-    if (errorMessage === "Gig or applicant not found" || 
-        errorMessage === "User not found or user has not applied to this gig") {
-      return NextResponse.json(
-        { error: errorMessage },
-        { status: 404 }
-      );
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error";
+
+    if (
+      errorMessage === "Gig or applicant not found" ||
+      errorMessage === "User not found or user has not applied to this gig"
+    ) {
+      return NextResponse.json({ error: errorMessage }, { status: 404 });
     }
-    
+
     return NextResponse.json(
       { error: "Failed to update application status" },
       { status: 500 }

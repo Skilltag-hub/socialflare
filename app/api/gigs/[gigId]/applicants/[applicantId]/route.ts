@@ -43,12 +43,12 @@ export async function PATCH(
           { _id: new ObjectId(applicantId) },
           { userId: applicantId },
           { id: applicantId },
-          { email: applicantId }
+          { email: applicantId },
         ],
-        "gigs.gigId": gigId
+        "gigs.gigId": gigId,
       },
       {
-        $set: { "gigs.$.status": status }
+        $set: { "gigs.$.status": status },
       }
     );
 

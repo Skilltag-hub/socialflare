@@ -8,30 +8,32 @@ export async function GET(
 ) {
   try {
     const { userId } = params;
-    
+
     if (!userId) {
       return new Response("User ID is required", { status: 400 });
     }
 
     const client = await clientPromise;
     const db = client.db("waitlist");
-    
+
     // Try to find user by ObjectId first, then by string ID if that fails
     let user;
     try {
       // First try to find by ObjectId
-      user = await db.collection("users").findOne({ _id: new ObjectId(userId) });
+      user = await db
+        .collection("users")
+        .findOne({ _id: new ObjectId(userId) });
     } catch (error) {
       // If ObjectId conversion fails, try finding by other fields (not _id as string)
-      user = await db.collection("users").findOne({ 
+      user = await db.collection("users").findOne({
         $or: [
           { userId: userId },
           { id: userId },
-          { email: userId } // In case userId is actually an email
-        ]
+          { email: userId }, // In case userId is actually an email
+        ],
       });
     }
-    
+
     if (!user) {
       return new Response("User not found", { status: 404 });
     }

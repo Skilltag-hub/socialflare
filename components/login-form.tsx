@@ -79,7 +79,7 @@ export default function LoginForm() {
       }}
     >
       <div
-        ref={containerRef}
+        // ref={containerRef}
         className="w-full max-w-md bg-white rounded-md shadow-lg overflow-hidden"
       >
         <div className="p-8">
@@ -136,23 +136,6 @@ export default function LoginForm() {
           </div>
         </div>
 
-        <div className="px-8 pb-8">
-          <div className="pt-6 border-t border-gray-200">
-            <div className="flex justify-center space-x-6 text-sm text-gray-600 font-sans">
-              <Link href="/support" className="hover:text-gray-900">
-                Support
-              </Link>
-              <span>•</span>
-              <Link href="/privacy" className="hover:text-gray-900">
-                Privacy Policy
-              </Link>
-              <span>•</span>
-              <Link href="/terms" className="hover:text-gray-900">
-                Terms & Conditions
-              </Link>
-            </div>
-          </div>
-        </div>
         <div className="px-8 pb-8">
           <div className="pt-6 border-t border-gray-200">
             <div className="flex justify-center space-x-6 text-sm text-gray-600 font-sans">
