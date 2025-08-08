@@ -1,9 +1,7 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
-import { gsap } from "gsap";
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Eye, EyeOff } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/Button";
@@ -22,8 +20,6 @@ export default function LoginForm() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const contentRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
 
   // Check for referral code in URL and store it in localStorage
@@ -140,6 +136,23 @@ export default function LoginForm() {
           </div>
         </div>
 
+        <div className="px-8 pb-8">
+          <div className="pt-6 border-t border-gray-200">
+            <div className="flex justify-center space-x-6 text-sm text-gray-600 font-sans">
+              <Link href="/support" className="hover:text-gray-900">
+                Support
+              </Link>
+              <span>•</span>
+              <Link href="/privacy" className="hover:text-gray-900">
+                Privacy Policy
+              </Link>
+              <span>•</span>
+              <Link href="/terms" className="hover:text-gray-900">
+                Terms & Conditions
+              </Link>
+            </div>
+          </div>
+        </div>
         <div className="px-8 pb-8">
           <div className="pt-6 border-t border-gray-200">
             <div className="flex justify-center space-x-6 text-sm text-gray-600 font-sans">
