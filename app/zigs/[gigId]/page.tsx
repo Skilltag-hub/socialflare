@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 
 async function getGigDetails(gigId: string) {
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "";
+    const baseUrl = process.env.NEXTAUTH_URL || "";
     const apiUrl = new URL(
       `/api/gigs/${gigId}`,
       baseUrl || "http://localhost:3000"
