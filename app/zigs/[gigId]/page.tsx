@@ -6,7 +6,7 @@ async function getGigDetails(gigId: string) {
     const baseUrl = process.env.NEXTAUTH_URL || "";
     const apiUrl = new URL(
       `/api/gigs/${gigId}`,
-      baseUrl || "http://localhost:3000"
+      baseUrl || "https://skilltag.in"
     ).toString();
 
     const response = await fetch(apiUrl, {
