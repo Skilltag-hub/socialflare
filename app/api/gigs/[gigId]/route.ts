@@ -4,12 +4,12 @@ import clientPromise from "@/lib/mongodb"
 
 export async function GET(
   request: Request,
-  { params }: { params: Promise<{ gigId: string }> }
+  { params }: { params: { gigId: string } }
 ) {
   try {
     const client = await clientPromise
     const db = client.db("waitlist")
-    const resolvedParams = await params
+    const resolvedParams = params
     
     // Validate the ID format
     if (!ObjectId.isValid(resolvedParams.gigId)) {
@@ -49,13 +49,13 @@ export async function GET(
 
 export async function PATCH(
   request: Request,
-  { params }: { params: Promise<{ gigId: string }> }
+  { params }: { params: { gigId: string } }
 ) {
   try {
     const client = await clientPromise
     const db = client.db("waitlist")
     const data = await request.json()
-    const resolvedParams = await params
+    const resolvedParams = params
 
     // Validate the ID format
     if (!ObjectId.isValid(resolvedParams.gigId)) {
