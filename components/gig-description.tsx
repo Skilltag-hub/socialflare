@@ -180,10 +180,10 @@ export default function GigDescription({ gig }: { gig: Gig }) {
   };
 
   return (
-    <div className="max-w-sm mx-auto bg-white min-h-screen">
+    <div className="max-w-sm mx-auto bg-white min-h-screen px-4 sm:px-6 pb-8">
       {/* Header */}
       <Link href="/home" className="block">
-        <div className="bg-black text-white py-4 -mx-8 px-2 flex items-center gap-3">
+        <div className="bg-black text-white py-4 -mx-4 sm:-mx-6 px-4 flex items-center gap-3">
           <ArrowLeft className="w-5 h-5" />
           <span className="font-medium">Back</span>
         </div>

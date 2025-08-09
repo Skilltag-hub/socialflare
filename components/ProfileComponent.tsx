@@ -74,6 +74,9 @@ export default function ProfileComponent({
     dateOfBirth: "",
     phone: "",
     institution: "",
+    department: "",
+    graduationYear: "",
+    state: "",
     referredPeople: [],
     referredBy: null,
     githubUrl: "",
@@ -156,6 +159,9 @@ export default function ProfileComponent({
             dateOfBirth: profileData.dateOfBirth || "",
             phone: profileData.phone || "+91 8008000988",
             institution: profileData.institution || "",
+            department: profileData.department || profileData.branch || "",
+            graduationYear: profileData.graduationYear || "",
+            state: profileData.state || "",
             githubUrl: profileData.githubUrl || "",
             linkedinUrl: profileData.linkedinUrl || "",
             resumeUrl: profileData.resumeUrl || "",
@@ -200,6 +206,9 @@ export default function ProfileComponent({
             dateOfBirth: profileData.dateOfBirth || "",
             phone: profileData.phone || "+91 8008000988",
             institution: profileData.institution,
+            graduationYear: profileData.graduationYear || prev.graduationYear,
+            department: profileData.department || profileData.branch || prev.department,
+            state: profileData.state || prev.state,
             githubUrl: profileData.githubUrl || "",
             linkedinUrl: profileData.linkedinUrl || "",
             resumeUrl: profileData.resumeUrl || "",
@@ -401,18 +410,42 @@ export default function ProfileComponent({
                 <CardTitle className="text-lg">Education</CardTitle>
               </CardHeader>
               <CardContent className="p-4 pt-0">
-                {/* Note: This is still using mock data as education info is not yet in the API */}
-                <div className="flex items-start gap-3">
-                  <Avatar className="w-10 h-10">
-                    <AvatarFallback className="bg-yellow-400">
-                      CN
-                    </AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <h3 className="font-semibold text-sm">College Name</h3>
-                    <p className="text-xs text-gray-500">CSE | 2009-2013</p>
+                {isLoading ? (
+                  <div className="flex items-center justify-center py-6">
+                    <span className="inline-flex gap-1">
+                      <span className="inline-block w-2 h-2 rounded-full bg-[#B4E140] animate-pulse"></span>
+                      <span className="inline-block w-2 h-2 rounded-full bg-[#B4E140] animate-pulse [animation-delay:.15s]"></span>
+                      <span className="inline-block w-2 h-2 rounded-full bg-[#B4E140] animate-pulse [animation-delay:.3s]"></span>
+                    </span>
                   </div>
-                </div>
+                ) : (
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-yellow-400 flex items-center justify-center text-black text-xs font-bold">
+                        {(userData.institution || "-")
+                          .toString()
+                          .slice(0, 2)
+                          .toUpperCase()}
+                      </div>
+                      <div className="min-w-0">
+                        <h3 className="font-semibold text-sm truncate">
+                          {userData.institution === "other" ? "Other Institution" : userData.institution || "—"}
+                        </h3>
+                        <div className="text-xs text-gray-600 space-y-0.5">
+                          {userData.department && (
+                            <div>Department: {userData.department}</div>
+                          )}
+                          {userData.graduationYear && (
+                            <div>Graduation year: {userData.graduationYear}</div>
+                          )}
+                          {userData.state && (
+                            <div>State: {userData.state}</div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </CardContent>
             </Card>
 
@@ -805,19 +838,38 @@ export default function ProfileComponent({
                 <CardTitle className="text-xl">Education</CardTitle>
               </CardHeader>
               <CardContent className="p-6 pt-0">
-                {/* Note: This is still using mock data as education info is not yet in the API */}
-                {/* This can be updated when education data is available in the user profile */}
-                <div className="flex items-start gap-3">
-                  <Avatar className="w-12 h-12">
-                    <AvatarFallback className="bg-yellow-400">
-                      CN
-                    </AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <h3 className="font-semibold">{userData.institution}</h3>
-                    <p className="text-sm text-gray-500">CSE | 2009-2013</p>
+                {isLoading ? (
+                  <div className="flex items-center justify-center py-8">
+                    <span className="inline-flex gap-2">
+                      <span className="inline-block w-2.5 h-2.5 rounded-full bg-[#B4E140] animate-pulse"></span>
+                      <span className="inline-block w-2.5 h-2.5 rounded-full bg-[#B4E140] animate-pulse [animation-delay:.15s]"></span>
+                      <span className="inline-block w-2.5 h-2.5 rounded-full bg-[#B4E140] animate-pulse [animation-delay:.3s]"></span>
+                    </span>
                   </div>
-                </div>
+                ) : (
+                  <div className="flex items-start gap-3">
+                    <div className="w-12 h-12 rounded-full bg-yellow-400 flex items-center justify-center text-black font-bold">
+                      {(userData.institution || "-")
+                        .toString()
+                        .slice(0, 2)
+                        .toUpperCase()}
+                    </div>
+                    <div className="space-y-1 min-w-0">
+                      <h3 className="font-semibold truncate">
+                        {userData.institution === "other" ? "Other Institution" : userData.institution || "—"}
+                      </h3>
+                      <div className="text-sm text-gray-600 space-y-1">
+                        {userData.department && (
+                          <div>Department: {userData.department}</div>
+                        )}
+                        {userData.graduationYear && (
+                          <div>Graduation year: {userData.graduationYear}</div>
+                        )}
+                        {userData.state && <div>State: {userData.state}</div>}
+                      </div>
+                    </div>
+                  </div>
+                )}
               </CardContent>
             </Card>
 
