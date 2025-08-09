@@ -93,9 +93,6 @@ export default function Component() {
       setApplications(data.applications || []);
     } catch (error) {
       console.error("Error fetching applications:", error);
-      toast.error("Failed to load your applications. Please try again later.", {
-        style: { background: "red", border: "none", color: "white" },
-      });
     } finally {
       setLoading(false);
     }

@@ -119,6 +119,31 @@ export default function ProfileComponent({
           const response = await fetch(`/api/user/${userId}`);
           if (!response.ok) throw new Error("Failed to fetch user profile");
           const profileData = await response.json();
+          const defaultedFields = [
+            "description",
+            "status",
+            "skills",
+            "gender",
+            "dateOfBirth",
+            "phone",
+            "institution",
+            "githubUrl",
+            "linkedinUrl",
+            "resumeUrl",
+          ].filter((field) => {
+            if (field === "skills") {
+              return (
+                !Array.isArray(profileData?.skills) ||
+                profileData.skills.length === 0
+              );
+            }
+            return !profileData?.[field];
+          });
+          console.log("Public profile data fetched", {
+            userId,
+            receivedKeys: Object.keys(profileData || {}),
+            defaultedFields,
+          });
           setUserData((prev) => ({
             ...prev,
             name: profileData.name || prev.name,

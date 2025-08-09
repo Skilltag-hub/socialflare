@@ -97,7 +97,7 @@ export default function HomePage() {
                       href="/login"
                       className="bg-[#ADFF00] rounded-full px-3 py-1 sm:px-6 sm:py-2 font-poppins font-semibold text-black flex items-center gap-2 shadow text-xs sm:text-base"
                     >
-                      Join the waitlist
+                      Login / Signup
                       <FaArrowRight className="rotate-315" />
                     </Link>
                   </div>

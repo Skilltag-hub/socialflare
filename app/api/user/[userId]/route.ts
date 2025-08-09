@@ -4,10 +4,11 @@ import { ObjectId } from "mongodb";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { userId: string } }
+  { params }: { params: Promise<{ userId: string }> }
 ) {
   try {
-    const { userId } = params;
+    const resolvedParams = await params;
+    const { userId } = resolvedParams;
 
     if (!userId) {
       return new Response("User ID is required", { status: 400 });
@@ -38,12 +39,22 @@ export async function GET(
       return new Response("User not found", { status: 404 });
     }
 
-    // Return only the necessary user data
+    // Return public profile data
     const userData = {
       _id: user._id.toString(),
-      email: user.email,
+      email: user.email ?? null,
       name: user.name || user.firstName || null,
-      profileImage: user.profileImage || user.avatar || null,
+      profileImage: user.image || user.avatar || null,
+      description: user.description ?? null,
+      status: user.status ?? null,
+      skills: Array.isArray(user.skills) ? user.skills : [],
+      gender: user.gender ?? null,
+      dateOfBirth: user.dateOfBirth ?? null,
+      phone: user.phone ?? null,
+      institution: user.institution ?? null,
+      githubUrl: user.githubUrl ?? null,
+      linkedinUrl: user.linkedinUrl ?? null,
+      resumeUrl: user.resumeUrl ?? null,
     };
 
     return Response.json(userData);
