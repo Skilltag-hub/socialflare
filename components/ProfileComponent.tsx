@@ -207,7 +207,8 @@ export default function ProfileComponent({
             phone: profileData.phone || "+91 8008000988",
             institution: profileData.institution,
             graduationYear: profileData.graduationYear || prev.graduationYear,
-            department: profileData.department || profileData.branch || prev.department,
+            department:
+              profileData.department || profileData.branch || prev.department,
             state: profileData.state || prev.state,
             githubUrl: profileData.githubUrl || "",
             linkedinUrl: profileData.linkedinUrl || "",
@@ -421,26 +422,30 @@ export default function ProfileComponent({
                 ) : (
                   <div className="space-y-2">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-yellow-400 flex items-center justify-center text-black text-xs font-bold">
-                        {(userData.institution || "-")
-                          .toString()
-                          .slice(0, 2)
-                          .toUpperCase()}
-                      </div>
+                      <Avatar className="w-10 h-10 bg-yellow-400 flex items-center justify-center">
+                        <AvatarFallback className="bg-yellow-400 text-black text-xs font-bold">
+                          {(userData.institution || "-")
+                            .toString()
+                            .slice(0, 2)
+                            .toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
                       <div className="min-w-0">
                         <h3 className="font-semibold text-sm truncate">
-                          {userData.institution === "other" ? "Other Institution" : userData.institution || "—"}
+                          {userData.institution === "other"
+                            ? "Other Institution"
+                            : userData.institution || "—"}
                         </h3>
                         <div className="text-xs text-gray-600 space-y-0.5">
                           {userData.department && (
                             <div>Department: {userData.department}</div>
                           )}
                           {userData.graduationYear && (
-                            <div>Graduation year: {userData.graduationYear}</div>
+                            <div>
+                              Graduation year: {userData.graduationYear}
+                            </div>
                           )}
-                          {userData.state && (
-                            <div>State: {userData.state}</div>
-                          )}
+                          {userData.state && <div>State: {userData.state}</div>}
                         </div>
                       </div>
                     </div>
@@ -504,6 +509,11 @@ export default function ProfileComponent({
                   >
                     <Copy className="w-4 h-4" />
                   </Button>
+                  {referralLink && (
+                    <div className="w-full mt-2 text-xs text-center text-gray-500">
+                      Referral code: {referralLink.split("ref=")[1]}
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -762,6 +772,11 @@ export default function ProfileComponent({
                       <Copy className="w-4 h-4" />
                     </Button>
                   </div>
+                  {referralLink && (
+                    <div className="w-full mt-2 text-xs text-center text-gray-500">
+                      Referral code: {referralLink.split("ref=")[1]}
+                    </div>
+                  )}
                   <div className="space-y-4">
                     <h4 className="font-semibold">
                       My Referrals ({referrals.length})
@@ -848,15 +863,19 @@ export default function ProfileComponent({
                   </div>
                 ) : (
                   <div className="flex items-start gap-3">
-                    <div className="w-12 h-12 rounded-full bg-yellow-400 flex items-center justify-center text-black font-bold">
-                      {(userData.institution || "-")
-                        .toString()
-                        .slice(0, 2)
-                        .toUpperCase()}
-                    </div>
+                    <Avatar className="w-12 h-12 bg-yellow-400 flex items-center justify-center">
+                      <AvatarFallback className="bg-yellow-400 text-black font-bold">
+                        {(userData.institution || "-")
+                          .toString()
+                          .slice(0, 2)
+                          .toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
                     <div className="space-y-1 min-w-0">
                       <h3 className="font-semibold truncate">
-                        {userData.institution === "other" ? "Other Institution" : userData.institution || "—"}
+                        {userData.institution === "other"
+                          ? "Other Institution"
+                          : userData.institution || "—"}
                       </h3>
                       <div className="text-sm text-gray-600 space-y-1">
                         {userData.department && (

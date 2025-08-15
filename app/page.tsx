@@ -129,7 +129,7 @@ export default function HomePage() {
                   </h2>
 
                   {/* Card: description + button */}
-                  <div className="bg-white border-2 border-[#ADFF00] rounded-3xl p-6 max-w-lg text-center md:text-left">
+                  <div className="rounded-3xl p-6 max-w-lg text-center md:text-left">
                     <p className="text-base sm:text-lg font-poppins font-light text-[#1F2E47] mb-4">
                       A dynamic group of innovators who ignite ideas and
                       transform them into impactful work!
@@ -201,6 +201,30 @@ export default function HomePage() {
                         displayScrollbar
                       />
                     </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="w-full bg-[#F6F9FF] pt-4">
+              <div className="mx-auto max-w-5xl px-6">
+                <div className="flex flex-col md:flex-row items-center justify-center gap-12">
+                  {/* Heading */}
+                  <h2 className="text-4xl sm:text-5xl font-poppins font-bold text-[#1F2E47] text-center md:text-left">
+                    100+ Verified Skilled Talent!
+                  </h2>
+
+                  {/* Card: description + button */}
+                  <div className="rounded-3xl p-6 max-w-lg text-center md:text-left">
+                    <p className="text-base sm:text-lg font-poppins font-light text-[#1F2E47] mb-4">
+                      A dynamic group of innovators who ignite ideas and
+                      transform them into impactful work!
+                    </p>
+                    <Link
+                      href="/login"
+                      className="inline-flex items-center bg-[#ADFF00] text-[#1F2E47] font-bold font-poppins rounded-full px-6 py-2 hover:scale-105 transition-transform gap-2 mx-auto md:mx-0"
+                    >
+                      View All Jobs <FaArrowRight className="rotate-45" />
+                    </Link>
                   </div>
                 </div>
               </div>
@@ -352,9 +376,33 @@ export default function HomePage() {
                 </Link>
               </div>
             </div>
+            <div className="w-full bg-[#F6F9FF] pt-8">
+              <div className="mx-auto max-w-5xl px-6">
+                <div className="flex flex-col md:flex-row items-center justify-center gap-12">
+                  {/* Heading */}
+                  <h2 className="text-4xl sm:text-5xl font-poppins font-bold text-[#1F2E47] text-center md:text-left">
+                    100+ Verified Skilled Talent!
+                  </h2>
+
+                  {/* Card: description + button */}
+                  <div className="rounded-3xl p-6 max-w-lg text-center md:text-left">
+                    <p className="text-base sm:text-lg font-poppins font-light text-[#1F2E47] mb-4">
+                      A dynamic group of innovators who ignite ideas and
+                      transform them into impactful work!
+                    </p>
+                    <Link
+                      href="/login"
+                      className="inline-flex items-center bg-[#ADFF00] text-[#1F2E47] font-bold font-poppins rounded-full px-6 py-2 hover:scale-105 transition-transform gap-2 mx-auto md:mx-0"
+                    >
+                      View All Jobs <FaArrowRight className="rotate-45" />
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            </div>
 
             {/* Circular gallery for Companies */}
-            <div className="bg-[#F6F9FF]">
+            <div className="bg-[#F6F9FF] -pt-2">
               <div style={{ height: "600px", position: "relative" }}>
                 <CircularGallery />
               </div>

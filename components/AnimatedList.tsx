@@ -7,6 +7,11 @@ import { motion, useInView } from "framer-motion";
 import "./AnimatedList.css";
 import { Ripples } from "ldrs/react";
 import "ldrs/react/Ripples.css";
+import { Card, CardContent } from "./ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
+import { Button } from "./ui/button";
+import { Clock, Users } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 interface Gig {
   _id: string;
@@ -180,50 +185,99 @@ const AnimatedList: React.FC<AnimatedListProps> = ({
     );
   }
 
+  const router = useRouter();
+
+  // Function to truncate description
+  const truncateDescription = (text: string, maxLength = 100) => {
+    if (!text) return "";
+    return text.length > maxLength ? text.substring(0, maxLength) : text;
+  };
+
   return (
-    <div className={`scroll-list-container h-[600px] ${className}`}>
+    <div className={`scroll-list-container h-[400px] ${className}`}>
       <div
         ref={listRef}
-        className={`scroll-list ${!displayScrollbar ? "no-scrollbar" : ""}`}
+        className={`scroll-list ${
+          !displayScrollbar ? "no-scrollbar" : ""
+        } p-4 space-y-4`}
         onScroll={handleScroll}
       >
-        {gigs.map((gig, index) => (
+        {gigs.map((job, index) => (
           <AnimatedItem
-            key={gig._id}
+            key={job._id}
             delay={0.05 * index}
             index={index}
             onMouseEnter={() => setSelectedIndex(index)}
             onClick={() => {
               setSelectedIndex(index);
               if (onItemSelect) {
-                onItemSelect(gig, index);
+                onItemSelect(job, index);
               }
             }}
           >
-            <div
-              className={`item ${
-                selectedIndex === index ? "selected" : ""
-              } ${itemClassName}`}
+            <Card
+              className="bg-white max-w-[400px] w-full mx-auto rounded-2xl shadow-sm h-[200px] cursor-pointer hover:shadow-md transition-shadow"
+              onClick={() => router.push(`/zigs/${job._id}`)}
             >
-              <div className="flex items-center gap-3">
-                {gig.companyLogo && (
-                  <img
-                    src={gig.companyLogo}
-                    alt={gig.companyName}
-                    className="w-10 h-10 rounded-full"
-                  />
-                )}
-                <div>
-                  <p className="font-semibold">{gig.companyName}</p>
-                  <p className="text-sm text-gray-600">
-                    {gig.category || "General"} • {gig.payment}
-                  </p>
-                  <p className="text-xs text-gray-500">
-                    {new Date(gig.datePosted).toLocaleDateString()}
+              <CardContent className="p-4 flex flex-col h-full">
+                <div className="flex items-start gap-3 mb-3">
+                  <Avatar className="w-12 h-12 border-2 border-gray-200">
+                    <AvatarImage src={job.companyLogo} alt={job.companyName} />
+                    <AvatarFallback className="bg-yellow-400 text-black font-bold text-lg">
+                      {job.companyName.substring(0, 2)}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-gray-900 mb-1">
+                      {job.companyName}
+                    </h3>
+                    <div className="flex items-center gap-4 text-sm text-gray-500">
+                      <div className="flex items-center gap-1">
+                        <Users className="w-4 h-4 text-skill" />
+                        <span>{job.openings || "N/A"}</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Clock className="w-4 h-4" />
+                        <span>
+                          {new Date(job.datePosted).toLocaleDateString()}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="text-gray-700 text-sm h-[60px] overflow-hidden">
+                  <p className="leading-relaxed">
+                    {truncateDescription(job.description)}
+                    {job.description && job.description.length > 100 && (
+                      <span className="inline-flex items-center ml-1 bg-gray-100 text-gray-600 text-xs px-2 py-0.5 rounded-full">
+                        ...
+                      </span>
+                    )}
                   </p>
                 </div>
-              </div>
-            </div>
+
+                <div className="flex items-center justify-between mt-auto">
+                  <div className="flex items-center gap-1">
+                    <span className="text-skill text-lg">
+                      {job.payment.startsWith("$") ? "$" : "₹"}
+                    </span>
+                    <span className="text-skill font-semibold text-lg">
+                      {job.payment.replace(/[^0-9]/g, "")}
+                    </span>
+                  </div>
+                  <Button
+                    className={`px-6 py-2 rounded-full bg-skill hover:bg-skillText hover:text-skill text-skillText`}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      router.push("/login");
+                    }}
+                  >
+                    Apply
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
           </AnimatedItem>
         ))}
       </div>
