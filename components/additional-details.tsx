@@ -11,6 +11,23 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Drawer, DrawerContent, DrawerTrigger } from "@/components/ui/drawer";
+import { useMediaQuery } from "@/hooks/use-media-query";
+import { cn } from "@/lib/utils";
+import { Check, ChevronsUpDown } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
@@ -20,9 +37,249 @@ import "ldrs/react/Ripples.css";
 import collegesData from "../telangana_colleges.json";
 import { upload } from "@imagekit/next";
 
+interface StateOption {
+  value: string;
+  label: string;
+}
+
+function StateCombobox({
+  states,
+  value,
+  onChange,
+}: {
+  states: StateOption[];
+  value: string;
+  onChange: (value: string) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const isDesktop = useMediaQuery("(min-width: 768px)");
+  const selectedState = states.find((state) => state.value === value);
+
+  const StateList = ({
+    states,
+    setOpen,
+    onChange,
+    value,
+  }: {
+    states: StateOption[];
+    setOpen: (open: boolean) => void;
+    onChange: (value: string) => void;
+    value: string;
+  }) => (
+    <Command>
+      <CommandInput placeholder="Search states..." />
+      <CommandList>
+        <CommandEmpty>No state found.</CommandEmpty>
+        <CommandGroup>
+          {states.map((state) => (
+            <CommandItem
+              key={state.value}
+              value={state.value}
+              onSelect={() => {
+                onChange(state.value);
+                setOpen(false);
+              }}
+            >
+              <Check
+                className={cn(
+                  "mr-2 h-4 w-4",
+                  value === state.value ? "opacity-100" : "opacity-0"
+                )}
+              />
+              {state.label}
+            </CommandItem>
+          ))}
+        </CommandGroup>
+      </CommandList>
+    </Command>
+  );
+
+  if (isDesktop) {
+    return (
+      <Popover open={open} onOpenChange={setOpen}>
+        <PopoverTrigger asChild>
+          <Button
+            variant="outline"
+            role="combobox"
+            className={cn(
+              "w-full justify-between",
+              !selectedState && "text-muted-foreground"
+            )}
+          >
+            {selectedState ? selectedState.label : "Select your state"}
+            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-[300px] p-0" align="start">
+          <StateList
+            states={states}
+            setOpen={setOpen}
+            onChange={onChange}
+            value={value}
+          />
+        </PopoverContent>
+      </Popover>
+    );
+  }
+
+  return (
+    <Drawer open={open} onOpenChange={setOpen}>
+      <DrawerTrigger asChild>
+        <Button
+          variant="outline"
+          className={cn(
+            "w-full justify-between",
+            !selectedState && "text-muted-foreground"
+          )}
+        >
+          {selectedState ? selectedState.label : "Select your state"}
+          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+        </Button>
+      </DrawerTrigger>
+      <DrawerContent>
+        <div className="mt-4 border-t">
+          <StateList
+            states={states}
+            setOpen={setOpen}
+            onChange={onChange}
+            value={value}
+          />
+        </div>
+      </DrawerContent>
+    </Drawer>
+  );
+}
+
+function InstitutionCombobox({
+  colleges,
+  value,
+  onChange,
+}: {
+  colleges: string[];
+  value: string;
+  onChange: (value: string) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const isDesktop = useMediaQuery("(min-width: 768px)");
+  const selectedCollege = value ? { value, label: value } : null;
+
+  if (isDesktop) {
+    return (
+      <Popover open={open} onOpenChange={setOpen}>
+        <PopoverTrigger asChild>
+          <Button
+            variant="outline"
+            role="combobox"
+            className={cn(
+              "w-full justify-between",
+              !selectedCollege && "text-muted-foreground"
+            )}
+          >
+            {selectedCollege
+              ? selectedCollege.label
+              : "Select your institution"}
+            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-[300px] p-0" align="start">
+          <InstitutionList
+            colleges={colleges}
+            setOpen={setOpen}
+            onChange={onChange}
+            value={value}
+          />
+        </PopoverContent>
+      </Popover>
+    );
+  }
+
+  return (
+    <Drawer open={open} onOpenChange={setOpen}>
+      <DrawerTrigger asChild>
+        <Button
+          variant="outline"
+          className={cn(
+            "w-full justify-between",
+            !selectedCollege && "text-muted-foreground"
+          )}
+        >
+          {selectedCollege ? selectedCollege.label : "Select your institution"}
+          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+        </Button>
+      </DrawerTrigger>
+      <DrawerContent>
+        <div className="mt-4 border-t">
+          <InstitutionList
+            colleges={colleges}
+            setOpen={setOpen}
+            onChange={onChange}
+            value={value}
+          />
+        </div>
+      </DrawerContent>
+    </Drawer>
+  );
+}
+
+function InstitutionList({
+  colleges,
+  setOpen,
+  onChange,
+  value,
+}: {
+  colleges: string[];
+  setOpen: (open: boolean) => void;
+  onChange: (value: string) => void;
+  value: string;
+}) {
+  return (
+    <Command>
+      <CommandInput placeholder="Search institution..." className="h-9" />
+      <CommandList>
+        <CommandEmpty>No institution found.</CommandEmpty>
+        <CommandGroup>
+          {colleges.map((college, index) => (
+            <CommandItem
+              key={index}
+              value={college}
+              onSelect={() => {
+                onChange(college);
+                setOpen(false);
+              }}
+            >
+              {college}
+              <Check
+                className={cn(
+                  "ml-auto h-4 w-4",
+                  value === college ? "opacity-100" : "opacity-0"
+                )}
+              />
+            </CommandItem>
+          ))}
+          <CommandItem
+            value="other"
+            onSelect={() => {
+              onChange("other");
+              setOpen(false);
+            }}
+          >
+            Other Institution
+            <Check
+              className={cn(
+                "ml-auto h-4 w-4",
+                value === "other" ? "opacity-100" : "opacity-0"
+              )}
+            />
+          </CommandItem>
+        </CommandGroup>
+      </CommandList>
+    </Command>
+  );
+}
+
 export default function AdditionalDetails() {
-  const [institution, setInstitution] = useState("cbit");
-  const [state, setState] = useState("telangana");
+  const [institution, setInstitution] = useState("Select Institution");
+  const [state, setState] = useState("Select State");
   const [graduationYear, setGraduationYear] = useState("2025");
   const [phone, setPhone] = useState("");
   const [error, setError] = useState("");
@@ -258,23 +515,11 @@ export default function AdditionalDetails() {
                 >
                   Institution*
                 </Label>
-                <Select
+                <InstitutionCombobox
+                  colleges={collegesData.colleges}
                   value={institution}
-                  onValueChange={setInstitution}
-                  required
-                >
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Select your institution" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {collegesData.colleges.map((college, index) => (
-                      <SelectItem key={index} value={college}>
-                        {college}
-                      </SelectItem>
-                    ))}
-                    <SelectItem value="other">Other Institution</SelectItem>
-                  </SelectContent>
-                </Select>
+                  onChange={setInstitution}
+                />
               </div>
 
               <div className="space-y-2">
@@ -284,19 +529,16 @@ export default function AdditionalDetails() {
                 >
                   State*
                 </Label>
-                <Select value={state} onValueChange={setState} required>
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Select your state" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="telangana">Telangana</SelectItem>
-                    <SelectItem value="andhra-pradesh">
-                      Andhra Pradesh
-                    </SelectItem>
-                    <SelectItem value="karnataka">Karnataka</SelectItem>
-                    <SelectItem value="tamil-nadu">Tamil Nadu</SelectItem>
-                  </SelectContent>
-                </Select>
+                <StateCombobox
+                  states={[
+                    { value: "telangana", label: "Telangana" },
+                    { value: "andhra-pradesh", label: "Andhra Pradesh" },
+                    { value: "karnataka", label: "Karnataka" },
+                    { value: "tamil-nadu", label: "Tamil Nadu" },
+                  ]}
+                  value={state}
+                  onChange={setState}
+                />
               </div>
 
               <div className="space-y-2">

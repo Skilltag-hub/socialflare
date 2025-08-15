@@ -28,6 +28,7 @@ import {
   X,
   Plus,
 } from "lucide-react";
+import { SkillsCombobox } from "@/components/skills-combobox";
 import { useSession } from "next-auth/react";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
@@ -53,11 +54,7 @@ export default function Component() {
   });
 
   const [newSkill, setNewSkill] = useState("");
-  const [selectedSkills, setSelectedSkills] = useState([
-    "UI Designer",
-    "UX Designer",
-    "User Research",
-  ]);
+  const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
 
   // Get user initials for avatar fallback
   const getUserInitials = () => {
@@ -153,9 +150,9 @@ export default function Component() {
   };
 
   // Remove skill
-  const removeSkill = (skillToRemove) => {
-    setSelectedSkills((prev) =>
-      prev.filter((skill) => skill !== skillToRemove)
+  const removeSkill = (skillToRemove: string) => {
+    setSelectedSkills(
+      selectedSkills.filter((skill) => skill !== skillToRemove)
     );
   };
 
@@ -350,35 +347,13 @@ export default function Component() {
                         rows={4}
                       />
                     </div>
-                    <div>
-                      <Label htmlFor="skills">Skills</Label>
-                      <div className="flex gap-2">
-                        <Input
-                          id="skills"
-                          placeholder="Add a skill"
-                          value={newSkill}
-                          onChange={(e) => setNewSkill(e.target.value)}
-                          onKeyPress={(e) => e.key === "Enter" && addSkill()}
-                        />
-                        <Button type="button" onClick={addSkill}>
-                          <Plus className="w-4 h-4" />
-                        </Button>
-                      </div>
-                      <div className="flex flex-wrap gap-2 mt-2">
-                        {selectedSkills.map((skill, index) => (
-                          <Badge
-                            key={index}
-                            variant="secondary"
-                            className="bg-gray-100 flex items-center gap-1"
-                          >
-                            {skill}
-                            <X
-                              className="w-3 h-3 cursor-pointer"
-                              onClick={() => removeSkill(skill)}
-                            />
-                          </Badge>
-                        ))}
-                      </div>
+                    <div className="space-y-2">
+                      <Label>Skills</Label>
+                      <SkillsCombobox
+                        value={selectedSkills}
+                        onChange={setSelectedSkills}
+                        placeholder="Select your skills..."
+                      />
                     </div>
                     <div>
                       <Label htmlFor="status">Status</Label>
@@ -597,22 +572,12 @@ export default function Component() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  <div className="flex gap-2">
-                    <Input
-                      className="bg-white border-gray-700 text-gray-700 flex-1"
-                      placeholder="Add a skill"
-                      value={newSkill}
-                      onChange={(e) => setNewSkill(e.target.value)}
-                      onKeyPress={(e) => e.key === "Enter" && addSkill()}
-                    />
-                    <Button
-                      type="button"
-                      onClick={addSkill}
-                      className="bg-purple-600 hover:bg-purple-700"
-                    >
-                      <Plus className="w-4 h-4" />
-                    </Button>
-                  </div>
+                  <Label>Skills</Label>
+                  <SkillsCombobox
+                    value={selectedSkills}
+                    onChange={setSelectedSkills}
+                    placeholder="Select your skills..."
+                  />
                   <div className="flex flex-wrap gap-2">
                     {selectedSkills.map((skill, index) => (
                       <Badge

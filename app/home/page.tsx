@@ -394,7 +394,9 @@ export default function Component() {
       {/* Mobile Layout - Below 700px */}
       <div className="min-h-screen bg-gray-100 flex flex-col lg:hidden">
         <div className="w-full max-w-sm mx-auto bg-gradient-to-b from-purple-100 to-purple-200 rounded-3xl shadow-2xl overflow-hidden flex flex-col h-screen relative">
-          <Navbar />
+          <div className="fixed bottom-1 inset-x-0 z-50">
+            <Navbar />
+          </div>
           {/* Tabs for All/Bookmarked */}
           <div className="flex gap-2 px-4 pt-4 pb-2">
             <Button
