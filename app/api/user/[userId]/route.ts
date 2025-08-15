@@ -4,11 +4,10 @@ import { ObjectId } from "mongodb";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ userId: string }> }
+  { params }: { params: { userId: string } }
 ) {
   try {
-    const resolvedParams = await params;
-    const { userId } = resolvedParams;
+    const { userId } = params;
 
     if (!userId) {
       return new Response("User ID is required", { status: 400 });
@@ -52,6 +51,9 @@ export async function GET(
       dateOfBirth: user.dateOfBirth ?? null,
       phone: user.phone ?? null,
       institution: user.institution ?? null,
+      graduationYear: user.graduationYear ?? null,
+      state: user.state ?? null,
+      department: user.department ?? user.branch ?? null,
       githubUrl: user.githubUrl ?? null,
       linkedinUrl: user.linkedinUrl ?? null,
       resumeUrl: user.resumeUrl ?? null,
