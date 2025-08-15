@@ -1,13 +1,18 @@
 import GigDescription from "@/components/gig-description";
 import { notFound } from "next/navigation";
+import { headers } from "next/headers";
+
+async function getBaseUrlFromHeaders(): Promise<string> {
+  const hdrs = await headers();
+  const protocol = hdrs.get("x-forwarded-proto") ?? "https";
+  const host = hdrs.get("x-forwarded-host") ?? hdrs.get("host") ?? "skilltag.in";
+  return `${protocol}://${host}`;
+}
 
 async function getGigDetails(gigId: string) {
   try {
-    const baseUrl = process.env.NEXTAUTH_URL || "";
-    const apiUrl = new URL(
-      `/api/gigs/${gigId}`,
-      baseUrl || "https://skilltag.in"
-    ).toString();
+    const baseUrl = await getBaseUrlFromHeaders();
+    const apiUrl = new URL(`/api/gigs/${gigId}`, baseUrl).toString();
 
     const response = await fetch(apiUrl, {
       cache: "no-store",
@@ -48,10 +53,9 @@ interface Gig {
 export default async function GigDetailsPage({
   params,
 }: {
-  params: Promise<{ gigId: string }>;
+  params: { gigId: string };
 }) {
-  // Await the params promise
-  const { gigId } = await params;
+  const { gigId } = params;
 
   // Then fetch the gig details
   const gig = await getGigDetails(gigId);
