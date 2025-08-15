@@ -1,7 +1,5 @@
 "use client";
 
-"use client";
-
 import React, { useRef, useState, useEffect, ReactNode } from "react";
 import { motion, useInView } from "framer-motion";
 import "./AnimatedList.css";
@@ -9,7 +7,7 @@ import { Ripples } from "ldrs/react";
 import "ldrs/react/Ripples.css";
 import { Card, CardContent } from "./ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-import { Button } from "./ui/button";
+import { Button } from "./ui/Button";
 import { Clock, Users } from "lucide-react";
 import { useRouter } from "next/navigation";
 
