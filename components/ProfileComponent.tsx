@@ -19,6 +19,7 @@ import {
   Github,
   Linkedin,
   File,
+  Check,
 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useState, useEffect } from "react";
@@ -87,6 +88,7 @@ export default function ProfileComponent({
   const [referredBy, setReferredBy] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
+  const [copiedType, setCopiedType] = useState<"link" | "code" | null>(null);
 
   const handleLogout = async () => {
     try {
@@ -267,12 +269,28 @@ export default function ProfileComponent({
 
   const copyReferralLink = () => {
     navigator.clipboard.writeText(referralLink);
+    setCopiedType("link");
     toast({
       title: "Referral Link Copied!",
       description:
         "Share this link with friends to refer them. When they use this link and sign up, their referral code will be automatically filled.",
       variant: "default",
     });
+    setTimeout(() => setCopiedType(null), 2000); // reset after 2s
+  };
+
+  const copyReferralCode = () => {
+    const code =
+      new URLSearchParams(referralLink.split("?")[1] || "").get("ref") || "";
+    navigator.clipboard.writeText(code);
+    setCopiedType("code");
+    toast({
+      title: "Referral Code Copied!",
+      description:
+        "When they use this code and sign up, they will be automatically referred by you.",
+      variant: "default",
+    });
+    setTimeout(() => setCopiedType(null), 2000); // reset after 2s
   };
 
   return (
@@ -310,9 +328,6 @@ export default function ProfileComponent({
                 </Avatar>
               </DropdownMenuTrigger>
               <DropdownMenuContent>
-                <DropdownMenuItem onClick={() => router.push("/profile")}>
-                  Profile
-                </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => handleLogout()}>
                   Logout
                 </DropdownMenuItem>
@@ -492,27 +507,46 @@ export default function ProfileComponent({
             {/* Referral Card */}
             <Card className="bg-white rounded-2xl shadow-sm">
               <CardContent className="p-4">
-                <h3 className="font-semibold mb-2">
+                <h3 className="font-semibold mb-4">
                   Refer Friends and Earn 10% of their earning for life.
                 </h3>
-                <div className="flex gap-2 mb-3">
-                  <input
-                    type="text"
-                    value={referralLink}
-                    readOnly
-                    className="flex-1 px-3 py-2 text-sm border rounded-md bg-gray-50"
-                  />
-                  <Button
-                    size="sm"
-                    className="bg-green-500 hover:bg-green-600"
+
+                {/* Link + Code pills stacked */}
+                <div className="flex flex-col gap-3 mb-6">
+                  {/* Referral Link pill */}
+                  <button
+                    type="button"
                     onClick={copyReferralLink}
+                    className="w-full inline-flex items-center justify-between gap-2 px-4 py-2 rounded-full bg-skill text-skillText font-medium shadow-md ring-2 ring-black/40 transition"
                   >
-                    <Copy className="w-4 h-4" />
-                  </Button>
+                    <span className="truncate max-w-[260px]">
+                      {referralLink}
+                    </span>
+                    {copiedType === "link" ? (
+                      <Check className="w-4 h-4 text-skillText" />
+                    ) : (
+                      <Copy className="w-4 h-4" />
+                    )}
+                  </button>
+
+                  {/* Referral Code pill */}
                   {referralLink && (
-                    <div className="w-full mt-2 text-xs text-center text-gray-500">
-                      Referral code: {referralLink.split("ref=")[1]}
-                    </div>
+                    <button
+                      type="button"
+                      onClick={copyReferralCode}
+                      className="w-full inline-flex items-center justify-between gap-2 px-4 py-2 rounded-full bg-lime-400 text-black font-medium shadow-md ring-2 ring-black/40 hover:bg-lime-500 transition"
+                    >
+                      <span>
+                        {new URLSearchParams(
+                          referralLink.split("?")[1] || ""
+                        ).get("ref") || ""}
+                      </span>
+                      {copiedType === "code" ? (
+                        <Check className="w-4 h-4 text-skill" />
+                      ) : (
+                        <Copy className="w-4 h-4" />
+                      )}
+                    </button>
                   )}
                 </div>
               </CardContent>
@@ -758,25 +792,45 @@ export default function ProfileComponent({
                   <h3 className="text-lg font-semibold mb-4">
                     Refer Friends and Earn 10% of their earning for life.
                   </h3>
-                  <div className="flex gap-2 mb-6">
-                    <input
-                      type="text"
-                      value={referralLink}
-                      readOnly
-                      className="flex-1 px-3 py-2 border rounded-md bg-gray-50"
-                    />
-                    <Button
-                      className="bg-green-500 hover:bg-green-600"
+
+                  {/* Link + Code pills stacked */}
+                  <div className="flex flex-col gap-3 mb-6">
+                    {/* Referral Link pill */}
+                    <button
+                      type="button"
                       onClick={copyReferralLink}
+                      className="w-full inline-flex items-center justify-between gap-2 px-4 py-2 rounded-full bg-skill text-skillText font-medium shadow-md ring-2 ring-black/40 transition"
                     >
-                      <Copy className="w-4 h-4" />
-                    </Button>
+                      <span className="truncate max-w-[260px]">
+                        {referralLink}
+                      </span>
+                      {copiedType === "link" ? (
+                        <Check className="w-4 h-4 text-skillText" />
+                      ) : (
+                        <Copy className="w-4 h-4" />
+                      )}
+                    </button>
+
+                    {/* Referral Code pill */}
+                    <button
+                      type="button"
+                      onClick={copyReferralCode}
+                      className="w-full inline-flex items-center justify-between gap-2 px-4 py-2 rounded-full bg-lime-400 text-black font-medium shadow-md ring-2 ring-black/40 hover:bg-lime-500 transition"
+                    >
+                      <span>
+                        {new URLSearchParams(
+                          referralLink.split("?")[1] || ""
+                        ).get("ref") || ""}
+                      </span>
+                      {copiedType === "code" ? (
+                        <Check className="w-4 h-4 text-skill" />
+                      ) : (
+                        <Copy className="w-4 h-4" />
+                      )}
+                    </button>
                   </div>
-                  {referralLink && (
-                    <div className="w-full mt-2 text-xs text-center text-gray-500">
-                      Referral code: {referralLink.split("ref=")[1]}
-                    </div>
-                  )}
+
+                  {/* Referrals list */}
                   <div className="space-y-4">
                     <h4 className="font-semibold">
                       My Referrals ({referrals.length})
@@ -821,6 +875,7 @@ export default function ProfileComponent({
                 </CardContent>
               </Card>
             )}
+
             {/* Links Card */}
             {/* Connect card removed */}
 

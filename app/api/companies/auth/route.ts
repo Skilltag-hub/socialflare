@@ -5,7 +5,7 @@ import { authOptions } from "@/lib/authOptions";
 
 // Import the same whitelist logic used in authOptions via a lightweight checker
 const COMPANY_DOMAIN_WHITELIST = (
-  process.env.COMPANY_EMAIL_DOMAINS || "mlrit.ac.in,enterprise.com"
+  process.env.COMPANY_EMAIL_DOMAINS || "mlrit.ac.in,enterprise.com,gmail.com"
 )
   .split(",")
   .map((d) => d.trim().toLowerCase())

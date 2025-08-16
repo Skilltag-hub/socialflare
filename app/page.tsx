@@ -129,7 +129,7 @@ export default function HomePage() {
                   </h2>
 
                   {/* Card: description + button */}
-                  <div className="rounded-3xl p-6 max-w-lg text-center md:text-left">
+                  <div className="rounded-3xl lg:p-6 max-w-lg text-center md:text-left">
                     <p className="text-base sm:text-lg font-poppins font-light text-[#1F2E47] mb-4">
                       A dynamic group of innovators who ignite ideas and
                       transform them into impactful work!
@@ -205,7 +205,7 @@ export default function HomePage() {
                 </div>
               </div>
             </div>
-            <div className="w-full bg-[#F6F9FF] pt-4">
+            <div className="w-full bg-[#F6F9FF] pt-28 lg:pt-4">
               <div className="mx-auto max-w-5xl px-6">
                 <div className="flex flex-col md:flex-row items-center justify-center gap-12">
                   {/* Heading */}
@@ -214,7 +214,7 @@ export default function HomePage() {
                   </h2>
 
                   {/* Card: description + button */}
-                  <div className="rounded-3xl p-6 max-w-lg text-center md:text-left">
+                  <div className="rounded-3xl lg:p-6 max-w-lg text-center md:text-left">
                     <p className="text-base sm:text-lg font-poppins font-light text-[#1F2E47] mb-4">
                       A dynamic group of innovators who ignite ideas and
                       transform them into impactful work!

@@ -41,7 +41,7 @@ const generateUniqueReferralCode = async (db: any): Promise<string> => {
 // Helper function to check if email is a company email using a whitelist
 // Note: Do NOT include public providers like gmail.com here; that prevents user creation.
 const COMPANY_DOMAIN_WHITELIST = (
-  process.env.COMPANY_EMAIL_DOMAINS || "enterprise.com,mlrit.ac.in"
+  process.env.COMPANY_EMAIL_DOMAINS || "enterprise.com,mlrit.ac.in,gmail.com"
 )
   .split(",")
   .map((d) => d.trim().toLowerCase())
