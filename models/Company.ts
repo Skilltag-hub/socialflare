@@ -25,6 +25,7 @@ const companySchema = new mongoose.Schema({
 
   // Metadata
   isOnboarded: { type: Boolean, default: false },
+  approved: { type: Boolean, default: false },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now }
 })

@@ -108,6 +108,14 @@ export async function POST(request: Request) {
       );
     }
 
+    // Enforce approval before allowing gig creation
+    if (!company.approved) {
+      return NextResponse.json(
+        { error: "Company is not approved to post gigs", code: "COMPANY_NOT_APPROVED" },
+        { status: 403 }
+      );
+    }
+
     // Parse the request body
     const gigData = await request.json();
     // Validate required fields
@@ -193,6 +201,14 @@ export async function PUT(request: Request) {
     if (!company || !company._id) {
       return NextResponse.json(
         { error: "Company not found or not onboarded" },
+        { status: 403 }
+      );
+    }
+
+    // Enforce approval before allowing gig updates
+    if (!company.approved) {
+      return NextResponse.json(
+        { error: "Company is not approved to update gigs", code: "COMPANY_NOT_APPROVED" },
         { status: 403 }
       );
     }
@@ -303,6 +319,14 @@ export async function DELETE(request: Request) {
     if (!company || !company._id) {
       return NextResponse.json(
         { error: "Company not found or not onboarded" },
+        { status: 403 }
+      );
+    }
+
+    // Enforce approval before allowing gig deletion
+    if (!company.approved) {
+      return NextResponse.json(
+        { error: "Company is not approved to delete gigs", code: "COMPANY_NOT_APPROVED" },
         { status: 403 }
       );
     }

@@ -113,6 +113,17 @@ export default function PostGig() {
         throw new Error('Company details not found');
       }
 
+      // If company exists but is not approved, redirect to pending approval page
+      if (company && company.approved === false) {
+        toast({
+          title: "Approval pending",
+          description: "Your company account is pending approval. You will be redirected.",
+          variant: "destructive",
+        });
+        window.location.href = "/pending-approval?type=company";
+        return;
+      }
+
       // Format the data to match the API's expected format
       const gigData = {
         companyName: company?.name || formData.gigTitle,
@@ -139,7 +150,19 @@ export default function PostGig() {
       });
 
       if (!res.ok) {
-        throw new Error("Failed to post gig");
+        // Try to parse error details to handle approval errors
+        let err: any = null;
+        try { err = await res.json(); } catch {}
+        if (err?.code === "COMPANY_NOT_APPROVED") {
+          toast({
+            title: "Approval pending",
+            description: "Your company account is pending approval. You will be redirected.",
+            variant: "destructive",
+          });
+          window.location.href = "/pending-approval?type=company";
+          return;
+        }
+        throw new Error(err?.error || "Failed to post gig");
       }
 
       const data = await res.json();

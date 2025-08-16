@@ -76,6 +76,33 @@ export default function GigDescription({ gig }: { gig: Gig }) {
 
     try {
       setIsSubmitting(true);
+      // Pre-check user profile status
+      try {
+        const profileRes = await fetch("/api/user/profile");
+        if (profileRes.ok) {
+          const profile = await profileRes.json();
+          if (!profile?.profileFilled) {
+            toast({
+              title: "Profile incomplete",
+              description: "Please complete your profile to apply for gigs.",
+              variant: "destructive",
+            });
+            window.location.href = "/profile/edit";
+            return;
+          }
+          if (profile?.approved === false) {
+            toast({
+              title: "Approval pending",
+              description: "Your account is pending approval. You will be redirected.",
+              variant: "destructive",
+            });
+            window.location.href = "/pending-approval?type=user";
+            return;
+          }
+        }
+      } catch (e) {
+        // Continue to server-side validation
+      }
       const response = await fetch("/api/applications", {
         method: "POST",
         headers: {
@@ -90,6 +117,24 @@ export default function GigDescription({ gig }: { gig: Gig }) {
       const data = await response.json();
 
       if (!response.ok) {
+        if (data?.code === "PROFILE_INCOMPLETE") {
+          toast({
+            title: "Profile incomplete",
+            description: "Please complete your profile to apply for gigs.",
+            variant: "destructive",
+          });
+          window.location.href = "/profile/edit";
+          return;
+        }
+        if (data?.code === "USER_NOT_APPROVED") {
+          toast({
+            title: "Approval pending",
+            description: "Your account is pending approval. You will be redirected.",
+            variant: "destructive",
+          });
+          window.location.href = "/pending-approval?type=user";
+          return;
+        }
         throw new Error(data.error || "Failed to apply");
       }
 

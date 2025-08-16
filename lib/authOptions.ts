@@ -38,28 +38,6 @@ const generateUniqueReferralCode = async (db: any): Promise<string> => {
   return code!;
 };
 
-// Helper function to check if email is a company email using a whitelist
-// Note: Do NOT include public providers like gmail.com here; that prevents user creation.
-const COMPANY_DOMAIN_WHITELIST = (
-  process.env.COMPANY_EMAIL_DOMAINS || "enterprise.com,mlrit.ac.in,gmail.com"
-)
-  .split(",")
-  .map((d) => d.trim().toLowerCase())
-  .filter(Boolean);
-
-const isCompanyEmail = (email: string) => {
-  const domain = (email || "").split("@")[1]?.toLowerCase() || "";
-  const isCompany = COMPANY_DOMAIN_WHITELIST.some(
-    (d) => domain === d || domain.endsWith(`.${d}`)
-  );
-  console.log(
-    `Checking company email ${email}: ${
-      isCompany ? "company (whitelisted)" : "regular user / not whitelisted"
-    }`
-  );
-  return isCompany;
-};
-
 export const authOptions = {
   providers: [
     GoogleProvider({
@@ -112,13 +90,6 @@ export const authOptions = {
         try {
           const db = client.db(dbName);
 
-          // Check if this is a company login
-          const isCompany = isCompanyEmail(user.email);
-          if (isCompany) {
-            console.log("🏢 Company login detected (domain whitelisted)");
-            return true;
-          }
-
           // Regular user flow
           console.log("👤 Looking for existing user in database...");
           const existingUser = await db
@@ -145,6 +116,7 @@ export const authOptions = {
               referredPeople: [],
               referredBy: null,
               setupComplete: false,
+              approved: false,
               createdAt: new Date(),
               updatedAt: new Date(),
               emailVerified: new Date(),

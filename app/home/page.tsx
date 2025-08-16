@@ -165,6 +165,15 @@ export default function Component() {
             window.location.href = "/profile/edit";
             return;
           }
+          if (profile?.approved === false) {
+            toast({
+              title: "Approval pending",
+              description: "Your account is pending approval. You will be redirected.",
+              variant: "destructive",
+            });
+            window.location.href = "/pending-approval?type=user";
+            return;
+          }
         }
       } catch (e) {
         // If profile check fails, proceed to server validation
@@ -193,6 +202,15 @@ export default function Component() {
             variant: "destructive",
           });
           window.location.href = "/profile/edit";
+          return;
+        }
+        if (data?.code === "USER_NOT_APPROVED") {
+          toast({
+            title: "Approval pending",
+            description: "Your account is pending approval. You will be redirected.",
+            variant: "destructive",
+          });
+          window.location.href = "/pending-approval?type=user";
           return;
         }
         throw new Error(data.error || "Failed to apply");

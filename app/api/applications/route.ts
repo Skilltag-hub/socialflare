@@ -1,7 +1,6 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/authOptions";
 import clientPromise from "@/lib/mongodb";
-import { NextResponse } from "next/server";
 import { ObjectId } from "mongodb";
 
 // Get all applications for the current user
@@ -28,20 +27,6 @@ export async function GET(req: Request) {
         status: 404,
         headers: { "Content-Type": "application/json" },
       });
-    }
-
-    // Ensure the user's profile is complete before allowing applications
-    if (!currentUser.profileFilled) {
-      return new Response(
-        JSON.stringify({
-          error: "Please complete your profile to apply for gigs",
-          code: "PROFILE_INCOMPLETE",
-        }),
-        {
-          status: 400,
-          headers: { "Content-Type": "application/json" },
-        }
-      );
     }
 
     // Get all gigs that have applications from this user
@@ -125,6 +110,20 @@ export async function POST(req: Request) {
         status: 404,
         headers: { "Content-Type": "application/json" },
       });
+    }
+
+    // Enforce approval and profile completeness before allowing application submission
+    if (!currentUser.approved) {
+      return new Response(
+        JSON.stringify({ error: "User is not approved to apply for gigs", code: "USER_NOT_APPROVED" }),
+        { status: 403, headers: { "Content-Type": "application/json" } }
+      );
+    }
+    if (!currentUser.profileFilled) {
+      return new Response(
+        JSON.stringify({ error: "Please complete your profile to apply for gigs", code: "PROFILE_INCOMPLETE" }),
+        { status: 400, headers: { "Content-Type": "application/json" } }
+      );
     }
 
     // Check if the gig exists
@@ -239,18 +238,18 @@ export async function POST(req: Request) {
         // Add the application to the gig's applications array
         await db.collection("gigs").updateOne(
           { _id: new ObjectId(gigId) },
-          {
+          ({
             $push: { applications: application },
-          },
+          } as any),
           { session: dbSession }
         );
 
         // Update the user's gigs array - initialize gigs array if it doesn't exist
         await db.collection("users").updateOne(
           { _id: currentUser._id },
-          {
-            $push: { gigs: userGig as any },
-          },
+          ({
+            $push: { gigs: userGig },
+          } as any),
           { session: dbSession }
         );
       });
@@ -493,14 +492,14 @@ export async function PATCH(req: Request) {
             .collection("gigs")
             .updateOne(
               { _id: new ObjectId(gigId) },
-              { $push: { applications: application } },
+              ({ $push: { applications: application } } as any),
               { session: dbSession }
             );
           await db
             .collection("users")
             .updateOne(
               { _id: currentUser._id },
-              { $push: { gigs: userGig } },
+              ({ $push: { gigs: userGig } } as any),
               { session: dbSession }
             );
         } else if (action === "withdraw") {
@@ -524,13 +523,13 @@ export async function PATCH(req: Request) {
               _id: currentUser._id,
               "gigs.gigId": gigId,
             },
-            {
+            ({
               $push: { "gigs.$.withdrawals": withdrawalData },
               $set: {
                 "gigs.$.updatedAt": now,
                 "gigs.$.status": "withdrawal_requested",
               },
-            },
+            } as any),
             { session: dbSession }
           );
 
@@ -540,13 +539,13 @@ export async function PATCH(req: Request) {
               _id: new ObjectId(gigId),
               "applications.userId": currentUser._id.toString(),
             },
-            {
+            ({
               $push: { "applications.$.withdrawals": withdrawalData },
               $set: {
                 "applications.$.lastUpdated": now,
                 "applications.$.status": "withdrawal_requested",
               },
-            },
+            } as any),
             { session: dbSession }
           );
         } else if (action === "submitWork") {
@@ -567,13 +566,13 @@ export async function PATCH(req: Request) {
               _id: currentUser._id,
               "gigs.gigId": gigId,
             },
-            {
+            ({
               $push: { "gigs.$.submissions": submissionData },
               $set: {
                 "gigs.$.updatedAt": now,
                 "gigs.$.status": "completed",
               },
-            },
+            } as any),
             { session: dbSession }
           );
 
@@ -583,13 +582,13 @@ export async function PATCH(req: Request) {
               _id: new ObjectId(gigId),
               "applications.userId": currentUser._id.toString(),
             },
-            {
+            ({
               $push: { "applications.$.submissions": submissionData },
               $set: {
                 "applications.$.lastUpdated": now,
                 "applications.$.status": "completed",
               },
-            },
+            } as any),
             { session: dbSession }
           );
         } else {

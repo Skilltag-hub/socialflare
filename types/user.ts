@@ -26,6 +26,7 @@ export interface UserDocument {
   referredPeople: ReferredUser[];
   referredBy: ObjectId | null;
   setupComplete: boolean;
+  approved: boolean;
   referralCode: string;
   createdAt: Date;
   updatedAt: Date;
