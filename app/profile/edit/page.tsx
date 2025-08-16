@@ -60,14 +60,14 @@ export default function Component() {
 
   // Define required fields
   const requiredFields = [
-    'name',
-    'description',
-    'phone',
-    'gender',
-    'dateOfBirth',
-    'githubUrl',
-    'linkedinUrl',
-    'resumeUrl'
+    "name",
+    "description",
+    "phone",
+    "gender",
+    "dateOfBirth",
+    "githubUrl",
+    "linkedinUrl",
+    "resumeUrl",
   ];
 
   // Validate form fields
@@ -75,25 +75,27 @@ export default function Component() {
     const newErrors: Record<string, string> = {};
     let isValid = true;
 
-    requiredFields.forEach(field => {
+    requiredFields.forEach((field) => {
       if (!formData[field as keyof typeof formData]?.toString().trim()) {
-        newErrors[field] = `${field.charAt(0).toUpperCase() + field.slice(1)} is required`;
+        newErrors[field] = `${
+          field.charAt(0).toUpperCase() + field.slice(1)
+        } is required`;
         isValid = false;
       }
     });
 
     // Validate skills
     if (selectedSkills.length === 0) {
-      newErrors.skills = 'At least one skill is required';
+      newErrors.skills = "At least one skill is required";
       isValid = false;
     }
 
     // Validate email if not from session
     if (!session?.user?.email && !formData.email) {
-      newErrors.email = 'Email is required';
+      newErrors.email = "Email is required";
       isValid = false;
     } else if (formData.email && !/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = 'Email is invalid';
+      newErrors.email = "Email is invalid";
       isValid = false;
     }
 
@@ -206,7 +208,7 @@ export default function Component() {
     if (!validateForm()) {
       return; // Don't proceed if validation fails
     }
-    
+
     setIsSubmitting(true);
     try {
       // Send the updated profile data to the API
@@ -267,7 +269,7 @@ export default function Component() {
     <>
       {/* Mobile Layout - Below 700px */}
       <div className="min-h-screen bg-black flex flex-col lg:hidden">
-        <div className="w-full max-w-sm mx-auto bg-gradient-to-b from-purple-100 to-purple-200 rounded-3xl shadow-2xl overflow-hidden flex flex-col relative overflow-y-auto">
+        <div className="w-full max-w-sm mx-auto bg-gradient-to-b from-purple-100 to-purple-200 shadow-2xl overflow-hidden flex flex-col relative overflow-y-auto">
           {/* Header */}
           <div className="flex items-center justify-between p-4 pt-8">
             <div className="flex items-center gap-2">
@@ -307,42 +309,58 @@ export default function Component() {
                         value={formData.name}
                         onChange={handleChange}
                         placeholder="Enter your full name"
-                        className={errors.name ? 'border-red-500' : ''}
+                        className={errors.name ? "border-red-500" : ""}
                       />
-                      {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
+                      {errors.name && (
+                        <p className="text-red-500 text-xs mt-1">
+                          {errors.name}
+                        </p>
+                      )}
                     </div>
                     <div>
                       <Label htmlFor="gender">Gender</Label>
-                      <div className={errors.gender ? 'border border-red-500 rounded-md' : ''}>
+                      <div
+                        className={
+                          errors.gender
+                            ? "border border-red-500 rounded-md"
+                            : ""
+                        }
+                      >
                         <Select
                           value={formData.gender}
                           onValueChange={(value) => {
                             setFormData((prev) => ({ ...prev, gender: value }));
                             // Clear error when selecting a value
                             if (errors.gender) {
-                              setErrors(prev => {
-                                const newErrors = {...prev};
+                              setErrors((prev) => {
+                                const newErrors = { ...prev };
                                 delete newErrors.gender;
                                 return newErrors;
                               });
                             }
                           }}
                         >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select gender" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="male">Male</SelectItem>
-                          <SelectItem value="female">Female</SelectItem>
-                          <SelectItem value="non-binary">Non-binary</SelectItem>
-                          <SelectItem value="prefer-not-to-say">
-                            Prefer not to say
-                          </SelectItem>
-                          <SelectItem value="other">Other</SelectItem>
-                        </SelectContent>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select gender" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="male">Male</SelectItem>
+                            <SelectItem value="female">Female</SelectItem>
+                            <SelectItem value="non-binary">
+                              Non-binary
+                            </SelectItem>
+                            <SelectItem value="prefer-not-to-say">
+                              Prefer not to say
+                            </SelectItem>
+                            <SelectItem value="other">Other</SelectItem>
+                          </SelectContent>
                         </Select>
                       </div>
-                      {errors.gender && <p className="text-red-500 text-xs mt-1">{errors.gender}</p>}
+                      {errors.gender && (
+                        <p className="text-red-500 text-xs mt-1">
+                          {errors.gender}
+                        </p>
+                      )}
                     </div>
                     <div>
                       <Label htmlFor="dateOfBirth">Date of Birth</Label>
@@ -351,9 +369,13 @@ export default function Component() {
                         type="date"
                         value={formData.dateOfBirth}
                         onChange={handleChange}
-                        className={errors.dateOfBirth ? 'border-red-500' : ''}
+                        className={errors.dateOfBirth ? "border-red-500" : ""}
                       />
-                      {errors.dateOfBirth && <p className="text-red-500 text-xs mt-1">{errors.dateOfBirth}</p>}
+                      {errors.dateOfBirth && (
+                        <p className="text-red-500 text-xs mt-1">
+                          {errors.dateOfBirth}
+                        </p>
+                      )}
                     </div>
                     <div>
                       <Label htmlFor="githubUrl">GitHub Profile</Label>
@@ -363,9 +385,13 @@ export default function Component() {
                         value={formData.githubUrl}
                         onChange={handleChange}
                         placeholder="https://github.com/username"
-                        className={errors.githubUrl ? 'border-red-500' : ''}
+                        className={errors.githubUrl ? "border-red-500" : ""}
                       />
-                      {errors.githubUrl && <p className="text-red-500 text-xs mt-1">{errors.githubUrl}</p>}
+                      {errors.githubUrl && (
+                        <p className="text-red-500 text-xs mt-1">
+                          {errors.githubUrl}
+                        </p>
+                      )}
                     </div>
                     <div>
                       <Label htmlFor="linkedinUrl">LinkedIn Profile</Label>
@@ -375,9 +401,13 @@ export default function Component() {
                         value={formData.linkedinUrl}
                         onChange={handleChange}
                         placeholder="https://linkedin.com/in/username"
-                        className={errors.linkedinUrl ? 'border-red-500' : ''}
+                        className={errors.linkedinUrl ? "border-red-500" : ""}
                       />
-                      {errors.linkedinUrl && <p className="text-red-500 text-xs mt-1">{errors.linkedinUrl}</p>}
+                      {errors.linkedinUrl && (
+                        <p className="text-red-500 text-xs mt-1">
+                          {errors.linkedinUrl}
+                        </p>
+                      )}
                     </div>
                     <div>
                       <Label htmlFor="resumeUrl">Resume/CV Link</Label>
@@ -387,9 +417,13 @@ export default function Component() {
                         value={formData.resumeUrl}
                         onChange={handleChange}
                         placeholder="https://example.com/resume.pdf"
-                        className={errors.resumeUrl ? 'border-red-500' : ''}
+                        className={errors.resumeUrl ? "border-red-500" : ""}
                       />
-                      {errors.resumeUrl && <p className="text-red-500 text-xs mt-1">{errors.resumeUrl}</p>}
+                      {errors.resumeUrl && (
+                        <p className="text-red-500 text-xs mt-1">
+                          {errors.resumeUrl}
+                        </p>
+                      )}
                     </div>
                     <div>
                       <Label htmlFor="phone">Phone Number</Label>
@@ -398,9 +432,13 @@ export default function Component() {
                         value={formData.phone}
                         onChange={handleChange}
                         placeholder="+1 (555) 000-0000"
-                        className={errors.phone ? 'border-red-500' : ''}
+                        className={errors.phone ? "border-red-500" : ""}
                       />
-                      {errors.phone && <p className="text-red-500 text-xs mt-1">{errors.phone}</p>}
+                      {errors.phone && (
+                        <p className="text-red-500 text-xs mt-1">
+                          {errors.phone}
+                        </p>
+                      )}
                     </div>
                     <div>
                       <Label htmlFor="email">Email Address</Label>
@@ -411,8 +449,8 @@ export default function Component() {
                           handleChange(e);
                           // Clear email error when typing
                           if (errors.email) {
-                            setErrors(prev => {
-                              const newErrors = {...prev};
+                            setErrors((prev) => {
+                              const newErrors = { ...prev };
                               delete newErrors.email;
                               return newErrors;
                             });
@@ -420,9 +458,13 @@ export default function Component() {
                         }}
                         placeholder="your.email@example.com"
                         disabled={!!session?.user?.email}
-                        className={errors.email ? 'border-red-500' : ''}
+                        className={errors.email ? "border-red-500" : ""}
                       />
-                      {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
+                      {errors.email && (
+                        <p className="text-red-500 text-xs mt-1">
+                          {errors.email}
+                        </p>
+                      )}
                     </div>
                     <div>
                       <Label htmlFor="description">About</Label>
@@ -432,21 +474,31 @@ export default function Component() {
                         onChange={handleChange}
                         placeholder="Tell us about yourself..."
                         rows={4}
-                        className={errors.description ? 'border-red-500' : ''}
+                        className={errors.description ? "border-red-500" : ""}
                       />
-                      {errors.description && <p className="text-red-500 text-xs mt-1">{errors.description}</p>}
+                      {errors.description && (
+                        <p className="text-red-500 text-xs mt-1">
+                          {errors.description}
+                        </p>
+                      )}
                     </div>
                     <div className="space-y-2">
                       <Label>Skills</Label>
-                      <div className={errors.skills ? 'border border-red-500 rounded-md p-1' : ''}>
+                      <div
+                        className={
+                          errors.skills
+                            ? "border border-red-500 rounded-md p-1"
+                            : ""
+                        }
+                      >
                         <SkillsCombobox
                           value={selectedSkills}
                           onChange={(skills) => {
                             setSelectedSkills(skills);
                             // Clear skills error when selecting a skill
                             if (errors.skills && skills.length > 0) {
-                              setErrors(prev => {
-                                const newErrors = {...prev};
+                              setErrors((prev) => {
+                                const newErrors = { ...prev };
                                 delete newErrors.skills;
                                 return newErrors;
                               });
@@ -455,7 +507,11 @@ export default function Component() {
                           placeholder="Select your skills..."
                         />
                       </div>
-                      {errors.skills && <p className="text-red-500 text-xs mt-1">{errors.skills}</p>}
+                      {errors.skills && (
+                        <p className="text-red-500 text-xs mt-1">
+                          {errors.skills}
+                        </p>
+                      )}
                     </div>
                     <div>
                       <Label htmlFor="status">Status</Label>
@@ -474,17 +530,23 @@ export default function Component() {
                           <SelectItem value="offline">Offline</SelectItem>
                         </SelectContent>
                       </Select>
-                      {errors.status && <p className="text-red-500 text-xs mt-1">{errors.status}</p>}
+                      {errors.status && (
+                        <p className="text-red-500 text-xs mt-1">
+                          {errors.status}
+                        </p>
+                      )}
                     </div>
                   </div>
 
                   <div className="flex gap-3 pt-4">
                     <Button
-                      className={`flex-1 bg-purple-600 hover:bg-purple-700 ${isSubmitting ? 'opacity-70 cursor-not-allowed' : ''}`}
+                      className={`flex-1 bg-purple-600 hover:bg-purple-700 ${
+                        isSubmitting ? "opacity-70 cursor-not-allowed" : ""
+                      }`}
                       onClick={handleSubmit}
                       disabled={isSubmitting}
                     >
-                      {isSubmitting ? 'Saving...' : 'Save'}
+                      {isSubmitting ? "Saving..." : "Save"}
                     </Button>
                     <Button
                       variant="outline"
@@ -760,11 +822,13 @@ export default function Component() {
                 Cancel
               </Button>
               <Button
-                className={`px-6 py-2 bg-purple-600 hover:bg-purple-700 text-white ${isSubmitting ? 'opacity-70 cursor-not-allowed' : ''}`}
+                className={`px-6 py-2 bg-purple-600 hover:bg-purple-700 text-white ${
+                  isSubmitting ? "opacity-70 cursor-not-allowed" : ""
+                }`}
                 onClick={handleSubmit}
                 disabled={isSubmitting}
               >
-                {isSubmitting ? 'Saving...' : 'Save Changes'}
+                {isSubmitting ? "Saving..." : "Save Changes"}
               </Button>
             </div>
           </div>
