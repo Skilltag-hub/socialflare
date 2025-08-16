@@ -14,11 +14,20 @@ import {
   Zap,
   Filter,
   Bookmark,
+  Edit2,
+  Trash2,
+  X,
+  Save,
+  Loader2,
 } from "lucide-react";
 import Image from "next/image";
 import { Ripples } from "ldrs/react";
 import "ldrs/react/Ripples.css";
-
+import { Badge } from "@/components/ui/badge";
+import { SkillsCombobox } from "./skills-combobox";
+import { Textarea } from "@/components/ui/textarea";
+import { useToast } from "@/hooks/use-toast";
+import { Input } from "@/components/ui/input";
 export default function MyZigs() {
   const { data: session, status } = useSession();
   const [companyId, setCompanyId] = useState<string | null>(null);
@@ -29,6 +38,13 @@ export default function MyZigs() {
   const [hasLoaded, setHasLoaded] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editingJob, setEditingJob] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const { toast } = useToast();
+
+  // Initialize the Ripple loader
 
   // Fetch companyId after session loads
   useEffect(() => {
@@ -133,7 +149,7 @@ export default function MyZigs() {
         message: error.message,
         stack: error.stack,
       });
-      setError(error.message || 'Failed to load jobs');
+      setError(error.message || "Failed to load jobs");
       setJobs([]); // Ensure jobs is always an array
     } finally {
       setIsLoading(false);
@@ -158,7 +174,8 @@ export default function MyZigs() {
   };
   const counts = getJobCounts();
 
-  const markCompleted = async (jobId) => {
+  const markCompleted = async (jobId, e) => {
+    e.stopPropagation();
     try {
       const response = await fetch(`/api/gigs`, {
         method: "PATCH",
@@ -176,10 +193,104 @@ export default function MyZigs() {
           job._id === jobId ? { ...job, status: "completed" } : job
         )
       );
+
+      toast({
+        title: "Success",
+        description: "Job marked as completed",
+        variant: "default",
+      });
     } catch (error) {
       console.error("Error updating job status:", error);
-      // Optionally show an error message to the user
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update job status",
+        variant: "destructive",
+      });
     }
+  };
+
+  const handleEditJob = (job, e) => {
+    e.stopPropagation();
+    setEditingJob(job);
+    setIsEditModalOpen(true);
+  };
+
+  const handleDeleteJob = async (jobId, e) => {
+    e.stopPropagation();
+    if (!window.confirm("Are you sure you want to delete this job?")) return;
+
+    setIsDeleting(true);
+    try {
+      const response = await fetch(`/api/gigs`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: jobId }),
+      });
+
+      if (!response.ok) throw new Error("Failed to delete job");
+
+      setJobs((prev) => prev.filter((job) => job._id !== jobId));
+
+      toast({
+        title: "Success",
+        description: "Job deleted successfully",
+        variant: "default",
+      });
+    } catch (error) {
+      console.error("Error deleting job:", error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to delete job",
+        variant: "destructive",
+      });
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editingJob) return;
+
+    setIsSaving(true);
+    try {
+      const response = await fetch(`/api/gigs`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(editingJob),
+      });
+
+      if (!response.ok) throw new Error("Failed to update job");
+
+      setJobs((prev) =>
+        prev.map((job) =>
+          job._id === editingJob._id ? { ...editingJob } : job
+        )
+      );
+
+      setIsEditModalOpen(false);
+      toast({
+        title: "Success",
+        description: "Job updated successfully",
+        variant: "default",
+      });
+    } catch (error) {
+      console.error("Error updating job:", error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update job",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setEditingJob((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
   console.log("Rendering with jobs:", jobs, "Filtered jobs:", filteredJobs);
@@ -301,9 +412,11 @@ export default function MyZigs() {
                 <div className="bg-red-500/10 p-4 rounded-full">
                   <Zap className="w-8 h-8 text-red-500" />
                 </div>
-                <h3 className="text-xl font-medium text-white">Something went wrong</h3>
+                <h3 className="text-xl font-medium text-white">
+                  Something went wrong
+                </h3>
                 <p className="text-gray-400 max-w-md">{error}</p>
-                <Button 
+                <Button
                   onClick={() => window.location.reload()}
                   className="mt-2 bg-[#5E17EB] hover:bg-[#5E17EB]/90"
                 >
@@ -317,10 +430,11 @@ export default function MyZigs() {
                 </div>
                 <h3 className="text-xl font-medium text-white">No zigs yet</h3>
                 <p className="text-gray-400 max-w-md">
-                  You haven't posted any zigs yet. Create your first zig to get started.
+                  You haven't posted any zigs yet. Create your first zig to get
+                  started.
                 </p>
-                <Button 
-                  onClick={() => router.push('/companies/post-job')}
+                <Button
+                  onClick={() => router.push("/companies/post-job")}
                   className="mt-2 bg-[#5E17EB] hover:bg-[#5E17EB]/90"
                 >
                   Post Your First Zig
@@ -402,9 +516,32 @@ export default function MyZigs() {
                       ))}
                     </div>
                     <div className="flex items-center justify-between mt-auto">
+                      <div className="flex items-center gap-2">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 text-gray-500 hover:text-[#5E17EB] hover:bg-[#5E17EB]/10"
+                          onClick={(e) => handleEditJob(job, e)}
+                        >
+                          <Edit2 className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 text-gray-500 hover:text-red-500 hover:bg-red-500/10"
+                          onClick={(e) => handleDeleteJob(job._id, e)}
+                          disabled={isDeleting}
+                        >
+                          {isDeleting ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : (
+                            <Trash2 className="h-4 w-4" />
+                          )}
+                        </Button>
+                      </div>
                       <Button
                         className="bg-[#5E17EB] hover:bg-[#4A12C4] text-white px-3 py-1 rounded-lg font-normal text-xs"
-                        onClick={() => markCompleted(job._id)}
+                        onClick={(e) => markCompleted(job._id, e)}
                         disabled={job.status === "completed"}
                       >
                         {job.status === "completed"
@@ -419,6 +556,124 @@ export default function MyZigs() {
           </div>
         </div>
       </div>
+
+      {/* Edit Job Modal */}
+      {isEditModalOpen && editingJob && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-xl font-semibold">Edit Job</h3>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setIsEditModalOpen(false)}
+                className="h-8 w-8"
+              >
+                <X className="h-5 w-5" />
+              </Button>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Job Title
+                </label>
+                <Input
+                  name="gigTitle"
+                  value={editingJob.gigTitle}
+                  onChange={handleInputChange}
+                  className="w-full text-black"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Description
+                </label>
+                <Textarea
+                  name="description"
+                  value={editingJob.description}
+                  onChange={handleInputChange}
+                  className="w-full min-h-[100px] text-black"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Payment
+                  </label>
+                  <Input
+                    name="payment"
+                    value={editingJob.payment}
+                    onChange={handleInputChange}
+                    className="w-full text-black"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Openings
+                  </label>
+                  <Input
+                    name="openings"
+                    type="number"
+                    value={editingJob.openings}
+                    onChange={handleInputChange}
+                    className="w-full text-black"
+                    min="1"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Skills
+                </label>
+                <SkillsCombobox
+                  value={
+                    Array.isArray(editingJob.skills) ? editingJob.skills : []
+                  }
+                  onChange={(skills) => {
+                    setEditingJob((prev) => ({
+                      ...prev,
+                      skills: skills,
+                    }));
+                  }}
+                  placeholder="Select required skills..."
+                />
+              </div>
+
+              <div className="flex justify-end gap-3 pt-4">
+                <Button
+                  variant="outline"
+                  onClick={() => setIsEditModalOpen(false)}
+                  disabled={isSaving}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleSaveEdit}
+                  disabled={isSaving}
+                  className="bg-[#5E17EB] hover:bg-[#4A12C4]"
+                >
+                  {isSaving ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Saving...
+                    </>
+                  ) : (
+                    <>
+                      <Save className="mr-2 h-4 w-4" />
+                      Save Changes
+                    </>
+                  )}
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

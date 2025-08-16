@@ -15,9 +15,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ArrowLeft, Plus } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { useToast } from "@/hooks/use-toast";
+import { SkillsCombobox } from "./skills-combobox";
 
 export default function PostGig() {
   const { toast } = useToast();
@@ -29,8 +30,7 @@ export default function PostGig() {
     duration: string;
     stipend: string;
     location: string;
-    requiredSkills: string;
-    requiredExperience: string;
+    skills: string[];
     numberOfPositions: string;
     additionalRequirements: string;
     applicationDeadline: string;
@@ -47,8 +47,7 @@ export default function PostGig() {
         duration: "",
         stipend: "",
         location: "",
-        requiredSkills: "",
-        requiredExperience: "",
+        skills: [],
         numberOfPositions: "",
         additionalRequirements: "",
         applicationDeadline: "",
@@ -63,8 +62,7 @@ export default function PostGig() {
       duration: "",
       stipend: "",
       location: "",
-      requiredSkills: "",
-      requiredExperience: "",
+      skills: [],
       numberOfPositions: "",
       additionalRequirements: "",
       applicationDeadline: "",
@@ -72,19 +70,10 @@ export default function PostGig() {
     };
   };
   const [formData, setFormData] = useState(getInitialFormData());
-  const [skills, setSkills] = useState<string[]>([]);
-
   const [errors, setErrors] = useState<{ [key: string]: boolean }>({});
 
-  const addSkill = () => {
-    if (formData.requiredSkills.trim()) {
-      setSkills([...skills, formData.requiredSkills.trim()]);
-      setFormData((prev) => ({ ...prev, requiredSkills: "" }));
-    }
-  };
-
-  const removeSkill = (index: number) => {
-    setSkills(skills.filter((_, i) => i !== index));
+  const handleSkillsChange = (skills: string[]) => {
+    setFormData(prev => ({ ...prev, skills }));
   };
 
   const validateFields = () => {
@@ -95,14 +84,14 @@ export default function PostGig() {
       "duration",
       "stipend",
       "location",
-      "requiredExperience",
       "numberOfPositions",
       "applicationDeadline",
     ];
     const newErrors: { [key: string]: boolean } = {};
     requiredFields.forEach((field) => {
-      if (!formData[field]) newErrors[field] = true;
+      if (!formData[field as keyof FormData]) newErrors[field] = true;
     });
+    if (formData.skills.length === 0) newErrors["skills"] = true;
     if (!formData.agreeToTerms) newErrors["agreeToTerms"] = true;
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -132,14 +121,13 @@ export default function PostGig() {
         openings: parseInt(formData.numberOfPositions) || 1,
         description: formData.description,
         payment: formData.stipend,
-        skills: skills,
+        skills: formData.skills,
         datePosted: new Date().toISOString(),
         status: "active",
         // Additional fields from the form
         category: formData.category,
         duration: formData.duration,
         location: formData.location,
-        requiredExperience: formData.requiredExperience,
         applicationDeadline: formData.applicationDeadline,
       };
 
@@ -329,70 +317,24 @@ export default function PostGig() {
               {/* Required Skills */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Required Skills
+                  Required Skills <span className="text-red-500">*</span>
                 </label>
-                <div className="flex gap-2 mb-2">
-                  <Input
-                    type="text"
-                    placeholder="e.g. figma,adobe xd,prototyping"
-                    value={formData.requiredSkills}
-                    onChange={(e) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        requiredSkills: e.target.value,
-                      }))
-                    }
-                    className="flex-1"
+                <div className={`${errors.skills ? 'ring-2 ring-red-500 rounded-md' : ''}`}>
+                  <SkillsCombobox
+                    value={formData.skills}
+                    onChange={handleSkillsChange}
+                    placeholder="Select required skills..."
                   />
-                  <Button
-                    type="button"
-                    onClick={addSkill}
-                    className="bg-gray-200 hover:bg-gray-300 text-gray-700 px-3"
-                  >
-                    <Plus className="w-4 h-4" />
-                  </Button>
                 </div>
-                {skills.length > 0 && (
-                  <div className="flex flex-wrap gap-2">
-                    {skills.map((skill, index) => (
-                      <span
-                        key={index}
-                        className="bg-[#5E17EB]/10 text-[#5E17EB] px-3 py-1 rounded-full text-sm cursor-pointer hover:bg-[#5E17EB]/20"
-                        onClick={() => removeSkill(index)}
-                      >
-                        {skill} ×
-                      </span>
-                    ))}
-                  </div>
+                {errors.skills && (
+                  <p className="mt-1 text-sm text-red-500">
+                    Please select at least one skill
+                  </p>
                 )}
               </div>
 
-              {/* Required Experience and Number of Positions */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Required Experience
-                  </label>
-                  <Select
-                    value={formData.requiredExperience}
-                    onValueChange={(value) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        requiredExperience: value,
-                      }))
-                    }
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="select experience level" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="fresher">Fresher</SelectItem>
-                      <SelectItem value="1-2">1-2 years</SelectItem>
-                      <SelectItem value="3-5">3-5 years</SelectItem>
-                      <SelectItem value="5+">5+ years</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+              {/* Number of Positions */}
+              <div className="grid grid-cols-1">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Number of Positions

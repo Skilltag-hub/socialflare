@@ -51,7 +51,6 @@ export function SkillsCombobox({
     setSkillsData(data);
   }, []);
 
-  // Flatten once; memoize to avoid re-renders that can affect focus
   const allSkills = useMemo(
     () =>
       skillsData.flatMap((category) =>
@@ -80,9 +79,14 @@ export function SkillsCombobox({
     onChange(value.filter((v) => v !== skillValue));
   };
 
+  // Prevent Radix trigger from seeing the down/press
+  const stopOpen = (e: React.SyntheticEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
   const SkillsList = () => (
     <Command>
-      {/* Let cmdk handle filtering internally */}
       <CommandInput placeholder="Search skills..." />
       <CommandList className="max-h-[200px] overflow-auto">
         <CommandEmpty>No skills found.</CommandEmpty>
@@ -94,7 +98,6 @@ export function SkillsCombobox({
               return (
                 <CommandItem
                   key={skill}
-                  // include category in the value so searches match both
                   value={`${skill} ${category.category}`}
                   onSelect={() => toggleSkill(skill)}
                   className="flex items-center justify-between"
@@ -123,15 +126,32 @@ export function SkillsCombobox({
             key={skill.value}
             variant="secondary"
             className="flex items-center gap-1"
+            // Prevent opening when clicking the badge area (optional but nice)
+            onMouseDown={stopOpen}
+            onTouchStart={stopOpen}
           >
             {skill.label}
-            <X
-              className="w-3 h-3 cursor-pointer ml-1"
+            {/* use a real button for a11y, and block down events */}
+            <button
+              type="button"
+              aria-label={`Remove ${skill.label}`}
+              className="inline-flex items-center justify-center w-4 h-4 ml-1"
+              onMouseDown={stopOpen}
+              onTouchStart={stopOpen}
+              onKeyDown={(e) => {
+                // prevent Enter/Space from triggering the popover
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  e.stopPropagation();
+                }
+              }}
               onClick={(e) => {
                 e.stopPropagation();
                 removeSkill(skill.value);
               }}
-            />
+            >
+              <X className="w-3 h-3" aria-hidden="true" />
+            </button>
           </Badge>
         ))
       ) : (
