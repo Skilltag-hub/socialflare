@@ -148,14 +148,13 @@ export default function JobCard({
             <Button
               variant="outline"
               size="sm"
-              className="px-3 py-2 text-sm font-medium text-gray-700 border-gray-200 hover:bg-gray-50 hover:text-gray-900 bg-transparent"
+              className="px-3 text-sm font-medium text-gray-700 border-gray-200 hover:bg-gray-50 hover:text-gray-900 bg-transparent"
               onClick={handleViewApplications}
             >
               <Eye className="h-4 w-4 mr-1" />
-              View Applications
             </Button>
             <Button
-              className={`px-4 py-2 rounded-lg font-medium text-sm transition-all ${
+              className={`px-4 rounded-lg font-medium text-sm transition-all ${
                 job.status === "completed"
                   ? "bg-green-100 text-green-700 border border-green-200 cursor-not-allowed"
                   : "bg-purple-600 hover:bg-purple-700 text-white shadow-sm hover:shadow-md"

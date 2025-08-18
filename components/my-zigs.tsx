@@ -12,6 +12,9 @@ import {
   Zap,
   Filter,
   Bookmark,
+  X,
+  Save,
+  Loader2,
 } from "lucide-react";
 import JobCard from "./JobCard";
 import Image from "next/image";
@@ -395,7 +398,7 @@ export default function MyZigs() {
               Filter
             </Button>
           </div>
-          <div className="grid grid-cols-3 gap-4 overflow-y-auto scrollbar-hide h-[calc(100vh-10vh-140px)]">
+          <div className="grid grid-cols-3 gap-4 overflow-y-auto scrollbar-hide h-[calc(100vh-10vh-140px)] content-start items-start auto-rows-max">
             {isLoading ? (
               <div className="col-span-3 flex flex-col items-center justify-center min-h-[300px] space-y-4">
                 <Ripples size={60} speed={2} color="#5E17EB" />

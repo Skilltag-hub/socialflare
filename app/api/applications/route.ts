@@ -23,8 +23,9 @@ export async function GET(req: Request) {
       .findOne({ email: session.user.email });
 
     if (!currentUser) {
-      return new Response(JSON.stringify({ error: "User not found" }), {
-        status: 404,
+      // Gracefully handle first-time users with no record yet
+      return new Response(JSON.stringify({ applications: [] }), {
+        status: 200,
         headers: { "Content-Type": "application/json" },
       });
     }
@@ -39,9 +40,23 @@ export async function GET(req: Request) {
 
     // Extract applications with gig details
     const applicationsWithGigs = gigsWithUserApplications.map((gig) => {
-      const userApplication = gig.applications.find(
+      const userApplication = (gig.applications || []).find(
         (app: any) => app.userId === currentUser._id.toString()
       );
+
+      // Safely normalize datePosted to ISO string
+      let datePostedISO: string;
+      try {
+        if (gig.datePosted instanceof Date) {
+          datePostedISO = gig.datePosted.toISOString();
+        } else if (typeof gig.datePosted === "string") {
+          datePostedISO = new Date(gig.datePosted).toISOString();
+        } else {
+          datePostedISO = new Date().toISOString();
+        }
+      } catch {
+        datePostedISO = new Date().toISOString();
+      }
 
       return {
         ...userApplication,
@@ -49,7 +64,7 @@ export async function GET(req: Request) {
         gig: {
           ...gig,
           _id: gig._id.toString(),
-          datePosted: gig.datePosted.toISOString(),
+          datePosted: datePostedISO,
           // Remove applications array from gig details to avoid circular data
           applications: undefined,
         },
