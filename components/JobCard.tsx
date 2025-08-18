@@ -1,32 +1,45 @@
-"use client"
+"use client";
 
-import type React from "react"
-import { Button } from "@/components/ui/button"
-import { Edit2, Trash2, Users, Clock, Loader2, Eye, CheckCircle } from "lucide-react"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import type React from "react";
+import { Button } from "@/components/ui/Button";
+import {
+  Edit2,
+  Trash2,
+  Users,
+  Clock,
+  Loader2,
+  Eye,
+  CheckCircle,
+} from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface JobCardProps {
   job: {
-    _id: string
-    gigTitle: string
-    description: string
-    payment?: string
-    skills?: string[]
-    datePosted: string
-    status?: string
-  }
+    _id: string;
+    gigTitle: string;
+    description: string;
+    payment?: string;
+    skills?: string[];
+    datePosted: string;
+    status?: string;
+  };
   applications: Record<
     string,
     Array<{
-      _id: string
-      applicantEmail: string
-      status: string
+      _id: string;
+      applicantEmail: string;
+      status: string;
     }>
-  >
-  handleEditJob: (job: any, e: React.MouseEvent) => void
-  handleDeleteJob: (jobId: string, e: React.MouseEvent) => void
-  markCompleted: (jobId: string, e: React.MouseEvent) => void
-  isDeleting: boolean
+  >;
+  handleEditJob: (job: any, e: React.MouseEvent) => void;
+  handleDeleteJob: (jobId: string, e: React.MouseEvent) => void;
+  markCompleted: (jobId: string, e: React.MouseEvent) => void;
+  isDeleting: boolean;
 }
 
 export default function JobCard({
@@ -38,9 +51,9 @@ export default function JobCard({
   isDeleting,
 }: JobCardProps) {
   const handleViewApplications = (e: React.MouseEvent) => {
-    e.stopPropagation()
-    window.location.href = `/companies/job-applications/${job._id}`
-  }
+    e.stopPropagation();
+    window.location.href = `/companies/job-applications/${job._id}`;
+  };
 
   return (
     <div className="bg-white border border-gray-200 rounded-2xl shadow-sm hover:shadow-md transition-all duration-200 group">
@@ -50,14 +63,18 @@ export default function JobCard({
           <h3 className="text-lg font-semibold text-gray-900 mb-1.5 line-clamp-1 group-hover:text-blue-600 transition-colors">
             {job.gigTitle}
           </h3>
-          <p className="text-xs text-gray-600 line-clamp-2 leading-relaxed">{job.description}</p>
+          <p className="text-xs text-gray-600 line-clamp-2 leading-relaxed">
+            {job.description}
+          </p>
         </div>
 
         {/* Payment Section */}
         {job.payment && (
           <div className="mb-4">
             <div className="inline-flex items-center bg-green-50 border border-green-200 rounded-lg px-2.5 py-0.5">
-              <span className="text-xs font-medium text-green-700">Payment: ₹{job.payment}</span>
+              <span className="text-xs font-medium text-green-700">
+                Payment: ₹{job.payment}
+              </span>
             </div>
           </div>
         )}
@@ -87,7 +104,9 @@ export default function JobCard({
         <div className="flex items-center gap-4 mb-4 text-xs text-gray-500">
           <div className="flex items-center gap-2">
             <Users className="w-3.5 h-3.5 text-purple-500" />
-            <span className="font-medium">{applications[job._id]?.length || 0} Applicants</span>
+            <span className="font-medium">
+              {applications[job._id]?.length || 0} Applicants
+            </span>
           </div>
           <div className="flex items-center gap-2">
             <Clock className="w-3.5 h-3.5 text-gray-400" />
@@ -98,20 +117,24 @@ export default function JobCard({
         {/* Applications Section */}
         {applications[job._id] && applications[job._id].length > 0 && (
           <div className="mb-4 space-y-2">
-            <h4 className="text-xs font-medium text-gray-700 mb-1.5">Recent Applications</h4>
+            <h4 className="text-xs font-medium text-gray-700 mb-1.5">
+              Recent Applications
+            </h4>
             {applications[job._id].slice(0, 2).map((app) => (
               <div
                 key={app._id}
                 className="flex items-center justify-between text-xs bg-gray-50 rounded-lg px-2.5 py-1.5 border border-gray-100"
               >
-                <span className="text-gray-700 font-medium">{app.applicantEmail}</span>
+                <span className="text-gray-700 font-medium">
+                  {app.applicantEmail}
+                </span>
                 <span
                   className={`px-2 py-0.5 rounded-full text-[10px] font-medium ${
                     app.status === "accepted"
                       ? "bg-green-100 text-green-700 border border-green-200"
                       : app.status === "rejected"
-                        ? "bg-red-100 text-red-700 border border-red-200"
-                        : "bg-yellow-100 text-yellow-700 border border-yellow-200"
+                      ? "bg-red-100 text-red-700 border border-red-200"
+                      : "bg-yellow-100 text-yellow-700 border border-yellow-200"
                   }`}
                 >
                   {app.status.charAt(0).toUpperCase() + app.status.slice(1)}
@@ -119,7 +142,9 @@ export default function JobCard({
               </div>
             ))}
             {applications[job._id].length > 2 && (
-              <p className="text-xs text-gray-500 text-center">+{applications[job._id].length - 2} more applications</p>
+              <p className="text-xs text-gray-500 text-center">
+                +{applications[job._id].length - 2} more applications
+              </p>
             )}
           </div>
         )}
@@ -152,7 +177,11 @@ export default function JobCard({
                     onClick={(e) => handleDeleteJob(job._id, e)}
                     disabled={isDeleting}
                   >
-                    {isDeleting ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}
+                    {isDeleting ? (
+                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    ) : (
+                      <Trash2 className="h-3.5 w-3.5" />
+                    )}
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>
@@ -181,7 +210,11 @@ export default function JobCard({
                   <Button
                     variant={job.status === "completed" ? "outline" : "default"}
                     size="sm"
-                    className={`${job.status === "completed" ? "h-8 w-8 text-green-700 bg-green-50 border border-green-200 cursor-not-allowed" : "h-8 w-8 bg-purple-600 hover:bg-purple-700 text-white"}`}
+                    className={`${
+                      job.status === "completed"
+                        ? "h-8 w-8 text-green-700 bg-green-50 border border-green-200 cursor-not-allowed"
+                        : "h-8 w-8 bg-purple-600 hover:bg-purple-700 text-white"
+                    }`}
                     onClick={(e) => markCompleted(job._id, e)}
                     disabled={job.status === "completed"}
                   >
@@ -189,7 +222,11 @@ export default function JobCard({
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>
-                  <p>{job.status === "completed" ? "Completed" : "Mark completed"}</p>
+                  <p>
+                    {job.status === "completed"
+                      ? "Completed"
+                      : "Mark completed"}
+                  </p>
                 </TooltipContent>
               </Tooltip>
             </div>
@@ -197,5 +234,5 @@ export default function JobCard({
         </div>
       </div>
     </div>
-  )
+  );
 }
