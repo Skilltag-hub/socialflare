@@ -6,20 +6,14 @@ import { useRouter } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/Button";
 import {
-  Users,
   BarChart3,
   User,
   Home,
-  Clock,
   Zap,
   Filter,
   Bookmark,
-  Edit2,
-  Trash2,
-  X,
-  Save,
-  Loader2,
 } from "lucide-react";
+import JobCard from "./JobCard";
 import Image from "next/image";
 import { Ripples } from "ldrs/react";
 import "ldrs/react/Ripples.css";
@@ -442,115 +436,15 @@ export default function MyZigs() {
               </div>
             ) : (
               filteredJobs.map((job) => (
-                <div
+                <JobCard
                   key={job._id}
-                  className="bg-white text-black rounded-xl shadow-sm h-[220px] flex flex-col hover:shadow-lg transition-shadow cursor-pointer"
-                  onClick={() =>
-                    (window.location.href = `/companies/job-applications/${job._id}`)
-                  }
-                >
-                  <div className="p-3 flex flex-col h-full">
-                    <div className="mb-3 flex-1">
-                      <h3 className="font-normal text-gray-700 leading-relaxed text-sm line-clamp-1">
-                        {job.gigTitle}
-                      </h3>
-                      <p className="text-xs text-gray-500 line-clamp-2">
-                        {job.description}
-                      </p>
-                      {job.payment && (
-                        <p className="text-xs font-medium text-gray-700 mt-1">
-                          Payment: {job.payment}
-                        </p>
-                      )}
-                      {job.skills && job.skills.length > 0 && (
-                        <div className="flex flex-wrap gap-1 mt-1">
-                          {job.skills.slice(0, 3).map((skill, i) => (
-                            <span
-                              key={i}
-                              className="text-xs bg-gray-100 px-2 py-0.5 rounded-full"
-                            >
-                              {skill}
-                            </span>
-                          ))}
-                          {job.skills.length > 3 && (
-                            <span className="text-xs text-gray-400">
-                              +{job.skills.length - 3} more
-                            </span>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-3 text-xs text-gray-400 mb-3">
-                      <div className="flex items-center gap-1">
-                        <Users className="w-3 h-3 text-[#5E17EB]" />
-                        <span>
-                          {applications[job._id]?.length || 0} Applicants
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Clock className="w-3 h-3" />
-                        <span>
-                          {new Date(job.datePosted).toLocaleDateString()}
-                        </span>
-                      </div>
-                    </div>
-                    <div className="flex flex-col gap-2">
-                      {applications[job._id]?.map((app) => (
-                        <div
-                          key={app._id}
-                          className="flex items-center justify-between text-xs bg-gray-100 rounded px-2 py-1"
-                        >
-                          <span>{app.applicantEmail}</span>
-                          <span
-                            className={`px-2 py-1 rounded ${
-                              app.status === "accepted"
-                                ? "bg-green-200 text-green-800"
-                                : app.status === "rejected"
-                                ? "bg-red-200 text-red-800"
-                                : "bg-yellow-200 text-yellow-800"
-                            }`}
-                          >
-                            {app.status}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                    <div className="flex items-center justify-between mt-auto">
-                      <div className="flex items-center gap-2">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8 text-gray-500 hover:text-[#5E17EB] hover:bg-[#5E17EB]/10"
-                          onClick={(e) => handleEditJob(job, e)}
-                        >
-                          <Edit2 className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8 text-gray-500 hover:text-red-500 hover:bg-red-500/10"
-                          onClick={(e) => handleDeleteJob(job._id, e)}
-                          disabled={isDeleting}
-                        >
-                          {isDeleting ? (
-                            <Loader2 className="h-4 w-4 animate-spin" />
-                          ) : (
-                            <Trash2 className="h-4 w-4" />
-                          )}
-                        </Button>
-                      </div>
-                      <Button
-                        className="bg-[#5E17EB] hover:bg-[#4A12C4] text-white px-3 py-1 rounded-lg font-normal text-xs"
-                        onClick={(e) => markCompleted(job._id, e)}
-                        disabled={job.status === "completed"}
-                      >
-                        {job.status === "completed"
-                          ? "Completed"
-                          : "Mark Completed"}
-                      </Button>
-                    </div>
-                  </div>
-                </div>
+                  job={job}
+                  applications={applications}
+                  handleEditJob={handleEditJob}
+                  handleDeleteJob={handleDeleteJob}
+                  markCompleted={markCompleted}
+                  isDeleting={isDeleting}
+                />
               ))
             )}
           </div>
@@ -606,8 +500,8 @@ export default function MyZigs() {
                   <Input
                     name="payment"
                     value={editingJob.payment}
-                    onChange={handleInputChange}
-                    className="w-full text-black"
+                    readOnly
+                    className="w-full text-gray-500 bg-gray-100 hover:cursor-not-allowed"
                   />
                 </div>
 
@@ -649,6 +543,7 @@ export default function MyZigs() {
                   variant="outline"
                   onClick={() => setIsEditModalOpen(false)}
                   disabled={isSaving}
+                  className="text-black"
                 >
                   Cancel
                 </Button>

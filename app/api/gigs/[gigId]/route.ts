@@ -34,7 +34,9 @@ export async function GET(
     const response = {
       ...gig,
       _id: gig._id.toString(),
-      datePosted: gig.datePosted?.toISOString() || new Date().toISOString()
+      datePosted: gig.datePosted 
+        ? new Date(gig.datePosted).toISOString() 
+        : new Date().toISOString()
     }
 
     return NextResponse.json({ gig: response })

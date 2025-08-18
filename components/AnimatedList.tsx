@@ -215,7 +215,7 @@ const AnimatedList: React.FC<AnimatedListProps> = ({
           >
             <Card
               className="bg-white max-w-[300px] lg:max-w-[400px] w-full mx-auto rounded-2xl shadow-sm h-[200px] cursor-pointer hover:shadow-md transition-shadow"
-              onClick={() => router.push(`/zigs/${job._id}`)}
+              onClick={() => router.push(`/login`)}
             >
               <CardContent className="p-4 flex flex-col h-full">
                 <div className="flex items-start gap-3 mb-3">
