@@ -358,19 +358,54 @@ export default function ProfileComponent({
                 <h2 className="text-xl font-semibold mb-2">
                   {userData.name || "User Name"}
                 </h2>
-                <Badge className="bg-green-500 text-white mb-3">
+                <Badge className="bg-skillText text-skill mb-3">
                   {userData.status === "available"
                     ? "Available for Zigs"
                     : userData.status === "busy"
                     ? "Busy"
                     : "Offline"}
                 </Badge>
+                {/* Social Links - Mobile */}
+                <div className="flex items-center justify-center gap-4 mb-3">
+                  {userData.linkedinUrl && (
+                    <a
+                      href={userData.linkedinUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label="LinkedIn"
+                    >
+                      <Linkedin className="w-5 h-5 text-blue-600 hover:opacity-80" />
+                    </a>
+                  )}
+                  {userData.githubUrl && (
+                    <a
+                      href={userData.githubUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label="GitHub"
+                    >
+                      <Github className="w-5 h-5 text-gray-800 hover:opacity-80" />
+                    </a>
+                  )}
+                </div>
                 {!hideEditButton && (
                   <Link href="/profile/edit">
                     <Button variant="outline" className="w-full bg-transparent">
                       Edit Profile
                     </Button>
                   </Link>
+                )}
+                {userData.resumeUrl && (
+                  <a
+                    href={userData.resumeUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block"
+                  >
+                    <Button className="w-full mt-2 bg-skill text-skillText">
+                      View Resume
+                    </Button>
+                  </a>
                 )}
               </CardContent>
             </Card>
@@ -666,11 +701,11 @@ export default function ProfileComponent({
                 <Badge
                   className={`${
                     userData.status === "available"
-                      ? "bg-green-500"
+                      ? "bg-skillText"
                       : userData.status === "busy"
                       ? "bg-red-500"
                       : "bg-gray-500"
-                  } text-white mb-4`}
+                  } text-skill mb-4`}
                 >
                   {userData.status === "available"
                     ? "Available for Zigs"
@@ -679,7 +714,7 @@ export default function ProfileComponent({
                     : "Offline"}
                 </Badge>
 
-                {/* Icons below status chip */}
+                {/* Icons below status chip (no resume icon on desktop) */}
                 <div className="flex items-center justify-center gap-4 mb-6">
                   {userData.linkedinUrl && (
                     <a
@@ -701,16 +736,6 @@ export default function ProfileComponent({
                       <Github className="w-6 h-6 text-gray-800 hover:opacity-80" />
                     </a>
                   )}
-                  {userData.resumeUrl && (
-                    <a
-                      href={userData.resumeUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      aria-label="Resume"
-                    >
-                      <File className="w-6 h-6 text-gray-800 hover:opacity-80" />
-                    </a>
-                  )}
                 </div>
                 {!hideEditButton && (
                   <Link href="/profile/edit">
@@ -718,6 +743,18 @@ export default function ProfileComponent({
                       Edit Profile
                     </Button>
                   </Link>
+                )}
+                {userData.resumeUrl && (
+                  <a
+                    href={userData.resumeUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block"
+                  >
+                    <Button className="w-full mt-2 bg-skill text-skillText">
+                      View Resume
+                    </Button>
+                  </a>
                 )}
               </CardContent>
             </Card>
