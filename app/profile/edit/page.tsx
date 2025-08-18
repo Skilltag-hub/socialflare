@@ -84,6 +84,13 @@ export default function Component() {
       }
     });
 
+    // Enforce minimum description length (100 chars)
+    const descLen = (formData.description || "").trim().length;
+    if (descLen < 100) {
+      newErrors.description = "Description must be at least 100 characters";
+      isValid = false;
+    }
+
     // Validate skills
     if (selectedSkills.length === 0) {
       newErrors.skills = "At least one skill is required";
@@ -596,97 +603,115 @@ export default function Component() {
                     </Label>
                     <Input
                       id="name-desktop"
-                      className="bg-white border-gray-700 text-gray-700 mt-1"
+                      className={`bg-white border-gray-700 text-gray-700 mt-1 ${errors.name ? "border-red-500" : ""}`}
                       value={formData.name}
                       onChange={handleChange}
                       placeholder="Enter your full name"
                     />
+                    {errors.name && (
+                      <p className="text-red-500 text-xs mt-1">{errors.name}</p>
+                    )}
                   </div>
 
                   <div>
                     <Label htmlFor="gender-desktop" className="text-black">
                       Gender
                     </Label>
-                    <Select
-                      value={formData.gender}
-                      onValueChange={(value) =>
-                        setFormData((prev) => ({ ...prev, gender: value }))
-                      }
-                    >
-                      <SelectTrigger className="bg-white border-gray-700 text-gray-700 mt-1">
-                        <SelectValue placeholder="Select gender" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-gray-800 border-gray-700 text-white">
-                        <SelectItem value="male" className="hover:bg-gray-700">
-                          Male
-                        </SelectItem>
-                        <SelectItem
-                          value="female"
-                          className="hover:bg-gray-700"
-                        >
-                          Female
-                        </SelectItem>
-                        <SelectItem
-                          value="non-binary"
-                          className="hover:bg-gray-700"
-                        >
-                          Non-binary
-                        </SelectItem>
-                        <SelectItem
-                          value="prefer-not-to-say"
-                          className="hover:bg-gray-700"
-                        >
-                          Prefer not to say
-                        </SelectItem>
-                        <SelectItem value="other" className="hover:bg-gray-700">
-                          Other
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <div className={errors.gender ? "border border-red-500 rounded-md" : ""}>
+                      <Select
+                        value={formData.gender}
+                        onValueChange={(value) =>
+                          setFormData((prev) => ({ ...prev, gender: value }))
+                        }
+                      >
+                        <SelectTrigger className="bg-white border-gray-700 text-gray-700 mt-1">
+                          <SelectValue placeholder="Select gender" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-gray-800 border-gray-700 text-white">
+                          <SelectItem value="male" className="hover:bg-gray-700">
+                            Male
+                          </SelectItem>
+                          <SelectItem
+                            value="female"
+                            className="hover:bg-gray-700"
+                          >
+                            Female
+                          </SelectItem>
+                          <SelectItem
+                            value="non-binary"
+                            className="hover:bg-gray-700"
+                          >
+                            Non-binary
+                          </SelectItem>
+                          <SelectItem
+                            value="prefer-not-to-say"
+                            className="hover:bg-gray-700"
+                          >
+                            Prefer not to say
+                          </SelectItem>
+                          <SelectItem value="other" className="hover:bg-gray-700">
+                            Other
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    {errors.gender && (
+                      <p className="text-red-500 text-xs mt-1">{errors.gender}</p>
+                    )}
                   </div>
 
                   <div>
                     <Label htmlFor="dateOfBirth-desktop" className="text-black">
                       Date of Birth
                     </Label>
-                    <Input
-                      id="dateOfBirth-desktop"
-                      type="date"
-                      className="bg-white border-gray-700 text-gray-700 mt-1"
-                      value={formData.dateOfBirth}
-                      onChange={handleChange}
-                    />
+                    <div className={errors.dateOfBirth ? "border border-red-500 rounded-md" : ""}>
+                      <Input
+                        id="dateOfBirth-desktop"
+                        type="date"
+                        className={`bg-white border-gray-700 text-gray-700 mt-1`}
+                        value={formData.dateOfBirth}
+                        onChange={handleChange}
+                      />
+                    </div>
+                    {errors.dateOfBirth && (
+                      <p className="text-red-500 text-xs mt-1">{errors.dateOfBirth}</p>
+                    )}
                   </div>
 
                   <div>
                     <Label htmlFor="status-desktop" className="text-black">
                       Status
                     </Label>
-                    <Select
-                      value={formData.status}
-                      onValueChange={handleStatusChange}
-                    >
-                      <SelectTrigger className="bg-white border-gray-700 text-gray-700 mt-1">
-                        <SelectValue placeholder="Select status" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-gray-800 border-gray-700 text-white">
-                        <SelectItem
-                          value="available"
-                          className="hover:bg-gray-700"
-                        >
-                          Available for Zigs
-                        </SelectItem>
-                        <SelectItem value="busy" className="hover:bg-gray-700">
-                          Busy
-                        </SelectItem>
-                        <SelectItem
-                          value="offline"
-                          className="hover:bg-gray-700"
-                        >
-                          Offline
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <div className={errors.status ? "border border-red-500 rounded-md" : ""}>
+                      <Select
+                        value={formData.status}
+                        onValueChange={handleStatusChange}
+                      >
+                        <SelectTrigger className="bg-white border-gray-700 text-gray-700 mt-1">
+                          <SelectValue placeholder="Select status" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-gray-800 border-gray-700 text-white">
+                          <SelectItem
+                            value="available"
+                            className="hover:bg-gray-700"
+                          >
+                            Available for Zigs
+                          </SelectItem>
+                          <SelectItem value="busy" className="hover:bg-gray-700">
+                            Busy
+                          </SelectItem>
+                          <SelectItem
+                            value="offline"
+                            className="hover:bg-gray-700"
+                          >
+                            Offline
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    {errors.status && (
+                      <p className="text-red-500 text-xs mt-1">{errors.status}</p>
+                    )}
                   </div>
 
                   <div>
@@ -695,11 +720,14 @@ export default function Component() {
                     </Label>
                     <Input
                       id="phone-desktop"
-                      className="bg-white border-gray-700 text-gray-700 mt-1"
+                      className={`bg-white border-gray-700 text-gray-700 mt-1 ${errors.phone ? "border-red-500" : ""}`}
                       value={formData.phone}
                       onChange={handleChange}
                       placeholder="+1 (555) 000-0000"
                     />
+                    {errors.phone && (
+                      <p className="text-red-500 text-xs mt-1">{errors.phone}</p>
+                    )}
                   </div>
 
                   <div>
@@ -708,12 +736,15 @@ export default function Component() {
                     </Label>
                     <Input
                       id="email-desktop"
-                      className="bg-white border-gray-700 text-gray-700 mt-1 disabled:opacity-50"
+                      className={`bg-white border-gray-700 text-gray-700 mt-1 disabled:opacity-50 ${errors.email ? "border-red-500" : ""}`}
                       value={formData.email}
                       onChange={handleChange}
                       placeholder="your.email@example.com"
                       disabled={!!session?.user?.email}
                     />
+                    {errors.email && (
+                      <p className="text-red-500 text-xs mt-1">{errors.email}</p>
+                    )}
                   </div>
                 </div>
 
@@ -723,11 +754,14 @@ export default function Component() {
                   </Label>
                   <Textarea
                     id="description-desktop"
-                    className="bg-white border-gray-700 text-gray-700 mt-1 min-h-[120px]"
+                    className={`bg-white border-gray-700 text-gray-700 mt-1 min-h-[120px] ${errors.description ? "border-red-500" : ""}`}
                     value={formData.description}
                     onChange={handleChange}
                     placeholder="Tell us about yourself..."
                   />
+                  {errors.description && (
+                    <p className="text-red-500 text-xs mt-1">{errors.description}</p>
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -739,11 +773,25 @@ export default function Component() {
               <CardContent>
                 <div className="space-y-4">
                   <Label>Skills</Label>
-                  <SkillsCombobox
-                    value={selectedSkills}
-                    onChange={setSelectedSkills}
-                    placeholder="Select your skills..."
-                  />
+                  <div className={`${errors.skills ? "border border-red-500 rounded-md p-1" : ""}`}>
+                    <SkillsCombobox
+                      value={selectedSkills}
+                      onChange={(skills) => {
+                        setSelectedSkills(skills);
+                        if (errors.skills && skills.length > 0) {
+                          setErrors((prev) => {
+                            const ne = { ...prev };
+                            delete ne.skills;
+                            return ne;
+                          });
+                        }
+                      }}
+                      placeholder="Select your skills..."
+                    />
+                  </div>
+                  {errors.skills && (
+                    <p className="text-red-500 text-xs mt-1">{errors.skills}</p>
+                  )}
                   <div className="flex flex-wrap gap-2">
                     {selectedSkills.map((skill, index) => (
                       <Badge
@@ -775,11 +823,14 @@ export default function Component() {
                   <Input
                     id="githubUrl-desktop"
                     type="url"
-                    className="bg-white border-gray-700 text-gray-700 mt-1"
+                    className={`bg-white border-gray-700 text-gray-700 mt-1 ${errors.githubUrl ? "border-red-500" : ""}`}
                     value={formData.githubUrl}
                     onChange={handleChange}
                     placeholder="https://github.com/username"
                   />
+                  {errors.githubUrl && (
+                    <p className="text-red-500 text-xs mt-1">{errors.githubUrl}</p>
+                  )}
                 </div>
 
                 <div>
@@ -789,11 +840,14 @@ export default function Component() {
                   <Input
                     id="linkedinUrl-desktop"
                     type="url"
-                    className="bg-white border-gray-700 text-gray-700 mt-1"
+                    className={`bg-white border-gray-700 text-gray-700 mt-1 ${errors.linkedinUrl ? "border-red-500" : ""}`}
                     value={formData.linkedinUrl}
                     onChange={handleChange}
                     placeholder="https://linkedin.com/in/username"
                   />
+                  {errors.linkedinUrl && (
+                    <p className="text-red-500 text-xs mt-1">{errors.linkedinUrl}</p>
+                  )}
                 </div>
 
                 <div>
@@ -803,11 +857,14 @@ export default function Component() {
                   <Input
                     id="resumeUrl-desktop"
                     type="url"
-                    className="bg-white border-gray-700 text-gray-700 mt-1"
+                    className={`bg-white border-gray-700 text-gray-700 mt-1 ${errors.resumeUrl ? "border-red-500" : ""}`}
                     value={formData.resumeUrl}
                     onChange={handleChange}
                     placeholder="https://example.com/resume.pdf"
                   />
+                  {errors.resumeUrl && (
+                    <p className="text-red-500 text-xs mt-1">{errors.resumeUrl}</p>
+                  )}
                 </div>
               </CardContent>
             </Card>

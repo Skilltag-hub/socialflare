@@ -72,6 +72,9 @@ export default function PostGig() {
   const [formData, setFormData] = useState(getInitialFormData());
   const [errors, setErrors] = useState<{ [key: string]: boolean }>({});
 
+  // Helper to count characters (excluding leading/trailing whitespace only)
+  const charCount = (text: string) => (text || "").trim().length;
+
   const handleSkillsChange = (skills: string[]) => {
     setFormData(prev => ({ ...prev, skills }));
   };
@@ -93,13 +96,24 @@ export default function PostGig() {
     });
     if (formData.skills.length === 0) newErrors["skills"] = true;
     if (!formData.agreeToTerms) newErrors["agreeToTerms"] = true;
+    // Description min 200 characters
+    if (charCount(formData.description) < 200) newErrors["descriptionMin"] = true;
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!validateFields()) return;
+    const valid = validateFields();
+    // If description too short, show dedicated toast
+    if (charCount(formData.description) < 200) {
+      toast({
+        title: "Description too short",
+        description: "Please write at least 200 characters in the description.",
+        variant: "destructive",
+      });
+    }
+    if (!valid) return;
 
     try {
       // Fetch company details using the /api/companies/me endpoint which uses the session
@@ -269,11 +283,19 @@ export default function PostGig() {
                       description: e.target.value,
                     }))
                   }
-                  className={`w-full h-24 resize-none ${
-                    errors.description ? "border-red-500" : ""
+                  className={`w-full h-28 resize-none ${
+                    errors.description || errors.descriptionMin ? "border-red-500" : ""
                   }`}
                   required
                 />
+                <div className="mt-1 flex items-center justify-between text-xs">
+                  <p className={`${charCount(formData.description) < 200 ? "text-red-600" : "text-gray-500"}`}>
+                    {charCount(formData.description)} / 200 characters minimum
+                  </p>
+                  {errors.descriptionMin && (
+                    <span className="text-red-600">Please add more details (min 200 characters).</span>
+                  )}
+                </div>
               </div>
 
               {/* Duration, Stipend, Location Row */}
