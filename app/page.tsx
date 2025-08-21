@@ -205,7 +205,7 @@ export default function HomePage() {
                 </div>
               </div>
             </div>
-            <div className="w-full bg-[#F6F9FF] pt-28 lg:pt-4">
+            <div className="w-full bg-[#F6F9FF] pt-28 lg:pt-4 -mb-32">
               <div className="mx-auto max-w-5xl px-6">
                 <div className="flex flex-col md:flex-row items-center justify-center gap-12">
                   {/* Heading */}
