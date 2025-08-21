@@ -203,8 +203,6 @@ export default function Component() {
     const appliedAt = application?.appliedAt
       ? getRelativeTime(application.appliedAt)
       : "";
-    const [isBoostLoading, setIsBoostLoading] = useState(false);
-    const [isBoosted, setIsBoosted] = useState(application?.boosted || false);
     const [showSubmitModal, setShowSubmitModal] = useState(false);
     const [showWithdrawModal, setShowWithdrawModal] = useState(false);
     const [submissionTitle, setSubmissionTitle] = useState("");
@@ -273,46 +271,7 @@ export default function Component() {
       }
     }
 
-    const handleBoost = async () => {
-      if (isBoostLoading) return;
-
-      setIsBoostLoading(true);
-      try {
-        const response = await fetch("/api/applications", {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            gigId: application.gigId,
-            action: "boost",
-            value: !isBoosted,
-          }),
-        });
-
-        if (!response.ok) {
-          throw new Error("Failed to update boost status");
-        }
-
-        setIsBoosted(!isBoosted);
-        toast.success(
-          `Application ${!isBoosted ? "boosted" : "unboosted"} successfully!`,
-          {
-            style: { background: "green", border: "none", color: "white" },
-          }
-        );
-
-        // Refresh applications data to update UI immediately
-        await fetchApplications();
-      } catch (error) {
-        console.error("Error updating boost status:", error);
-        toast.error("Failed to update boost status. Please try again.", {
-          style: { background: "red", border: "none", color: "white" },
-        });
-      } finally {
-        setIsBoostLoading(false);
-      }
-    };
+    
 
     const handleWithdraw = async () => {
       if (!withdrawAgree || !withdrawUpiId || !withdrawUpiName) {
@@ -415,19 +374,10 @@ export default function Component() {
             </div>
             {application.status === "applied" ? (
               <Button
-                className={`px-6 py-2 rounded-full ${
-                  isBoosted
-                    ? "bg-green-600 hover:bg-green-700 text-white"
-                    : "bg-skill hover:bg-skillText hover:text-skill text-skillText"
-                }`}
-                onClick={handleBoost}
-                disabled={isBoostLoading}
+                className="px-6 py-2 rounded-full bg-gray-300 text-gray-600 cursor-not-allowed"
+                disabled
               >
-                {isBoostLoading
-                  ? "Loading..."
-                  : isBoosted
-                  ? "Boosted"
-                  : "Boost"}
+                Applied
               </Button>
             ) : application.status === "accepted" ? (
               <Button

@@ -361,8 +361,8 @@ export default function MyZigs() {
                 variant="outline"
                 className={`px-8 py-2 rounded-lg text-sm font-extralight transition-colors ${
                   activeFilter === "all"
-                    ? "bg-skillText text-skill hover:bg-skillText/80"
-                    : "bg-skill border-skill text-skillText hover:bg-skillText/50"
+                    ? "bg-black text-white hover:bg-gray-800 border-gray-600 hover:text-white"
+                    : "bg-transparent border-gray-600 text-gray-400 hover:bg-gray-800 hover:text-white"
                 }`}
               >
                 All Jobs {counts.all}
@@ -372,8 +372,8 @@ export default function MyZigs() {
                 variant="outline"
                 className={`px-8 py-2 rounded-lg text-sm font-extralight transition-colors ${
                   activeFilter === "active"
-                    ? "bg-skillText text-skill hover:bg-skillText/80"
-                    : "bg-skill border-skill text-skillText hover:bg-skillText/50"
+                    ? "bg-black text-white hover:bg-gray-800 border-gray-600 hover:text-white"
+                    : "bg-transparent border-gray-600 text-gray-400 hover:bg-gray-800 hover:text-white"
                 }`}
               >
                 Active {counts.active}
@@ -383,8 +383,8 @@ export default function MyZigs() {
                 variant="outline"
                 className={`px-8 py-2 rounded-lg text-sm font-extralight transition-colors ${
                   activeFilter === "completed"
-                    ? "bg-skillText text-skill hover:bg-skillText/80"
-                    : "bg-skill border-skill text-skillText hover:bg-skillText/50"
+                    ? "bg-black text-white hover:bg-gray-800 border-gray-600 hover:text-white"
+                    : "bg-transparent border-gray-600 text-gray-400 hover:bg-gray-800 hover:text-white"
                 }`}
               >
                 Completed {counts.completed}
