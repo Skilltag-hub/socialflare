@@ -21,6 +21,7 @@ export default function CompaniesDetailsPage() {
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [errors, setErrors] = useState<{ [key: string]: boolean }>({});
 
   // Document upload states
   const [gstCertificate, setGstCertificate] = useState<{
@@ -142,9 +143,18 @@ export default function CompaniesDetailsPage() {
     e.preventDefault();
     setError("");
     setSuccess("");
-
-    if (!companyName || !companyWebsite || !contactName || !businessEmail || !logoUrl) {
-      setError("Please fill all fields and upload a logo.");
+    // Validate required fields and set inline errors
+    const req: { [k: string]: boolean } = {
+      companyName: !companyName,
+      companyWebsite: !companyWebsite,
+      contactName: !contactName,
+      businessEmail: !businessEmail,
+      logoUrl: !logoUrl,
+    };
+    setErrors(req);
+    const valid = Object.values(req).every((v) => v === false);
+    if (!valid) {
+      setError("Please fill all required fields and upload a logo.");
       return;
     }
 
@@ -196,74 +206,86 @@ export default function CompaniesDetailsPage() {
               htmlFor="company-name"
               className="text-sm font-medium text-gray-700"
             >
-              Company Name
+              Company Name <span className="text-red-500">*</span>
             </Label>
             <Input
               id="company-name"
               type="text"
               value={companyName}
               onChange={(e) => setCompanyName(e.target.value)}
-              className="w-full h-[45px] px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className={`w-full h-[45px] px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:border-transparent ${errors.companyName ? "border-red-500 focus:ring-red-500" : "focus:ring-blue-500"}`}
               required
             />
+            {errors.companyName && (
+              <p className="text-xs text-red-600">Company name is required</p>
+            )}
           </div>
           <div className="space-y-2">
             <Label
               htmlFor="company-website"
               className="text-sm font-medium text-gray-700"
             >
-              Company Website
+              Company Website <span className="text-red-500">*</span>
             </Label>
             <Input
               id="company-website"
               type="url"
               value={companyWebsite}
               onChange={(e) => setCompanyWebsite(e.target.value)}
-              className="w-full h-[45px] px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className={`w-full h-[45px] px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:border-transparent ${errors.companyWebsite ? "border-red-500 focus:ring-red-500" : "focus:ring-blue-500"}`}
               required
             />
+            {errors.companyWebsite && (
+              <p className="text-xs text-red-600">Company website is required</p>
+            )}
           </div>
           <div className="space-y-2">
             <Label
               htmlFor="contact-name"
               className="text-sm font-medium text-gray-700"
             >
-              Contact Person Name
+              Contact Person Name <span className="text-red-500">*</span>
             </Label>
             <Input
               id="contact-name"
               type="text"
               value={contactName}
               onChange={(e) => setContactName(e.target.value)}
-              className="w-full h-[45px] px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className={`w-full h-[45px] px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:border-transparent ${errors.contactName ? "border-red-500 focus:ring-red-500" : "focus:ring-blue-500"}`}
               required
             />
+            {errors.contactName && (
+              <p className="text-xs text-red-600">Contact person name is required</p>
+            )}
           </div>
           <div className="space-y-2">
             <Label
               htmlFor="business-email"
               className="text-sm font-medium text-gray-700"
             >
-              Business Email
+              Business Email <span className="text-red-500">*</span>
             </Label>
             <Input
               id="business-email"
               type="email"
               value={businessEmail}
               onChange={(e) => setBusinessEmail(e.target.value)}
-              className="w-full h-[45px] px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className={`w-full h-[45px] px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:border-transparent ${errors.businessEmail ? "border-red-500 focus:ring-red-500" : "focus:ring-blue-500"}`}
               required
             />
+            {errors.businessEmail && (
+              <p className="text-xs text-red-600">Business email is required</p>
+            )}
           </div>
           <div className="space-y-2">
             <Label
               htmlFor="company-logo"
               className="text-sm font-medium text-gray-700"
             >
-              Company Logo
+              Company Logo <span className="text-red-500">*</span>
             </Label>
             <label htmlFor="company-logo" className="block cursor-pointer">
-              <div className="flex flex-col items-center justify-center w-full h-32 bg-[#f8fcff] border-2 border-dashed border-[#1a2b3c] rounded-2xl transition hover:bg-[#f0f6fa] focus-within:ring-2 focus-within:ring-blue-500">
+              <div className={`flex flex-col items-center justify-center w-full h-32 bg-[#f8fcff] border-2 border-dashed rounded-2xl transition hover:bg-[#f0f6fa] focus-within:ring-2 ${errors.logoUrl ? "border-red-500 focus-within:ring-red-500" : "border-[#1a2b3c] focus-within:ring-blue-500"}`}>
                 <svg
                   width="24"
                   height="24"
@@ -290,6 +312,9 @@ export default function CompaniesDetailsPage() {
                 required
               />
             </label>
+            {errors.logoUrl && !logoUrl && (
+              <p className="text-xs text-red-600 mt-1">Company logo is required</p>
+            )}
             {uploading && (
               <div className="text-blue-600 text-sm">Uploading...</div>
             )}

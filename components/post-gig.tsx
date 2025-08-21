@@ -76,7 +76,7 @@ export default function PostGig() {
   const charCount = (text: string) => (text || "").trim().length;
 
   const handleSkillsChange = (skills: string[]) => {
-    setFormData(prev => ({ ...prev, skills }));
+    setFormData((prev) => ({ ...prev, skills }));
   };
 
   const validateFields = () => {
@@ -97,7 +97,8 @@ export default function PostGig() {
     if (formData.skills.length === 0) newErrors["skills"] = true;
     if (!formData.agreeToTerms) newErrors["agreeToTerms"] = true;
     // Description min 200 characters
-    if (charCount(formData.description) < 200) newErrors["descriptionMin"] = true;
+    if (charCount(formData.description) < 200)
+      newErrors["descriptionMin"] = true;
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -117,21 +118,22 @@ export default function PostGig() {
 
     try {
       // Fetch company details using the /api/companies/me endpoint which uses the session
-      const companyRes = await fetch('/api/companies/me');
+      const companyRes = await fetch("/api/companies/me");
       if (!companyRes.ok) {
-        throw new Error('Failed to fetch company details');
+        throw new Error("Failed to fetch company details");
       }
       const company = await companyRes.json();
-      
+
       if (!company) {
-        throw new Error('Company details not found');
+        throw new Error("Company details not found");
       }
 
       // If company exists but is not approved, redirect to pending approval page
       if (company && company.approved === false) {
         toast({
           title: "Approval pending",
-          description: "Your company account is pending approval. You will be redirected.",
+          description:
+            "Your company account is pending approval. You will be redirected.",
           variant: "destructive",
         });
         window.location.href = "/pending-approval?type=company";
@@ -141,7 +143,7 @@ export default function PostGig() {
       // Format the data to match the API's expected format
       const gigData = {
         companyName: company?.name || formData.gigTitle,
-        companyLogo: company?.logoUrl || '',
+        companyLogo: company?.logoUrl || "",
         aboutCompany: company?.about || formData.additionalRequirements,
         openings: parseInt(formData.numberOfPositions) || 1,
         description: formData.description,
@@ -166,11 +168,14 @@ export default function PostGig() {
       if (!res.ok) {
         // Try to parse error details to handle approval errors
         let err: any = null;
-        try { err = await res.json(); } catch {}
+        try {
+          err = await res.json();
+        } catch {}
         if (err?.code === "COMPANY_NOT_APPROVED") {
           toast({
             title: "Approval pending",
-            description: "Your company account is pending approval. You will be redirected.",
+            description:
+              "Your company account is pending approval. You will be redirected.",
             variant: "destructive",
           });
           window.location.href = "/pending-approval?type=company";
@@ -243,6 +248,9 @@ export default function PostGig() {
                     }`}
                     required
                   />
+                  {errors.gigTitle && (
+                    <p className="mt-1 text-xs text-red-600">Gig title is required</p>
+                  )}
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -254,7 +262,7 @@ export default function PostGig() {
                       setFormData((prev) => ({ ...prev, category: value }))
                     }
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className={`${errors.category ? "border-red-500" : ""}`}>
                       <SelectValue placeholder="Select category" />
                     </SelectTrigger>
                     <SelectContent>
@@ -266,6 +274,9 @@ export default function PostGig() {
                       <SelectItem value="photography">Photography</SelectItem>
                     </SelectContent>
                   </Select>
+                  {errors.category && (
+                    <p className="mt-1 text-xs text-red-600">Category is required</p>
+                  )}
                 </div>
               </div>
 
@@ -284,16 +295,26 @@ export default function PostGig() {
                     }))
                   }
                   className={`w-full h-28 resize-none ${
-                    errors.description || errors.descriptionMin ? "border-red-500" : ""
+                    errors.description || errors.descriptionMin
+                      ? "border-red-500"
+                      : ""
                   }`}
                   required
                 />
                 <div className="mt-1 flex items-center justify-between text-xs">
-                  <p className={`${charCount(formData.description) < 200 ? "text-red-600" : "text-gray-500"}`}>
+                  <p
+                    className={`${
+                      charCount(formData.description) < 200
+                        ? "text-red-600"
+                        : "text-gray-500"
+                    }`}
+                  >
                     {charCount(formData.description)} / 200 characters minimum
                   </p>
                   {errors.descriptionMin && (
-                    <span className="text-red-600">Please add more details (min 200 characters).</span>
+                    <span className="text-red-600">
+                      Please add more details (min 200 characters).
+                    </span>
                   )}
                 </div>
               </div>
@@ -302,7 +323,7 @@ export default function PostGig() {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Duration
+                    Duration <span className="text-red-500">*</span>
                   </label>
                   <Input
                     type="text"
@@ -316,10 +337,13 @@ export default function PostGig() {
                     }
                     className={errors.duration ? "border-red-500" : ""}
                   />
+                  {errors.duration && (
+                    <p className="mt-1 text-xs text-red-600">Duration is required</p>
+                  )}
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Stipend
+                    Stipend <span className="text-red-500">*</span>
                   </label>
                   <Input
                     type="text"
@@ -333,10 +357,13 @@ export default function PostGig() {
                     }
                     className={errors.stipend ? "border-red-500" : ""}
                   />
+                  {errors.stipend && (
+                    <p className="mt-1 text-xs text-red-600">Stipend is required</p>
+                  )}
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Location
+                    Location <span className="text-red-500">*</span>
                   </label>
                   <Select
                     value={formData.location}
@@ -344,7 +371,7 @@ export default function PostGig() {
                       setFormData((prev) => ({ ...prev, location: value }))
                     }
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className={`${errors.location ? "border-red-500" : ""}`}>
                       <SelectValue placeholder="select location" />
                     </SelectTrigger>
                     <SelectContent>
@@ -356,6 +383,9 @@ export default function PostGig() {
                       <SelectItem value="hyderabad">Hyderabad</SelectItem>
                     </SelectContent>
                   </Select>
+                  {errors.location && (
+                    <p className="mt-1 text-xs text-red-600">Location is required</p>
+                  )}
                 </div>
               </div>
 
@@ -364,7 +394,11 @@ export default function PostGig() {
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Required Skills <span className="text-red-500">*</span>
                 </label>
-                <div className={`${errors.skills ? 'ring-2 ring-red-500 rounded-md' : ''}`}>
+                <div
+                  className={`${
+                    errors.skills ? "ring-2 ring-red-500 rounded-md" : ""
+                  }`}
+                >
                   <SkillsCombobox
                     value={formData.skills}
                     onChange={handleSkillsChange}
@@ -382,7 +416,7 @@ export default function PostGig() {
               <div className="grid grid-cols-1">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Number of Positions
+                    Number of Positions <span className="text-red-500">*</span>
                   </label>
                   <Select
                     value={formData.numberOfPositions}
@@ -393,7 +427,7 @@ export default function PostGig() {
                       }))
                     }
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className={`${errors.numberOfPositions ? "border-red-500" : ""}`}>
                       <SelectValue placeholder="select" />
                     </SelectTrigger>
                     <SelectContent>
@@ -404,6 +438,9 @@ export default function PostGig() {
                       <SelectItem value="5+">5+</SelectItem>
                     </SelectContent>
                   </Select>
+                  {errors.numberOfPositions && (
+                    <p className="mt-1 text-xs text-red-600">Please select number of positions</p>
+                  )}
                 </div>
               </div>
 
@@ -428,7 +465,7 @@ export default function PostGig() {
               {/* Application Deadline */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Application Deadline
+                  Application Deadline <span className="text-red-500">*</span>
                 </label>
                 <Input
                   type="date"
@@ -443,6 +480,9 @@ export default function PostGig() {
                     errors.applicationDeadline ? "border-red-500" : ""
                   }`}
                 />
+                {errors.applicationDeadline && (
+                  <p className="mt-1 text-xs text-red-600">Application deadline is required</p>
+                )}
               </div>
 
               {/* Agreement Checkbox */}
@@ -467,7 +507,7 @@ export default function PostGig() {
                   htmlFor="agree"
                   className="text-sm text-gray-600 leading-relaxed"
                 >
-                  I agree that all information given above is genuine.
+                  I agree that all information given above is genuine. <span className="text-red-500">*</span>
                 </label>
               </div>
 
@@ -484,8 +524,7 @@ export default function PostGig() {
                 </Link>
                 <Button
                   type="submit"
-                  className="bg-[#5E17EB] hover:bg-[#4A12C4] text-white px-8 py-2"
-                  disabled={!formData.agreeToTerms}
+                  className="bg-skill text-skillText font-bold px-8 py-2"
                 >
                   Post Gig
                 </Button>

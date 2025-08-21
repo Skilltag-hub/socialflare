@@ -361,8 +361,8 @@ export default function MyZigs() {
                 variant="outline"
                 className={`px-8 py-2 rounded-lg text-sm font-extralight transition-colors ${
                   activeFilter === "all"
-                    ? "bg-[#5E17EB] text-white border-[#5E17EB]"
-                    : "bg-transparent border-white text-gray-300 hover:bg-gray-800"
+                    ? "bg-skillText text-skill hover:bg-skillText/80"
+                    : "bg-skill border-skill text-skillText hover:bg-skillText/50"
                 }`}
               >
                 All Jobs {counts.all}
@@ -372,8 +372,8 @@ export default function MyZigs() {
                 variant="outline"
                 className={`px-8 py-2 rounded-lg text-sm font-extralight transition-colors ${
                   activeFilter === "active"
-                    ? "bg-[#5E17EB] text-white border-[#5E17EB]"
-                    : "bg-transparent border-white text-gray-300 hover:bg-gray-800"
+                    ? "bg-skillText text-skill hover:bg-skillText/80"
+                    : "bg-skill border-skill text-skillText hover:bg-skillText/50"
                 }`}
               >
                 Active {counts.active}
@@ -383,8 +383,8 @@ export default function MyZigs() {
                 variant="outline"
                 className={`px-8 py-2 rounded-lg text-sm font-extralight transition-colors ${
                   activeFilter === "completed"
-                    ? "bg-[#5E17EB] text-white border-[#5E17EB]"
-                    : "bg-transparent border-white text-gray-300 hover:bg-gray-800"
+                    ? "bg-skillText text-skill hover:bg-skillText/80"
+                    : "bg-skill border-skill text-skillText hover:bg-skillText/50"
                 }`}
               >
                 Completed {counts.completed}
@@ -401,7 +401,7 @@ export default function MyZigs() {
           <div className="grid grid-cols-3 gap-4 overflow-y-auto scrollbar-hide h-[calc(100vh-10vh-140px)] content-start items-start auto-rows-max">
             {isLoading ? (
               <div className="col-span-3 flex flex-col items-center justify-center min-h-[300px] space-y-4">
-                <Ripples size={60} speed={2} color="#5E17EB" />
+                <Ripples size={60} speed={2} color="#B4E140" />
                 <p className="text-gray-400">Loading your zigs...</p>
               </div>
             ) : error ? (
@@ -423,7 +423,7 @@ export default function MyZigs() {
             ) : filteredJobs.length === 0 ? (
               <div className="col-span-3 flex flex-col items-center justify-center min-h-[300px] space-y-4 p-6 text-center">
                 <div className="bg-[#5E17EB]/10 p-4 rounded-full">
-                  <Zap className="w-8 h-8 text-[#5E17EB]" />
+                  <Zap className="w-8 h-8 text-skillText" />
                 </div>
                 <h3 className="text-xl font-medium text-white">No zigs yet</h3>
                 <p className="text-gray-400 max-w-md">
@@ -431,8 +431,8 @@ export default function MyZigs() {
                   started.
                 </p>
                 <Button
-                  onClick={() => router.push("/companies/post-job")}
-                  className="mt-2 bg-[#5E17EB] hover:bg-[#5E17EB]/90"
+                  onClick={() => router.push("/companies/post-gig")}
+                  className="mt-2 bg-skillText hover:bg-skillText/90 text-skill font-bold"
                 >
                   Post Your First Zig
                 </Button>

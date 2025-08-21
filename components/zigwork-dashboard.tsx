@@ -1,12 +1,22 @@
 "use client";
 
-import { useState, useEffect } from "react"
-import { Card, CardContent } from "@/components/ui/card"
-import { Button } from "@/components/ui/Button"
-import { Users, BarChart3, Bookmark, User, Home, Clock, Zap, Loader2, Bell } from "lucide-react"
-import Image from "next/image"
-import Link from "next/link"
-import { useRouter } from 'next/navigation';
+import { useState, useEffect } from "react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/Button";
+import {
+  Users,
+  BarChart3,
+  Bookmark,
+  User,
+  Home,
+  Clock,
+  Zap,
+  Loader2,
+  Bell,
+} from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 
 interface Stats {
@@ -21,24 +31,24 @@ export default function ZigworkDashboard() {
   const { data: session, status } = useSession();
   const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   useEffect(() => {
     const fetchStats = async () => {
-      if (status === 'authenticated') {
+      if (status === "authenticated") {
         try {
           setLoading(true);
-          const response = await fetch('/api/companies/gigs');
+          const response = await fetch("/api/companies/gigs");
           const data = await response.json();
-          
+
           if (!response.ok) {
-            throw new Error(data.error || 'Failed to fetch stats');
+            throw new Error(data.error || "Failed to fetch stats");
           }
-          
+
           setStats(data.stats);
         } catch (err) {
-          console.error('Error fetching stats:', err);
-          setError('Failed to load dashboard stats');
+          console.error("Error fetching stats:", err);
+          setError("Failed to load dashboard stats");
         } finally {
           setLoading(false);
         }
@@ -49,7 +59,7 @@ export default function ZigworkDashboard() {
   }, [status]);
 
   const handlePostJobClick = () => {
-    router.push('/companies/post-gig');
+    router.push("/companies/post-gig");
   };
 
   return (
@@ -58,7 +68,7 @@ export default function ZigworkDashboard() {
       <div className="flex justify-end mb-4 p-6 pb-0">
         <Button
           onClick={handlePostJobClick}
-          className="bg-[#22c55e] hover:bg-[#15803d] text-white px-6 py-1.5 rounded-lg text-sm"
+          className="bg-skillText hover:bg-[#15803d] text-skill px-6 py-1.5 rounded-lg text-sm"
         >
           Post a Job
         </Button>
@@ -73,7 +83,7 @@ export default function ZigworkDashboard() {
               // Loading state
               <Card className="bg-white rounded-xl shadow-sm col-span-2">
                 <CardContent className="p-6 flex items-center justify-center">
-                  <Loader2 className="h-6 w-6 animate-spin text-[#22c55e] mr-2" />
+                  <Loader2 className="h-6 w-6 animate-spin text-skillText mr-2" />
                   <span className="text-gray-600">Loading stats...</span>
                 </CardContent>
               </Card>
@@ -82,8 +92,8 @@ export default function ZigworkDashboard() {
               <Card className="bg-white rounded-xl shadow-sm col-span-2">
                 <CardContent className="p-6 text-center">
                   <p className="text-red-500">{error}</p>
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     className="mt-2"
                     onClick={() => window.location.reload()}
                   >
@@ -97,12 +107,16 @@ export default function ZigworkDashboard() {
                 <Card className="bg-white rounded-xl shadow-sm">
                   <CardContent className="p-3">
                     <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 bg-[#22c55e]/10 rounded-lg flex items-center justify-center">
-                        <Zap className="w-4 h-4 text-[#22c55e]" />
+                      <div className="w-8 h-8 bg-skill rounded-lg flex items-center justify-center">
+                        <Zap className="w-4 h-4 text-skillText" />
                       </div>
                       <div>
-                        <div className="text-xl font-bold text-[#22c55e]">{stats.activeGigs}</div>
-                        <div className="text-gray-500 font-normal text-xs">Active Gigs</div>
+                        <div className="text-xl font-bold text-skill">
+                          {stats.activeGigs}
+                        </div>
+                        <div className="text-gray-500 font-normal text-xs">
+                          Active Gigs
+                        </div>
                       </div>
                     </div>
                   </CardContent>
@@ -111,12 +125,16 @@ export default function ZigworkDashboard() {
                 <Card className="bg-white rounded-xl shadow-sm">
                   <CardContent className="p-3">
                     <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 bg-[#22c55e]/10 rounded-lg flex items-center justify-center">
-                        <BarChart3 className="w-4 h-4 text-[#22c55e]" />
+                      <div className="w-8 h-8 bg-skill rounded-lg flex items-center justify-center">
+                        <BarChart3 className="w-4 h-4 text-skillText" />
                       </div>
                       <div>
-                        <div className="text-xl font-bold text-[#22c55e]">{stats.totalGigs}</div>
-                        <div className="text-gray-500 font-normal text-xs">All Gigs</div>
+                        <div className="text-xl font-bold text-skill">
+                          {stats.totalGigs}
+                        </div>
+                        <div className="text-gray-500 font-normal text-xs">
+                          All Gigs
+                        </div>
                       </div>
                     </div>
                   </CardContent>
@@ -125,12 +143,16 @@ export default function ZigworkDashboard() {
                 <Card className="bg-white rounded-xl shadow-sm">
                   <CardContent className="p-3">
                     <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 bg-[#22c55e]/10 rounded-lg flex items-center justify-center">
-                        <Bookmark className="w-4 h-4 text-[#22c55e]" />
+                      <div className="w-8 h-8 bg-skill rounded-lg flex items-center justify-center">
+                        <Bookmark className="w-4 h-4 text-skillText" />
                       </div>
                       <div>
-                        <div className="text-xl font-bold text-[#22c55e]">{stats.shortlisted}</div>
-                        <div className="text-gray-500 font-normal text-xs">Shortlisted</div>
+                        <div className="text-xl font-bold text-skill">
+                          {stats.shortlisted}
+                        </div>
+                        <div className="text-gray-500 font-normal text-xs">
+                          Shortlisted
+                        </div>
                       </div>
                     </div>
                   </CardContent>
@@ -139,12 +161,16 @@ export default function ZigworkDashboard() {
                 <Card className="bg-white rounded-xl shadow-sm">
                   <CardContent className="p-3">
                     <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 bg-[#22c55e]/10 rounded-lg flex items-center justify-center">
-                        <Users className="w-4 h-4 text-[#22c55e]" />
+                      <div className="w-8 h-8 bg-skill rounded-lg flex items-center justify-center">
+                        <Users className="w-4 h-4 text-skillText" />
                       </div>
                       <div>
-                        <div className="text-xl font-bold text-[#22c55e]">{stats.totalApplications}</div>
-                        <div className="text-gray-500 font-normal text-xs">Total Applications</div>
+                        <div className="text-xl font-bold text-skill">
+                          {stats.totalApplications}
+                        </div>
+                        <div className="text-gray-500 font-normal text-xs">
+                          Total Applications
+                        </div>
                       </div>
                     </div>
                   </CardContent>
@@ -155,14 +181,20 @@ export default function ZigworkDashboard() {
 
           {/* Post Ideas Section - 2 columns, compact cards */}
           <div className="flex-1 mb-4">
-            <h2 className="text-xl font-normal mb-3 text-gray-200">Post Ideas</h2>
+            <h2 className="text-xl font-normal mb-3 text-gray-200">
+              Post Ideas
+            </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-w-2xl">
               {/* Create First Zig Card - Clickable, leads to post-gig with pre-fill */}
-              <Card className="bg-transparent border-2 border-dashed border-gray-600 rounded-xl cursor-pointer hover:border-[#22c55e] transition-colors" onClick={() => {
-                window.location.href = "/companies/post-gig?title=My%20First%20Zig&description=Describe%20your%20gig%20here";
-              }}>
+              <Card
+                className="bg-transparent border-2 border-dashed border-gray-600 rounded-xl cursor-pointer hover:border-skillText transition-colors"
+                onClick={() => {
+                  window.location.href =
+                    "/companies/post-gig?title=My%20First%20Zig&description=Describe%20your%20gig%20here";
+                }}
+              >
                 <CardContent className="p-4 h-full flex flex-col items-center justify-center text-center">
-                  <div className="w-8 h-8 bg-gradient-to-br from-[#22c55e] to-[#15803d] rounded-lg flex items-center justify-center mx-auto mb-2 transform -rotate-12">
+                  <div className="w-8 h-8 bg-gradient-to-br from-skillText to-[#15803d] rounded-lg flex items-center justify-center mx-auto mb-2 transform -rotate-12">
                     <Zap className="w-4 h-4 text-white transform rotate-12" />
                   </div>
                   <div className="text-gray-400 font-normal text-sm">
@@ -172,18 +204,26 @@ export default function ZigworkDashboard() {
               </Card>
 
               {/* UGC Videos Card 1 - Clickable, leads to post-gig with pre-fill */}
-              <Card className="bg-white text-black rounded-xl shadow-sm cursor-pointer hover:shadow-md transition-colors" onClick={() => {
-                window.location.href = "/companies/post-gig?title=UGC%20Videos%20for%20Myntra%20Showbizz&description=Create%20UGC%20Videos%20and%20get%20shares%20on%20Instagram%20about%20Myntra%20Showbizz%20now.";
-              }}>
+              <Card
+                className="bg-white text-black rounded-xl shadow-sm cursor-pointer hover:shadow-md transition-colors"
+                onClick={() => {
+                  window.location.href =
+                    "/companies/post-gig?title=UGC%20Videos%20for%20Myntra%20Showbizz&description=Create%20UGC%20Videos%20and%20get%20shares%20on%20Instagram%20about%20Myntra%20Showbizz%20now.";
+                }}
+              >
                 <CardContent className="p-3">
                   <div className="mb-1">
                     <h3 className="font-normal text-gray-700 leading-tight text-sm line-clamp-2">
-                      Create <span className="font-semibold text-gray-900">UGC Videos</span> and get shares on Instagram about Myntra Showbizz now.
+                      Create{" "}
+                      <span className="font-semibold text-gray-900">
+                        UGC Videos
+                      </span>{" "}
+                      and get shares on Instagram about Myntra Showbizz now.
                     </h3>
                   </div>
                   <div className="flex items-center gap-2 text-xs text-gray-400 mb-1">
                     <div className="flex items-center gap-1">
-                      <Users className="w-3 h-3 text-[#22c55e]" />
+                      <Users className="w-3 h-3 text-skillText" />
                       <span>100</span>
                     </div>
                     <div className="flex items-center gap-1">
@@ -193,10 +233,10 @@ export default function ZigworkDashboard() {
                   </div>
                   <div className="flex items-center justify-between mt-1">
                     <div className="flex items-center gap-1">
-                      <Zap className="w-3 h-3 text-[#22c55e]" />
+                      <Zap className="w-3 h-3 text-skillText" />
                       <span className="font-bold text-sm">350</span>
                     </div>
-                    <Button className="bg-[#22c55e] hover:bg-[#15803d] text-white px-2 py-0.5 rounded-lg text-xs h-6">
+                    <Button className="bg-skillText hover:bg-[#15803d] text-skill px-2 py-0.5 rounded-lg text-xs h-6">
                       Post
                     </Button>
                   </div>
@@ -223,7 +263,7 @@ export default function ZigworkDashboard() {
                   </div>
                   <div className="flex items-center gap-3 text-xs text-gray-400 mb-2">
                     <div className="flex items-center gap-1">
-                      <Users className="w-3 h-3 text-[#22c55e]" />
+                      <Users className="w-3 h-3 text-skillText" />
                       <span>100 Applicants</span>
                     </div>
                     <div className="flex items-center gap-1">
@@ -233,10 +273,10 @@ export default function ZigworkDashboard() {
                   </div>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-1">
-                      <Zap className="w-4 h-4 text-[#22c55e]" />
+                      <Zap className="w-4 h-4 text-skillText" />
                       <span className="font-bold text-base">350</span>
                     </div>
-                    <Button className="bg-[#22c55e] hover:bg-[#15803d] text-white px-3 py-1 rounded-lg font-normal text-xs">
+                    <Button className="bg-skillText hover:bg-[#15803d] text-skill px-3 py-1 rounded-lg font-normal text-xs">
                       Post
                     </Button>
                   </div>
@@ -263,7 +303,7 @@ export default function ZigworkDashboard() {
                   </div>
                   <div className="flex items-center gap-3 text-xs text-gray-400 mb-2">
                     <div className="flex items-center gap-1">
-                      <Users className="w-3 h-3 text-[#22c55e]" />
+                      <Users className="w-3 h-3 text-skillText" />
                       <span>100 Applicants</span>
                     </div>
                     <div className="flex items-center gap-1">
@@ -273,10 +313,10 @@ export default function ZigworkDashboard() {
                   </div>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-1">
-                      <Zap className="w-4 h-4 text-[#22c55e]" />
+                      <Zap className="w-4 h-4 text-skillText" />
                       <span className="font-bold text-base">350</span>
                     </div>
-                    <Button className="bg-[#22c55e] hover:bg-[#15803d] text-white px-3 py-1 rounded-lg font-normal text-xs">
+                    <Button className="bg-skillText hover:bg-[#15803d] text-skill px-3 py-1 rounded-lg font-normal text-xs">
                       Post
                     </Button>
                   </div>
@@ -290,13 +330,17 @@ export default function ZigworkDashboard() {
         <div className="w-72">
           <Card className="bg-white text-black rounded-xl shadow-sm h-fit flex flex-col">
             <CardContent className="p-6">
-              <h2 className="text-xl font-bold mb-6 text-black">Notifications</h2>
+              <h2 className="text-xl font-bold mb-6 text-black">
+                Notifications
+              </h2>
               <div className="flex flex-col items-center justify-center py-6">
                 <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-3">
                   <Bell className="w-6 h-6 text-gray-400" />
                 </div>
                 <p className="text-gray-500 text-sm">No new notifications</p>
-                <p className="text-gray-400 text-xs mt-1 text-center">When you get notifications, they'll appear here</p>
+                <p className="text-gray-400 text-xs mt-1 text-center">
+                  When you get notifications, they'll appear here
+                </p>
               </div>
             </CardContent>
           </Card>

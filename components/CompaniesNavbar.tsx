@@ -1,13 +1,7 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import {
-  Home,
-  BarChart3,
-  Bookmark,
-  User,
-  LogOut,
-} from "lucide-react";
+import { Home, BarChart3, Bookmark, User, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { signOut } from "next-auth/react";
 
@@ -27,7 +21,7 @@ export default function CompaniesNavbar() {
     "/companies/profile",
     "/companies/post-gig",
   ].includes(pathname);
-  
+
   if (!showNavbar) return null;
 
   const handleLogout = async () => {
@@ -45,13 +39,17 @@ export default function CompaniesNavbar() {
         {/* Logo */}
         <div className="flex flex-col items-center justify-center mb-8">
           <div className="flex flex-col items-center justify-center mb-2">
-  <img src="/zigwork-logo.svg" alt="ZigWork Logo" className="w-16 h-16 object-contain" />
-</div>
-<span className="text-white text-2xl font-light">
-  zig<span className="font-normal">work</span>
-</span>
+            <img
+              src="/zigwork-logo.svg"
+              alt="ZigWork Logo"
+              className="w-16 h-16 object-contain"
+            />
+          </div>
+          <span className="text-white text-2xl font-light">
+            zig<span className="font-normal">work</span>
+          </span>
         </div>
-        
+
         {/* Navigation */}
         <nav className="flex-1 space-y-2 flex flex-col justify-center">
           {navItems.map(({ name, href, icon: Icon }) => (
@@ -60,8 +58,8 @@ export default function CompaniesNavbar() {
                 asChild
                 className={`w-full justify-start bg-transparent transition-colors duration-150 ${
                   pathname === href
-                    ? "text-[#22c55e]"
-                    : "text-gray-400 hover:text-[#22c55e]"
+                    ? "text-skillText"
+                    : "text-gray-400 hover:text-skillText"
                 }`}
               >
                 <span className="flex items-center">
@@ -72,7 +70,7 @@ export default function CompaniesNavbar() {
             </Link>
           ))}
         </nav>
-        
+
         {/* Footer Links */}
         <div className="space-y-2 text-sm text-gray-500 mt-8">
           <div className="flex gap-4">
@@ -81,7 +79,7 @@ export default function CompaniesNavbar() {
           </div>
           <button className="hover:text-gray-300">Terms & Conditions</button>
         </div>
-        
+
         {/* Logout Button */}
         <div className="mt-6">
           <Button
