@@ -587,6 +587,43 @@ export default function ProfileComponent({
               </CardContent>
             </Card>
 
+            {/* Personal Details Card - public profile (moved below Description) */}
+            {userId && (
+              <Card className="bg-white rounded-2xl shadow-sm">
+                <CardHeader>
+                  <CardTitle className="text-xl">Personal Details</CardTitle>
+                </CardHeader>
+                <CardContent className="p-6 pt-0 space-y-3">
+                  <div>
+                    <span className="font-medium">Mobile Number:</span>
+                    <span className="ml-2 text-gray-600">
+                      {userData.phone || "Not provided"}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="font-medium">Email:</span>
+                    <span className="ml-2 text-gray-600">
+                      {userData.email || "Not provided"}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="font-medium">Gender:</span>
+                    <span className="ml-2 text-gray-600">
+                      {userData.gender || "Not provided"}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="font-medium">Date of Birth:</span>
+                    <span className="ml-2 text-gray-600">
+                      {userData.dateOfBirth
+                        ? new Date(userData.dateOfBirth).toLocaleDateString()
+                        : "Not provided"}
+                    </span>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
             {/* Referred By Card - Added to mobile */}
             {referredBy && (
               <Card className="bg-white rounded-2xl shadow-sm">
@@ -785,46 +822,9 @@ export default function ProfileComponent({
               </CardContent>
             </Card>
 
-            {/* Personal Details Card - move to top row for public profiles */}
-            {userId && (
-              <Card className="bg-white rounded-2xl shadow-sm">
-                <CardHeader>
-                  <CardTitle className="text-xl">Personal Details</CardTitle>
-                </CardHeader>
-                <CardContent className="p-6 pt-0 space-y-3">
-                  <div>
-                    <span className="font-medium">Mobile Number:</span>
-                    <span className="ml-2 text-gray-600">
-                      {userData.phone || "Not provided"}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="font-medium">Email:</span>
-                    <span className="ml-2 text-gray-600">
-                      {userData.email || "Not provided"}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="font-medium">Gender:</span>
-                    <span className="ml-2 text-gray-600">
-                      {userData.gender || "Not provided"}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="font-medium">Date of Birth:</span>
-                    <span className="ml-2 text-gray-600">
-                      {userData.dateOfBirth
-                        ? new Date(userData.dateOfBirth).toLocaleDateString()
-                        : "Not provided"}
-                    </span>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Referral Card - hidden on public profile view */}
+            {/* Referral Card - Desktop (3rd column spanning 3 rows, hidden on public profile) */}
             {!userId && (
-              <Card className="bg-white rounded-2xl shadow-sm">
+              <Card className="bg-white rounded-2xl shadow-sm col-start-3 row-span-3">
                 <CardContent className="p-6">
                   <h3 className="text-lg font-semibold mb-4">
                     Refer Friends and Earn 10% of their earning for life.
@@ -838,9 +838,7 @@ export default function ProfileComponent({
                       onClick={copyReferralLink}
                       className="w-full inline-flex items-center justify-between gap-2 px-4 py-2 rounded-full bg-skill text-skillText font-medium shadow-md ring-2 ring-black/40 transition"
                     >
-                      <span className="truncate max-w-[260px]">
-                        {referralLink}
-                      </span>
+                      <span className="truncate max-w-[260px]">{referralLink}</span>
                       {copiedType === "link" ? (
                         <Check className="w-4 h-4 text-skillText" />
                       ) : (
@@ -849,41 +847,36 @@ export default function ProfileComponent({
                     </button>
 
                     {/* Referral Code pill */}
-                    <button
-                      type="button"
-                      onClick={copyReferralCode}
-                      className="w-full inline-flex items-center justify-between gap-2 px-4 py-2 rounded-full bg-lime-400 text-black font-medium shadow-md ring-2 ring-black/40 hover:bg-lime-500 transition"
-                    >
-                      <span>
-                        {new URLSearchParams(
-                          referralLink.split("?")[1] || ""
-                        ).get("ref") || ""}
-                      </span>
-                      {copiedType === "code" ? (
-                        <Check className="w-4 h-4 text-skill" />
-                      ) : (
-                        <Copy className="w-4 h-4" />
-                      )}
-                    </button>
+                    {referralLink && (
+                      <button
+                        type="button"
+                        onClick={copyReferralCode}
+                        className="w-full inline-flex items-center justify-between gap-2 px-4 py-2 rounded-full bg-lime-400 text-black font-medium shadow-md ring-2 ring-black/40 hover:bg-lime-500 transition"
+                      >
+                        <span>
+                          {new URLSearchParams(referralLink.split("?")[1] || "").get("ref") || ""}
+                        </span>
+                        {copiedType === "code" ? (
+                          <Check className="w-4 h-4 text-skill" />
+                        ) : (
+                          <Copy className="w-4 h-4" />
+                        )}
+                      </button>
+                    )}
                   </div>
 
                   {/* Referrals list */}
                   <div className="space-y-4">
-                    <h4 className="font-semibold">
-                      My Referrals ({referrals.length})
-                    </h4>
+                    <h4 className="font-semibold">My Referrals ({referrals.length})</h4>
                     {referrals.length > 0 ? (
-                      <div className="space-y-3 max-h-40 overflow-y-auto">
+                      <div className="space-y-3 max-h-[560px] overflow-y-auto pr-1">
                         {referrals.map((referral, index) => (
                           <div key={index} className="flex items-center gap-3">
-                            <Avatar className="w-8 h-8">
+                            <Avatar className="w-10 h-10">
                               {referral.image ? (
-                                <AvatarImage
-                                  src={referral.image}
-                                  alt={referral.name}
-                                />
+                                <AvatarImage src={referral.image} alt={referral.name} />
                               ) : (
-                                <AvatarFallback className="bg-yellow-400 text-xs">
+                                <AvatarFallback className="bg-yellow-400">
                                   {referral.name
                                     ?.split(" ")
                                     .map((n) => n[0])
@@ -892,21 +885,15 @@ export default function ProfileComponent({
                                 </AvatarFallback>
                               )}
                             </Avatar>
-                            <div className="flex-1">
-                              <p className="font-medium text-sm">
-                                {referral.name}
-                              </p>
-                              <p className="text-xs text-gray-500">
-                                {referral.email}
-                              </p>
+                            <div className="flex-1 min-w-0">
+                              <p className="font-medium truncate">{referral.name}</p>
+                              <p className="text-sm text-gray-500 truncate">{referral.email}</p>
                             </div>
                           </div>
                         ))}
                       </div>
                     ) : (
-                      <p className="text-gray-500 text-sm">
-                        You haven't referred anyone yet.
-                      </p>
+                      <p className="text-gray-500 text-sm">You haven't referred anyone yet.</p>
                     )}
                   </div>
                 </CardContent>
@@ -919,7 +906,7 @@ export default function ProfileComponent({
             {/* Description Card */}
             <Card
               className={`bg-white rounded-2xl shadow-sm ${
-                !userId ? "col-span-3" : "col-span-2"
+                !userId ? "col-span-2" : "col-span-2"
               }`}
             >
               <CardHeader>
@@ -1057,51 +1044,6 @@ export default function ProfileComponent({
             )}
 
             {/* My Referrals Card - Desktop Extended (hide on public profile) */}
-            {!userId && (
-              <Card className="bg-white rounded-2xl shadow-sm">
-                <CardHeader>
-                  <CardTitle className="text-xl">
-                    My Referrals ({referrals.length})
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="p-6 pt-0">
-                  {referrals.length > 0 ? (
-                    <div className="space-y-3 max-h-80 overflow-y-auto">
-                      {referrals.map((referral, index) => (
-                        <div key={index} className="flex items-center gap-3">
-                          <Avatar className="w-10 h-10">
-                            {referral.image ? (
-                              <AvatarImage
-                                src={referral.image}
-                                alt={referral.name}
-                              />
-                            ) : (
-                              <AvatarFallback className="bg-yellow-400">
-                                {referral.name
-                                  ?.split(" ")
-                                  .map((n) => n[0])
-                                  .join("")
-                                  .toUpperCase() || "U"}
-                              </AvatarFallback>
-                            )}
-                          </Avatar>
-                          <div className="flex-1">
-                            <p className="font-medium">{referral.name}</p>
-                            <p className="text-sm text-gray-500">
-                              {referral.email}
-                            </p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="text-gray-500 text-sm">
-                      You haven't referred anyone yet.
-                    </p>
-                  )}
-                </CardContent>
-              </Card>
-            )}
           </div>
         </div>
       </div>

@@ -9,12 +9,14 @@ import {
   User,
   Bell,
   LogOut,
+  Bookmark,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { signOut } from "next-auth/react";
 
 const navItems = [
   { name: "Home", href: "/home", icon: Home },
+  { name: "Bookmarked", href: "/bookmarked", icon: Bookmark },
   { name: "My Zigs", href: "/zigs", icon: FileText },
   { name: "Notifications", href: "/notifications", icon: Bell },
   { name: "Profile", href: "/profile", icon: User },
@@ -22,9 +24,13 @@ const navItems = [
 
 export default function Navbar() {
   const pathname = usePathname();
-  const showNavbar = ["/home", "/zigs", "/notifications", "/profile"].includes(
-    pathname
-  );
+  const showNavbar = [
+    "/home",
+    "/bookmarked",
+    "/zigs",
+    "/notifications",
+    "/profile",
+  ].includes(pathname);
   if (!showNavbar) return null;
 
   const handleLogout = async () => {

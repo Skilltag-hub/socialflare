@@ -40,7 +40,7 @@ export default function Component() {
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
   const { data: session, status } = useSession();
-  const [activeTab, setActiveTab] = useState<"all" | "bookmarked">("all");
+  // Home now only shows all gigs; Bookmarked moved to /bookmarked
 
   const router = useRouter();
 
@@ -402,38 +402,19 @@ export default function Component() {
     );
   };
 
-  // Filtered gigs for bookmarked tab
-  const bookmarkedGigs = gigs.filter((gig) =>
-    userGigs.some((userGig) => userGig.gigId === gig._id && userGig.bookmarked)
-  );
+  // Bookmarked moved to separate page
 
   return (
     <>
       {/* Mobile Layout - Below 700px */}
-      <div className="min-h-screen bg-gray-100 flex flex-col lg:hidden">
-        <div className="w-full max-w-sm mx-auto bg-gradient-to-b from-purple-100 to-purple-200 rounded-3xl shadow-2xl overflow-hidden flex flex-col h-screen relative">
+      <div className="min-h-screen flex flex-col lg:hidden bg-gradient-to-b from-purple-100 to-purple-200">
+        <div className="w-full max-w-sm mx-auto overflow-hidden flex flex-col h-screen relative">
           <div className="fixed bottom-1 inset-x-0 z-50">
             <Navbar />
           </div>
-          {/* Tabs for All/Bookmarked */}
-          <div className="flex gap-2 px-4 pt-4 pb-2">
-            <Button
-              variant={activeTab === "all" ? "default" : "outline"}
-              size="sm"
-              onClick={() => setActiveTab("all")}
-            >
-              All Gigs
-            </Button>
-            <Button
-              variant={activeTab === "bookmarked" ? "default" : "outline"}
-              size="sm"
-              onClick={() => setActiveTab("bookmarked")}
-            >
-              Bookmarked
-            </Button>
-          </div>
+          {/* Tabs removed; Bookmarked is now a separate page */}
           {/* Header - Fixed at top */}
-          <div className="flex items-center justify-between p-4 pt-8 bg-gradient-to-b from-purple-100 to-purple-200 sticky top-0 z-10">
+          <div className="flex items-center justify-between p-4 pt-8 sticky top-0 z-10 bg-transparent">
             <div>
               <p className="text-gray-600 text-sm mb-1">
                 Good morning, {session?.user?.name || "Guest"}!
@@ -475,24 +456,13 @@ export default function Component() {
               <div className="w-full flex items-center justify-center min-h-[300px]">
                 <Ripples size={45} speed={2} color="#B4E140" />
               </div>
-            ) : activeTab === "all" ? (
+            ) : (
               gigs.map((gig, index) => (
                 <JobCard
                   key={gig._id || index}
                   job={transformGigToJobCard(gig)}
                 />
               ))
-            ) : bookmarkedGigs.length > 0 ? (
-              bookmarkedGigs.map((gig, index) => (
-                <JobCard
-                  key={gig._id || index}
-                  job={transformGigToJobCard(gig)}
-                />
-              ))
-            ) : (
-              <div className="text-center text-gray-500 py-8">
-                No bookmarked gigs found.
-              </div>
             )}
           </div>
         </div>
@@ -504,44 +474,19 @@ export default function Component() {
         <Navbar />
         {/* Main Content */}
         <div className="flex-1 p-8 lg:ml-64">
-          {/* Tabs for All/Bookmarked */}
-          <div className="flex gap-2 mb-8">
-            <Button
-              variant={activeTab === "all" ? "default" : "outline"}
-              onClick={() => setActiveTab("all")}
-            >
-              All Gigs
-            </Button>
-            <Button
-              variant={activeTab === "bookmarked" ? "default" : "outline"}
-              onClick={() => setActiveTab("bookmarked")}
-            >
-              Bookmarked
-            </Button>
-          </div>
+          {/* Tabs removed; Bookmarked is now a separate page */}
           <div className="grid grid-cols-3 gap-6 max-w-6xl">
             {loading ? (
               <div className="col-span-3 flex items-center justify-center min-h-[400px]">
                 <Ripples size={90} speed={2} color="#B4E140" />
               </div>
-            ) : activeTab === "all" ? (
+            ) : (
               gigs.map((gig, index) => (
                 <JobCard
                   key={gig._id || index}
                   job={transformGigToJobCard(gig)}
                 />
               ))
-            ) : bookmarkedGigs.length > 0 ? (
-              bookmarkedGigs.map((gig, index) => (
-                <JobCard
-                  key={gig._id || index}
-                  job={transformGigToJobCard(gig)}
-                />
-              ))
-            ) : (
-              <div className="col-span-3 text-center text-gray-500 py-8">
-                No bookmarked gigs found.
-              </div>
             )}
           </div>
         </div>
