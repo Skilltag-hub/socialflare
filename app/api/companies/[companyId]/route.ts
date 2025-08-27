@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { clientPromise } from '@/lib/mongodb';
+import clientPromise from '@/lib/mongodb';
 import { ObjectId } from 'mongodb';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ companyId: string }> }
+  { params }: { params: { companyId: string } }
 ) {
   try {
-    const { companyId } = await params;
+    const { companyId } = params;
 
     if (!companyId) {
       return NextResponse.json({ error: 'Company ID is required' }, { status: 400 });
