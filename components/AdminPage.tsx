@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/Button';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { useToast } from '@/hooks/use-toast';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 
 type CompanyApproval = {
   _id: string;
@@ -14,6 +15,17 @@ type CompanyApproval = {
   isOnboarded?: boolean;
   createdAt?: string;
   logoUrl?: string;
+  certificateUrl?: string;
+  description?: string;
+  website?: string;
+  industry?: string;
+  size?: string;
+  foundedYear?: string;
+  address?: string;
+  phone?: string;
+  companyName?: string;
+  contactName?: string;
+  businessEmail?: string;
 };
 
 type UserApproval = {
@@ -24,6 +36,20 @@ type UserApproval = {
   setupComplete?: boolean;
   createdAt?: string;
   image?: string;
+  idImageUrl?: string;
+  institution?: string;
+  graduationYear?: string;
+  department?: string;
+  branch?: string;
+  state?: string;
+  phone?: string;
+  description?: string;
+  skills?: string[];
+  gender?: string;
+  dateOfBirth?: string;
+  githubUrl?: string;
+  linkedinUrl?: string;
+  resumeUrl?: string;
 };
 
 const AdminPage: React.FC = () => {
@@ -34,6 +60,7 @@ const AdminPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [forbidden, setForbidden] = useState(false);
   const [saving, setSaving] = useState<Record<string, boolean>>({});
+  const [selectedImage, setSelectedImage] = useState<{ url: string; title: string } | null>(null);
 
   const fetchApprovals = async () => {
     setLoading(true);
@@ -93,9 +120,22 @@ const AdminPage: React.FC = () => {
     }
   };
 
+  const ImageModal = ({ url, title }: { url: string; title: string }) => (
+    <Dialog open={!!url} onOpenChange={() => setSelectedImage(null)}>
+      <DialogContent className="max-w-4xl max-h-[80vh] overflow-auto">
+        <DialogHeader>
+          <DialogTitle>{title}</DialogTitle>
+        </DialogHeader>
+        <div className="flex justify-center">
+          <img src={url} alt={title} className="max-w-full max-h-full object-contain" />
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+
   const Header = (
     <div className="flex items-center justify-between mb-6">
-      <h1 className="text-2xl font-bold">Admin Approvals</h1>
+      <h1 className="text-2xl font-bold text-gray-900">Admin Approvals</h1>
       <div className="flex items-center gap-3">
         {session?.user?.image && (
           <Avatar className="w-8 h-8">
@@ -114,7 +154,7 @@ const AdminPage: React.FC = () => {
 
   if (status === 'loading') {
     return (
-      <div className="min-h-screen bg-black text-white p-6">
+      <div className="min-h-screen bg-gray-50 text-gray-900 p-6">
         {Header}
         <div>Loading session...</div>
       </div>
@@ -123,9 +163,9 @@ const AdminPage: React.FC = () => {
 
   if (status !== 'authenticated') {
     return (
-      <div className="min-h-screen bg-black text-white p-6">
+      <div className="min-h-screen bg-gray-50 text-gray-900 p-6">
         {Header}
-        <div className="mt-10 max-w-md bg-white text-black rounded-xl p-6">
+        <div className="mt-10 max-w-md bg-white text-gray-900 rounded-xl p-6 shadow-lg">
           <p className="mb-4">Please sign in with an admin account to continue.</p>
           <Button onClick={() => signIn('google', { callbackUrl: '/admin' })}>
             Sign in with Google
@@ -137,7 +177,7 @@ const AdminPage: React.FC = () => {
 
   if (forbidden) {
     return (
-      <div className="min-h-screen bg-black text-white p-6">
+      <div className="min-h-screen bg-gray-50 text-gray-900 p-6">
         {Header}
         <p>You are not authorized to view this page.</p>
       </div>
@@ -145,14 +185,15 @@ const AdminPage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-black text-white p-6">
+    <div className="min-h-screen bg-gray-50 text-gray-900 p-6">
       {Header}
-      <div className="bg-white text-black rounded-xl p-4">
+      <div className="bg-white text-gray-900 rounded-xl p-4 shadow-lg">
         <Tabs defaultValue="companies">
           <TabsList>
-            <TabsTrigger value="companies">Companies</TabsTrigger>
-            <TabsTrigger value="users">Users</TabsTrigger>
+            <TabsTrigger value="companies">Companies ({companies.length})</TabsTrigger>
+            <TabsTrigger value="users">Students ({users.length})</TabsTrigger>
           </TabsList>
+          
           <TabsContent value="companies">
             {loading ? (
               <div className="p-4">Loading companies...</div>
@@ -160,41 +201,105 @@ const AdminPage: React.FC = () => {
               <div className="overflow-x-auto">
                 <table className="min-w-full text-sm">
                   <thead>
-                    <tr className="text-left border-b">
-                      <th className="p-2">Company</th>
-                      <th className="p-2">Email</th>
-                      <th className="p-2">Created</th>
-                      <th className="p-2">Approved</th>
-                      <th className="p-2">Action</th>
+                    <tr className="text-left border-b bg-gray-50">
+                      <th className="p-3 font-medium">Company</th>
+                      <th className="p-3 font-medium">Contact</th>
+                      <th className="p-3 font-medium">Details</th>
+                      <th className="p-3 font-medium">Documents</th>
+                      <th className="p-3 font-medium">Created</th>
+                      <th className="p-3 font-medium">Status</th>
+                      <th className="p-3 font-medium">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
                     {companies.length === 0 ? (
-                      <tr><td colSpan={5} className="p-4 text-center">No companies found.</td></tr>
+                      <tr><td colSpan={7} className="p-4 text-center text-gray-500">No companies found.</td></tr>
                     ) : (
                       companies.map((c) => (
-                        <tr key={c._id} className="border-b last:border-0">
-                          <td className="p-2 flex items-center gap-2">
-                            {c.logoUrl ? (
-                              <img src={c.logoUrl} alt={c.name} className="w-6 h-6 rounded" />
-                            ) : (
-                              <div className="w-6 h-6 rounded bg-gray-200" />
-                            )}
-                            <span>{c.name || '—'}</span>
+                        <tr key={c._id} className="border-b last:border-0 hover:bg-gray-50">
+                          <td className="p-3">
+                            <div className="flex items-center gap-3">
+                              {c.logoUrl ? (
+                                <img src={c.logoUrl} alt={c.companyName || c.name} className="w-10 h-10 rounded object-cover" />
+                              ) : (
+                                <div className="w-10 h-10 rounded bg-gray-200 flex items-center justify-center text-gray-500 text-xs">No Logo</div>
+                              )}
+                              <div>
+                                <div className="font-medium">{c.companyName || c.name || '—'}</div>
+                                <div className="text-gray-500 text-xs">{c.email}</div>
+                              </div>
+                            </div>
                           </td>
-                          <td className="p-2">{c.email}</td>
-                          <td className="p-2">{c.createdAt ? new Date(c.createdAt).toLocaleString() : '—'}</td>
-                          <td className="p-2">{c.approved ? 'Yes' : 'No'}</td>
-                          <td className="p-2">
-                            <Button
-                              variant={c.approved ? 'outline' : 'default'}
-                              disabled={saving[`company-${c._id}`]}
-                              onClick={() => toggleApproval('company', c._id, !c.approved)}
-                            >
-                              {saving[`company-${c._id}`]
-                                ? 'Saving...'
-                                : c.approved ? 'Revoke' : 'Approve'}
-                            </Button>
+                          <td className="p-3">
+                            <div className="text-sm">
+                              <div>{c.contactName || '—'}</div>
+                              <div className="text-gray-500">{c.phone || '—'}</div>
+                            </div>
+                          </td>
+                          <td className="p-3">
+                            <div className="text-sm space-y-1">
+                              <div><span className="font-medium">Industry:</span> {c.industry || '—'}</div>
+                              <div><span className="font-medium">Size:</span> {c.size || '—'}</div>
+                              <div><span className="font-medium">Founded:</span> {c.foundedYear || '—'}</div>
+                              <div><span className="font-medium">Website:</span> {c.website ? <a href={c.website} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">{c.website}</a> : '—'}</div>
+                            </div>
+                          </td>
+                          <td className="p-3">
+                            <div className="space-y-2">
+                              {c.certificateUrl && (
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => setSelectedImage({ url: c.certificateUrl!, title: 'Company Certificate' })}
+                                  className="w-full"
+                                >
+                                  View Certificate
+                                </Button>
+                              )}
+                              {c.logoUrl && (
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => setSelectedImage({ url: c.logoUrl!, title: 'Company Logo' })}
+                                  className="w-full"
+                                >
+                                  View Logo
+                                </Button>
+                              )}
+                            </div>
+                          </td>
+                          <td className="p-3 text-sm text-gray-600">
+                            {c.createdAt ? new Date(c.createdAt).toLocaleDateString() : '—'}
+                          </td>
+                          <td className="p-3">
+                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                              c.approved ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                            }`}>
+                              {c.approved ? 'Approved' : 'Pending'}
+                            </span>
+                          </td>
+                          <td className="p-3">
+                            <div className="space-y-2">
+                              <Button
+                                variant={c.approved ? 'outline' : 'default'}
+                                size="sm"
+                                disabled={saving[`company-${c._id}`]}
+                                onClick={() => toggleApproval('company', c._id, !c.approved)}
+                                className="w-full"
+                              >
+                                {saving[`company-${c._id}`]
+                                  ? 'Saving...'
+                                  : c.approved ? 'Revoke' : 'Approve'}
+                              </Button>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => window.open(`/companies/details/${c._id}`, '_blank')}
+                                className="w-full"
+                              >
+                                View Profile
+                              </Button>
+                            </div>
                           </td>
                         </tr>
                       ))
@@ -204,6 +309,7 @@ const AdminPage: React.FC = () => {
               </div>
             )}
           </TabsContent>
+          
           <TabsContent value="users">
             {loading ? (
               <div className="p-4">Loading users...</div>
@@ -211,41 +317,105 @@ const AdminPage: React.FC = () => {
               <div className="overflow-x-auto">
                 <table className="min-w-full text-sm">
                   <thead>
-                    <tr className="text-left border-b">
-                      <th className="p-2">User</th>
-                      <th className="p-2">Email</th>
-                      <th className="p-2">Created</th>
-                      <th className="p-2">Approved</th>
-                      <th className="p-2">Action</th>
+                    <tr className="text-left border-b bg-gray-50">
+                      <th className="p-3 font-medium">Student</th>
+                      <th className="p-3 font-medium">Education</th>
+                      <th className="p-3 font-medium">Contact</th>
+                      <th className="p-3 font-medium">Documents</th>
+                      <th className="p-3 font-medium">Created</th>
+                      <th className="p-3 font-medium">Status</th>
+                      <th className="p-3 font-medium">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
                     {users.length === 0 ? (
-                      <tr><td colSpan={5} className="p-4 text-center">No users found.</td></tr>
+                      <tr><td colSpan={7} className="p-4 text-center text-gray-500">No users found.</td></tr>
                     ) : (
                       users.map((u) => (
-                        <tr key={u._id} className="border-b last:border-0">
-                          <td className="p-2 flex items-center gap-2">
-                            {u.image ? (
-                              <img src={u.image} alt={u.name} className="w-6 h-6 rounded-full" />
-                            ) : (
-                              <div className="w-6 h-6 rounded-full bg-gray-200" />
-                            )}
-                            <span>{u.name || '—'}</span>
+                        <tr key={u._id} className="border-b last:border-0 hover:bg-gray-50">
+                          <td className="p-3">
+                            <div className="flex items-center gap-3">
+                              {u.image ? (
+                                <img src={u.image} alt={u.name} className="w-10 h-10 rounded-full object-cover" />
+                              ) : (
+                                <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-500 text-xs">No Image</div>
+                              )}
+                              <div>
+                                <div className="font-medium">{u.name || '—'}</div>
+                                <div className="text-gray-500 text-xs">{u.email}</div>
+                              </div>
+                            </div>
                           </td>
-                          <td className="p-2">{u.email}</td>
-                          <td className="p-2">{u.createdAt ? new Date(u.createdAt).toLocaleString() : '—'}</td>
-                          <td className="p-2">{u.approved ? 'Yes' : 'No'}</td>
-                          <td className="p-2">
-                            <Button
-                              variant={u.approved ? 'outline' : 'default'}
-                              disabled={saving[`user-${u._id}`]}
-                              onClick={() => toggleApproval('user', u._id, !u.approved)}
-                            >
-                              {saving[`user-${u._id}`]
-                                ? 'Saving...'
-                                : u.approved ? 'Revoke' : 'Approve'}
-                            </Button>
+                          <td className="p-3">
+                            <div className="text-sm space-y-1">
+                              <div><span className="font-medium">Institution:</span> {u.institution || '—'}</div>
+                              <div><span className="font-medium">Department:</span> {u.department || u.branch || '—'}</div>
+                              <div><span className="font-medium">Graduation:</span> {u.graduationYear || '—'}</div>
+                              <div><span className="font-medium">State:</span> {u.state || '—'}</div>
+                            </div>
+                          </td>
+                          <td className="p-3">
+                            <div className="text-sm">
+                              <div>{u.phone || '—'}</div>
+                              <div className="text-gray-500">{u.gender || '—'}</div>
+                            </div>
+                          </td>
+                          <td className="p-3">
+                            <div className="space-y-2">
+                              {u.idImageUrl && (
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => setSelectedImage({ url: u.idImageUrl!, title: 'Student ID Card' })}
+                                  className="w-full"
+                                >
+                                  View ID Card
+                                </Button>
+                              )}
+                              {u.image && (
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => setSelectedImage({ url: u.image!, title: 'Student Photo' })}
+                                  className="w-full"
+                                >
+                                  View Photo
+                                </Button>
+                              )}
+                            </div>
+                          </td>
+                          <td className="p-3 text-sm text-gray-600">
+                            {u.createdAt ? new Date(u.createdAt).toLocaleDateString() : '—'}
+                          </td>
+                          <td className="p-3">
+                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                              u.approved ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                            }`}>
+                              {u.approved ? 'Approved' : 'Pending'}
+                            </span>
+                          </td>
+                          <td className="p-3">
+                            <div className="space-y-2">
+                              <Button
+                                variant={u.approved ? 'outline' : 'default'}
+                                size="sm"
+                                disabled={saving[`user-${u._id}`]}
+                                onClick={() => toggleApproval('user', u._id, !u.approved)}
+                                className="w-full"
+                              >
+                                {saving[`user-${u._id}`]
+                                  ? 'Saving...'
+                                  : u.approved ? 'Revoke' : 'Approve'}
+                              </Button>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => window.open(`/profile/${u._id}`, '_blank')}
+                                className="w-full"
+                              >
+                                View Profile
+                              </Button>
+                            </div>
                           </td>
                         </tr>
                       ))
@@ -257,6 +427,11 @@ const AdminPage: React.FC = () => {
           </TabsContent>
         </Tabs>
       </div>
+      
+      {/* Image Modal */}
+      {selectedImage && (
+        <ImageModal url={selectedImage.url} title={selectedImage.title} />
+      )}
     </div>
   );
 };

@@ -23,9 +23,7 @@ export async function GET() {
     const client = await clientPromise;
     const db = client.db("waitlist");
 
-    const companiesRaw = await db
-      .collection("companies")
-      .find({}, {
+          const companiesRaw = await db.collection('companies').find({}, {
         projection: {
           _id: 1,
           name: 1,
@@ -34,13 +32,21 @@ export async function GET() {
           isOnboarded: 1,
           createdAt: 1,
           logoUrl: 1,
+          certificateUrl: 1,
+          description: 1,
+          website: 1,
+          industry: 1,
+          size: 1,
+          foundedYear: 1,
+          address: 1,
+          phone: 1,
+          companyName: 1,
+          contactName: 1,
+          businessEmail: 1
         }
-      })
-      .toArray();
+      }).toArray();
 
-    const usersRaw = await db
-      .collection("users")
-      .find({}, {
+      const usersRaw = await db.collection('users').find({}, {
         projection: {
           _id: 1,
           name: 1,
@@ -49,9 +55,22 @@ export async function GET() {
           setupComplete: 1,
           createdAt: 1,
           image: 1,
+          idImageUrl: 1,
+          institution: 1,
+          graduationYear: 1,
+          department: 1,
+          branch: 1,
+          state: 1,
+          phone: 1,
+          description: 1,
+          skills: 1,
+          gender: 1,
+          dateOfBirth: 1,
+          githubUrl: 1,
+          linkedinUrl: 1,
+          resumeUrl: 1
         }
-      })
-      .toArray();
+      }).toArray();
 
     const companies = companiesRaw.map((c: any) => ({
       _id: c._id.toString(),
@@ -61,6 +80,17 @@ export async function GET() {
       isOnboarded: !!c.isOnboarded,
       createdAt: c.createdAt ? new Date(c.createdAt).toISOString() : undefined,
       logoUrl: c.logoUrl || "",
+      certificateUrl: c.certificateUrl || "",
+      description: c.description || "",
+      website: c.website || "",
+      industry: c.industry || "",
+      size: c.size || "",
+      foundedYear: c.foundedYear || "",
+      address: c.address || "",
+      phone: c.phone || "",
+      companyName: c.companyName || "",
+      contactName: c.contactName || "",
+      businessEmail: c.businessEmail || ""
     }));
 
     const users = usersRaw.map((u: any) => ({
@@ -71,6 +101,19 @@ export async function GET() {
       setupComplete: !!u.setupComplete,
       createdAt: u.createdAt ? new Date(u.createdAt).toISOString() : undefined,
       image: u.image || "",
+      idImageUrl: u.idImageUrl || "",
+      institution: u.institution || "",
+      graduationYear: u.graduationYear || "",
+      department: u.department || u.branch || "",
+      state: u.state || "",
+      phone: u.phone || "",
+      description: u.description || "",
+      skills: Array.isArray(u.skills) ? u.skills : [],
+      gender: u.gender || "",
+      dateOfBirth: u.dateOfBirth || "",
+      githubUrl: u.githubUrl || "",
+      linkedinUrl: u.linkedinUrl || "",
+      resumeUrl: u.resumeUrl || ""
     }));
 
     return NextResponse.json({ companies, users });

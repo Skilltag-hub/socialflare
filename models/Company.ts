@@ -12,6 +12,13 @@ const companySchema = new mongoose.Schema({
   contactName: { type: String },
   businessEmail: { type: String },
   logoUrl: { type: String },
+  description: { type: String },
+  website: { type: String },
+  industry: { type: String },
+  size: { type: String },
+  foundedYear: { type: String },
+  address: { type: String },
+  phone: { type: String },
   
   // Optional Documents
   gstCertificate: {
@@ -22,6 +29,7 @@ const companySchema = new mongoose.Schema({
     uploaded: { type: Boolean, default: false },
     url: { type: String }
   },
+  certificateUrl: { type: String }, // This can be used for GST or CIN or any primary certificate
 
   // Metadata
   isOnboarded: { type: Boolean, default: false },
