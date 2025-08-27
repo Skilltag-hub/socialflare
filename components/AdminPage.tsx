@@ -204,7 +204,6 @@ const AdminPage: React.FC = () => {
                     <tr className="text-left border-b bg-gray-50">
                       <th className="p-3 font-medium">Company</th>
                       <th className="p-3 font-medium">Contact</th>
-                      <th className="p-3 font-medium">Details</th>
                       <th className="p-3 font-medium">Documents</th>
                       <th className="p-3 font-medium">Created</th>
                       <th className="p-3 font-medium">Status</th>
@@ -213,7 +212,7 @@ const AdminPage: React.FC = () => {
                   </thead>
                   <tbody>
                     {companies.length === 0 ? (
-                      <tr><td colSpan={7} className="p-4 text-center text-gray-500">No companies found.</td></tr>
+                      <tr><td colSpan={6} className="p-4 text-center text-gray-500">No companies found.</td></tr>
                     ) : (
                       companies.map((c) => (
                         <tr key={c._id} className="border-b last:border-0 hover:bg-gray-50">
@@ -234,14 +233,6 @@ const AdminPage: React.FC = () => {
                             <div className="text-sm">
                               <div>{c.contactName || '—'}</div>
                               <div className="text-gray-500">{c.phone || '—'}</div>
-                            </div>
-                          </td>
-                          <td className="p-3">
-                            <div className="text-sm space-y-1">
-                              <div><span className="font-medium">Industry:</span> {c.industry || '—'}</div>
-                              <div><span className="font-medium">Size:</span> {c.size || '—'}</div>
-                              <div><span className="font-medium">Founded:</span> {c.foundedYear || '—'}</div>
-                              <div><span className="font-medium">Website:</span> {c.website ? <a href={c.website} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">{c.website}</a> : '—'}</div>
                             </div>
                           </td>
                           <td className="p-3">
