@@ -279,8 +279,10 @@ function InstitutionList({
 
 export default function AdditionalDetails() {
   const [institution, setInstitution] = useState("Select Institution");
+  const [customInstitution, setCustomInstitution] = useState("");
   const [state, setState] = useState("Select State");
   const [graduationYear, setGraduationYear] = useState("2025");
+  const [customGraduationYear, setCustomGraduationYear] = useState("");
   const [phone, setPhone] = useState("");
   const [error, setError] = useState("");
   const [isUploading, setIsUploading] = useState(false);
@@ -372,6 +374,22 @@ export default function AdditionalDetails() {
       return;
     }
 
+    // Validate custom institution/year if 'other' is selected
+    const institutionToSubmit =
+      institution === "other" ? customInstitution.trim() : institution;
+    if (institution === "other" && !institutionToSubmit) {
+      setError("Please enter your institution name");
+      return;
+    }
+    const graduationYearToSubmit =
+      graduationYear === "other"
+        ? customGraduationYear.trim()
+        : graduationYear;
+    if (graduationYear === "other" && !graduationYearToSubmit) {
+      setError("Please enter your graduation year");
+      return;
+    }
+
     // If referral code is provided, validate it
     let referrerInfo = null;
     if (referralCode.trim() !== "") {
@@ -435,9 +453,9 @@ export default function AdditionalDetails() {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        institution,
+        institution: institutionToSubmit,
         state,
-        graduationYear,
+        graduationYear: graduationYearToSubmit,
         phone,
         idImageUrl: imageUrl,
         ...(referrerInfo && { referredBy: referrerInfo.userId }),
@@ -520,6 +538,16 @@ export default function AdditionalDetails() {
                   value={institution}
                   onChange={setInstitution}
                 />
+                {institution === "other" && (
+                  <input
+                    id="institution-other"
+                    type="text"
+                    value={customInstitution}
+                    onChange={(e) => setCustomInstitution(e.target.value)}
+                    placeholder="Enter your institution"
+                    className="mt-2 w-full border rounded-lg px-3 py-2 border-gray-300"
+                  />
+                )}
               </div>
 
               <div className="space-y-2">
@@ -561,8 +589,21 @@ export default function AdditionalDetails() {
                     <SelectItem value="2024">2024</SelectItem>
                     <SelectItem value="2023">2023</SelectItem>
                     <SelectItem value="2022">2022</SelectItem>
+                    <SelectItem value="other">Other</SelectItem>
                   </SelectContent>
                 </Select>
+                {graduationYear === "other" && (
+                  <input
+                    id="graduation-year-other"
+                    type="text"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                    value={customGraduationYear}
+                    onChange={(e) => setCustomGraduationYear(e.target.value)}
+                    placeholder="Enter graduation year (e.g., 2026)"
+                    className="mt-2 w-full border rounded-lg px-3 py-2 border-gray-300"
+                  />
+                )}
               </div>
 
               {/* Phone number field */}
@@ -653,8 +694,15 @@ export default function AdditionalDetails() {
               >
                 {isUploading ? "Uploading..." : "Continue"}
               </Button>
-
-              {/* Removed 'Skip For Now' option since details are required */}
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full mt-2 bg-transparent"
+                onClick={() => router.push("/home")}
+                disabled={isUploading}
+              >
+                Skip for now
+              </Button>
             </div>
           </form>
           {/* ...footer... */}
