@@ -16,6 +16,8 @@ type CompanyApproval = {
   createdAt?: string;
   logoUrl?: string;
   certificateUrl?: string;
+  gstCertificate?: { uploaded: boolean; url?: string };
+  cinDocument?: { uploaded: boolean; url?: string };
   description?: string;
   website?: string;
   industry?: string;
@@ -204,7 +206,7 @@ const AdminPage: React.FC = () => {
                     <tr className="text-left border-b bg-gray-50">
                       <th className="p-3 font-medium">Company</th>
                       <th className="p-3 font-medium">Contact</th>
-                      <th className="p-3 font-medium">Documents</th>
+                      <th className="p-3 font-medium w-48">Documents</th>
                       <th className="p-3 font-medium">Created</th>
                       <th className="p-3 font-medium">Status</th>
                       <th className="p-3 font-medium">Actions</th>
@@ -235,14 +237,34 @@ const AdminPage: React.FC = () => {
                               <div className="text-gray-500">{c.phone || '—'}</div>
                             </div>
                           </td>
-                          <td className="p-3">
-                            <div className="space-y-2">
+                          <td className="p-3 w-48 align-top">
+                            <div className="space-y-2 max-w-[12rem]">
+                              {c.gstCertificate?.uploaded && c.gstCertificate?.url && (
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => setSelectedImage({ url: c.gstCertificate!.url as string, title: 'GST Certificate' })}
+                                  className="w-40 text-xs"
+                                >
+                                  View GST Certificate
+                                </Button>
+                              )}
+                              {c.cinDocument?.uploaded && c.cinDocument?.url && (
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => setSelectedImage({ url: c.cinDocument!.url as string, title: 'CIN Document' })}
+                                  className="w-40 text-xs"
+                                >
+                                  View CIN Document
+                                </Button>
+                              )}
                               {c.certificateUrl && (
                                 <Button
                                   variant="outline"
                                   size="sm"
                                   onClick={() => setSelectedImage({ url: c.certificateUrl!, title: 'Company Certificate' })}
-                                  className="w-full"
+                                  className="w-40 text-xs"
                                 >
                                   View Certificate
                                 </Button>
@@ -252,7 +274,7 @@ const AdminPage: React.FC = () => {
                                   variant="outline"
                                   size="sm"
                                   onClick={() => setSelectedImage({ url: c.logoUrl!, title: 'Company Logo' })}
-                                  className="w-full"
+                                  className="w-40 text-xs"
                                 >
                                   View Logo
                                 </Button>

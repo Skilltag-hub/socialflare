@@ -35,7 +35,7 @@ export default function CompaniesNavbar() {
   return (
     <>
       {/* Desktop Navbar (hidden on small screens) */}
-      <div className="w-64 bg-black p-6 flex-col min-h-screen hidden lg:fixed lg:flex lg:top-0 lg:left-0 lg:h-screen">
+      <div className="w-64 p-6 bg-transparent flex-col min-h-screen hidden lg:fixed lg:flex lg:top-0 lg:left-0 lg:h-screen">
         {/* Logo */}
         <div className="flex flex-col items-center justify-center mb-8">
           <div className="flex flex-col items-center justify-center mb-2">
@@ -56,10 +56,10 @@ export default function CompaniesNavbar() {
             <Link href={href} key={href}>
               <Button
                 asChild
-                className={`w-full justify-start bg-transparent transition-colors duration-150 ${
+                className={`w-full justify-start bg-transparent transition-colors duration-150 shadow-none ${
                   pathname === href
-                    ? "text-skillText"
-                    : "text-gray-400 hover:text-skillText"
+                    ? "text-skillText bg-skill"
+                    : "text-skill hover:text-skill"
                 }`}
               >
                 <span className="flex items-center">

@@ -293,65 +293,11 @@ export default function MyZigs() {
   console.log("Rendering with jobs:", jobs, "Filtered jobs:", filteredJobs);
 
   return (
-    <div className="h-screen bg-black text-white overflow-hidden p-6">
+    <div className="min-h-screen text-white overflow-hidden p-6 bg-transparent lg:ml-64">
       <div className="flex justify-between items-center mb-4">
         <div className="h-[34px]"></div>
       </div>
       <div className="flex h-[calc(100vh-120px)] gap-6">
-        {/* Left Sidebar (Navbar) */}
-        <div className="w-64 pl-8 pr-6 py-0 flex flex-col">
-          <div className="flex flex-col items-center mb-12 mt-4">
-            <img
-              src="/zigwork-logo.svg"
-              alt="Zigwork Logo"
-              width={64}
-              height={64}
-              className="w-16 h-16 mb-2"
-            />
-            <span className="text-xl font-bold">zigwork</span>
-          </div>
-          <nav className="space-y-2 mb-auto">
-            <a
-              href="/companies"
-              className="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-400 hover:text-white hover:bg-gray-800/50 transition-colors"
-            >
-              <Home className="w-4 h-4" />
-              <span className="font-medium text-sm">Home</span>
-            </a>
-            <div className="flex items-center gap-3 px-3 py-2 rounded-lg bg-[#5E17EB]/20 text-[#5E17EB] border border-[#5E17EB]/30">
-              <BarChart3 className="w-4 h-4" />
-              <span className="font-medium text-sm">My Zigs</span>
-            </div>
-            <a
-              href="/shortlist"
-              className="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-400 hover:text-white hover:bg-gray-800/50 transition-colors"
-            >
-              <Bookmark className="w-4 h-4" />
-              <span className="font-medium text-sm">Shortlist</span>
-            </a>
-            <a
-              href="/companies/profile"
-              className="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-400 hover:text-white hover:bg-gray-800/50 transition-colors"
-            >
-              <User className="w-4 h-4" />
-              <span className="font-medium text-sm">Profile</span>
-            </a>
-          </nav>
-          <div className="space-y-2 text-xs text-gray-400 px-3 mb-4">
-            <div className="hover:text-white cursor-pointer transition-colors">
-              Support
-            </div>
-            <div className="hover:text-white cursor-pointer transition-colors">
-              Privacy Policy
-            </div>
-            <div className="hover:text-white cursor-pointer transition-colors">
-              Terms & Conditions
-            </div>
-            <div className="text-xs mt-4 text-gray-500">
-              ©All Rights Reserved Zigwork
-            </div>
-          </div>
-        </div>
         {/* Main Content */}
         <div className="flex-1 flex flex-col overflow-hidden py-0">
           <div className="flex items-center justify-between mb-6 mt-0">
@@ -401,7 +347,7 @@ export default function MyZigs() {
           <div className="grid grid-cols-3 gap-4 overflow-y-auto scrollbar-hide h-[calc(100vh-10vh-140px)] content-start items-start auto-rows-max">
             {isLoading ? (
               <div className="col-span-3 flex flex-col items-center justify-center min-h-[300px] space-y-4">
-                <Ripples size={60} speed={2} color="#B4E140" />
+                <Ripples size={60} speed={2} color="#000000" />
                 <p className="text-gray-400">Loading your zigs...</p>
               </div>
             ) : error ? (
@@ -422,17 +368,17 @@ export default function MyZigs() {
               </div>
             ) : filteredJobs.length === 0 ? (
               <div className="col-span-3 flex flex-col items-center justify-center min-h-[300px] space-y-4 p-6 text-center">
-                <div className="bg-[#5E17EB]/10 p-4 rounded-full">
+                <div className="bg-skill p-4 rounded-full">
                   <Zap className="w-8 h-8 text-skillText" />
                 </div>
-                <h3 className="text-xl font-medium text-white">No zigs yet</h3>
-                <p className="text-gray-400 max-w-md">
+                <h3 className="text-xl font-bold text-skill">No zigs yet</h3>
+                <p className="text-skill max-w-md">
                   You haven't posted any zigs yet. Create your first zig to get
                   started.
                 </p>
                 <Button
                   onClick={() => router.push("/companies/post-gig")}
-                  className="mt-2 bg-skillText hover:bg-skillText/90 text-skill font-bold"
+                  className="mt-2 bg-skill hover:bg-skill/90 text-skillText font-bold"
                 >
                   Post Your First Zig
                 </Button>

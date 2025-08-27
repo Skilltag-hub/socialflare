@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/Button";
+import JobCard from "./JobCard";
 import {
   Users,
   BarChart3,
@@ -32,6 +33,20 @@ export default function ZigworkDashboard() {
   const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [gigs, setGigs] = useState<any[]>([]);
+  // Minimal handlers to satisfy JobCard props in this context
+  const handleEditJob = (job: any, e: any) => {
+    e?.stopPropagation?.();
+    router.push(`/companies/job-applications/${job._id}`);
+  };
+  const handleDeleteJob = (jobId: string, e: any) => {
+    e?.stopPropagation?.();
+    // Deletion not supported from dashboard quick view
+  };
+  const markCompleted = (jobId: string, e: any) => {
+    e?.stopPropagation?.();
+    // Completion not supported from dashboard quick view
+  };
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -46,6 +61,7 @@ export default function ZigworkDashboard() {
           }
 
           setStats(data.stats);
+          setGigs(Array.isArray(data.gigs) ? data.gigs : []);
         } catch (err) {
           console.error("Error fetching stats:", err);
           setError("Failed to load dashboard stats");
@@ -63,12 +79,12 @@ export default function ZigworkDashboard() {
   };
 
   return (
-    <div className="h-screen bg-black text-white overflow-hidden lg:ml-64">
+    <div className="h-screen text-white overflow-hidden lg:ml-64 bg-transparent">
       {/* Header with Post a Job button */}
       <div className="flex justify-end mb-4 p-6 pb-0">
         <Button
           onClick={handlePostJobClick}
-          className="bg-skillText hover:bg-[#15803d] text-skill px-6 py-1.5 rounded-lg text-sm"
+          className="bg-skill hover:bg-[#15803d] text-skillText px-6 py-1.5 rounded-lg text-sm"
         >
           Post a Job
         </Button>
@@ -179,150 +195,193 @@ export default function ZigworkDashboard() {
             ) : null}
           </div>
 
-          {/* Post Ideas Section - 2 columns, compact cards */}
+          {/* Post Ideas or Your Gigs Section */}
           <div className="flex-1 mb-4">
-            <h2 className="text-xl font-normal mb-3 text-gray-200">
-              Post Ideas
+            <h2 className="text-xl font-normal mb-3 text-skill">
+              {gigs.length > 0 ? "Your Gigs" : "Post Ideas"}
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-w-2xl">
-              {/* Create First Zig Card - Clickable, leads to post-gig with pre-fill */}
-              <Card
-                className="bg-transparent border-2 border-dashed border-gray-600 rounded-xl cursor-pointer hover:border-skillText transition-colors"
-                onClick={() => {
-                  window.location.href =
-                    "/companies/post-gig?title=My%20First%20Zig&description=Describe%20your%20gig%20here";
-                }}
-              >
-                <CardContent className="p-4 h-full flex flex-col items-center justify-center text-center">
-                  <div className="w-8 h-8 bg-gradient-to-br from-skillText to-[#15803d] rounded-lg flex items-center justify-center mx-auto mb-2 transform -rotate-12">
-                    <Zap className="w-4 h-4 text-white transform rotate-12" />
+            {gigs.length > 0 ? (
+              (() => {
+                const latestGigs = [...gigs]
+                  .sort((a, b) => {
+                    const ad = new Date(
+                      a.datePosted || a.createdAt || 0
+                    ).getTime();
+                    const bd = new Date(
+                      b.datePosted || b.createdAt || 0
+                    ).getTime();
+                    return bd - ad;
+                  })
+                  .slice(0, 4);
+                return (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-w-2xl">
+                    {latestGigs.map((g) => {
+                      const job = {
+                        _id: g._id,
+                        gigTitle: g.title || g.category || "Gig",
+                        description: g.description || "No description",
+                        payment: g.payment,
+                        skills: Array.isArray(g.skills) ? g.skills : [],
+                        datePosted:
+                          g.datePosted ||
+                          g.createdAt ||
+                          new Date().toISOString(),
+                        status: g.status || "active",
+                      };
+                      return (
+                        <JobCard
+                          key={g._id}
+                          job={job}
+                          applications={{}}
+                          handleEditJob={handleEditJob}
+                          handleDeleteJob={handleDeleteJob}
+                          markCompleted={markCompleted}
+                          isDeleting={false}
+                        />
+                      );
+                    })}
                   </div>
-                  <div className="text-gray-400 font-normal text-sm">
-                    + Post your first Zig
-                  </div>
-                </CardContent>
-              </Card>
+                );
+              })()
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-w-2xl">
+                {/* Create First Zig Card - Clickable, leads to post-gig with pre-fill */}
+                <Card
+                  className="bg-transparent border-2 border-dashed border-gray-600 rounded-xl cursor-pointer hover:border-skillText transition-colors"
+                  onClick={() => {
+                    window.location.href =
+                      "/companies/post-gig?title=My%20First%20Zig&description=Describe%20your%20gig%20here";
+                  }}
+                >
+                  <CardContent className="p-4 h-full flex flex-col items-center justify-center text-center">
+                    <div className="w-8 h-8 bg-gradient-to-br from-skillText to-[#15803d] rounded-lg flex items-center justify-center mx-auto mb-2 transform -rotate-12">
+                      <Zap className="w-4 h-4 text-white transform rotate-12" />
+                    </div>
+                    <div className="text-gray-400 font-normal text-sm">
+                      + Post your first Zig
+                    </div>
+                  </CardContent>
+                </Card>
 
-              {/* UGC Videos Card 1 - Clickable, leads to post-gig with pre-fill */}
-              <Card
-                className="bg-white text-black rounded-xl shadow-sm cursor-pointer hover:shadow-md transition-colors"
-                onClick={() => {
-                  window.location.href =
-                    "/companies/post-gig?title=UGC%20Videos%20for%20Myntra%20Showbizz&description=Create%20UGC%20Videos%20and%20get%20shares%20on%20Instagram%20about%20Myntra%20Showbizz%20now.";
-                }}
-              >
-                <CardContent className="p-3">
-                  <div className="mb-1">
-                    <h3 className="font-normal text-gray-700 leading-tight text-sm line-clamp-2">
-                      Create{" "}
-                      <span className="font-semibold text-gray-900">
-                        UGC Videos
-                      </span>{" "}
-                      and get shares on Instagram about Myntra Showbizz now.
-                    </h3>
-                  </div>
-                  <div className="flex items-center gap-2 text-xs text-gray-400 mb-1">
-                    <div className="flex items-center gap-1">
-                      <Users className="w-3 h-3 text-skillText" />
-                      <span>100</span>
+                {/* Idea Cards */}
+                <Card
+                  className="bg-white text-black rounded-xl shadow-sm cursor-pointer hover:shadow-md transition-colors"
+                  onClick={() => {
+                    window.location.href =
+                      "/companies/post-gig?title=UGC%20Videos%20for%20Myntra%20Showbizz&description=Create%20UGC%20Videos%20and%20get%20shares%20on%20Instagram%20about%20Myntra%20Showbizz%20now.";
+                  }}
+                >
+                  <CardContent className="p-3">
+                    <div className="mb-1">
+                      <h3 className="font-normal text-gray-700 leading-tight text-sm line-clamp-2">
+                        Create{" "}
+                        <span className="font-semibold text-gray-900">
+                          UGC Videos
+                        </span>{" "}
+                        and get shares on Instagram about Myntra Showbizz now.
+                      </h3>
                     </div>
-                    <div className="flex items-center gap-1">
-                      <Clock className="w-3 h-3" />
-                      <span>1d</span>
+                    <div className="flex items-center gap-2 text-xs text-gray-400 mb-1">
+                      <div className="flex items-center gap-1">
+                        <Users className="w-3 h-3 text-skillText" />
+                        <span>100</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Clock className="w-3 h-3" />
+                        <span>1d</span>
+                      </div>
                     </div>
-                  </div>
-                  <div className="flex items-center justify-between mt-1">
-                    <div className="flex items-center gap-1">
-                      <Zap className="w-3 h-3 text-skillText" />
-                      <span className="font-bold text-sm">350</span>
+                    <div className="flex items-center justify-between mt-1">
+                      <div className="flex items-center gap-1">
+                        <Zap className="w-3 h-3 text-skillText" />
+                        <span className="font-bold text-sm">350</span>
+                      </div>
+                      <Button className="bg-skillText hover:bg-[#15803d] text-skill px-2 py-0.5 rounded-lg text-xs h-6">
+                        Post
+                      </Button>
                     </div>
-                    <Button className="bg-skillText hover:bg-[#15803d] text-skill px-2 py-0.5 rounded-lg text-xs h-6">
-                      Post
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
+                  </CardContent>
+                </Card>
 
-              {/* UGC Videos Card 2 - Clickable, leads to post-gig with pre-fill */}
-              <Card
-                className="bg-white text-black rounded-xl shadow-sm cursor-pointer"
-                onClick={() => {
-                  window.location.href =
-                    "/companies/post-gig?title=UGC%20Videos%20for%20Myntra%20Showbizz&description=Create%20UGC%20Videos%20and%20get%20shares%20on%20Instagram%20about%20Myntra%20Showbizz%20now.";
-                }}
-              >
-                <CardContent className="p-3">
-                  <div className="mb-2">
-                    <h3 className="font-normal text-gray-700 leading-relaxed text-sm">
-                      Create{" "}
-                      <span className="font-semibold text-gray-900">
-                        UGC Videos
-                      </span>{" "}
-                      and get shares on Instagram about Myntra Showbizz now.
-                    </h3>
-                  </div>
-                  <div className="flex items-center gap-3 text-xs text-gray-400 mb-2">
-                    <div className="flex items-center gap-1">
-                      <Users className="w-3 h-3 text-skillText" />
-                      <span>100 Applicants</span>
+                <Card
+                  className="bg-white text-black rounded-xl shadow-sm cursor-pointer"
+                  onClick={() => {
+                    window.location.href =
+                      "/companies/post-gig?title=UGC%20Videos%20for%20Myntra%20Showbizz&description=Create%20UGC%20Videos%20and%20get%20shares%20on%20Instagram%20about%20Myntra%20Showbizz%20now.";
+                  }}
+                >
+                  <CardContent className="p-3">
+                    <div className="mb-2">
+                      <h3 className="font-normal text-gray-700 leading-relaxed text-sm">
+                        Create{" "}
+                        <span className="font-semibold text-gray-900">
+                          UGC Videos
+                        </span>{" "}
+                        and get shares on Instagram about Myntra Showbizz now.
+                      </h3>
                     </div>
-                    <div className="flex items-center gap-1">
-                      <Clock className="w-3 h-3" />
-                      <span>1d ago</span>
+                    <div className="flex items-center gap-3 text-xs text-gray-400 mb-2">
+                      <div className="flex items-center gap-1">
+                        <Users className="w-3 h-3 text-skillText" />
+                        <span>100 Applicants</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Clock className="w-3 h-3" />
+                        <span>1d ago</span>
+                      </div>
                     </div>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-1">
-                      <Zap className="w-4 h-4 text-skillText" />
-                      <span className="font-bold text-base">350</span>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-1">
+                        <Zap className="w-4 h-4 text-skillText" />
+                        <span className="font-bold text-base">350</span>
+                      </div>
+                      <Button className="bg-skillText hover:bg-[#15803d] text-skill px-3 py-1 rounded-lg font-normal text-xs">
+                        Post
+                      </Button>
                     </div>
-                    <Button className="bg-skillText hover:bg-[#15803d] text-skill px-3 py-1 rounded-lg font-normal text-xs">
-                      Post
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
+                  </CardContent>
+                </Card>
 
-              {/* UGC Videos Card 3 - Clickable, leads to post-gig with pre-fill */}
-              <Card
-                className="bg-white text-black rounded-xl shadow-sm cursor-pointer"
-                onClick={() => {
-                  window.location.href =
-                    "/companies/post-gig?title=UGC%20Videos%20for%20Myntra%20Showbizz&description=Create%20UGC%20Videos%20and%20get%20shares%20on%20Instagram%20about%20Myntra%20Showbizz%20now.";
-                }}
-              >
-                <CardContent className="p-3">
-                  <div className="mb-2">
-                    <h3 className="font-normal text-gray-700 leading-relaxed text-sm">
-                      Create{" "}
-                      <span className="font-semibold text-gray-900">
-                        UGC Videos
-                      </span>{" "}
-                      and get shares on Instagram about Myntra Showbizz now.
-                    </h3>
-                  </div>
-                  <div className="flex items-center gap-3 text-xs text-gray-400 mb-2">
-                    <div className="flex items-center gap-1">
-                      <Users className="w-3 h-3 text-skillText" />
-                      <span>100 Applicants</span>
+                <Card
+                  className="bg-white text-black rounded-xl shadow-sm cursor-pointer"
+                  onClick={() => {
+                    window.location.href =
+                      "/companies/post-gig?title=UGC%20Videos%20for%20Myntra%20Showbizz&description=Create%20UGC%20Videos%20and%20get%20shares%20on%20Instagram%20about%20Myntra%20Showbizz%20now.";
+                  }}
+                >
+                  <CardContent className="p-3">
+                    <div className="mb-2">
+                      <h3 className="font-normal text-gray-700 leading-relaxed text-sm">
+                        Create{" "}
+                        <span className="font-semibold text-gray-900">
+                          UGC Videos
+                        </span>{" "}
+                        and get shares on Instagram about Myntra Showbizz now.
+                      </h3>
                     </div>
-                    <div className="flex items-center gap-1">
-                      <Clock className="w-3 h-3" />
-                      <span>1d ago</span>
+                    <div className="flex items-center gap-3 text-xs text-gray-400 mb-2">
+                      <div className="flex items-center gap-1">
+                        <Users className="w-3 h-3 text-skillText" />
+                        <span>100 Applicants</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Clock className="w-3 h-3" />
+                        <span>1d ago</span>
+                      </div>
                     </div>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-1">
-                      <Zap className="w-4 h-4 text-skillText" />
-                      <span className="font-bold text-base">350</span>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-1">
+                        <Zap className="w-4 h-4 text-skillText" />
+                        <span className="font-bold text-base">350</span>
+                      </div>
+                      <Button className="bg-skillText hover:bg-[#15803d] text-skill px-3 py-1 rounded-lg font-normal text-xs">
+                        Post
+                      </Button>
                     </div>
-                    <Button className="bg-skillText hover:bg-[#15803d] text-skill px-3 py-1 rounded-lg font-normal text-xs">
-                      Post
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
           </div>
         </div>
 

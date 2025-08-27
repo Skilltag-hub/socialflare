@@ -9,6 +9,7 @@ import { useSession } from "next-auth/react";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 interface Gig {
   _id: string;
@@ -37,7 +38,7 @@ export default function GigDescription({ gig }: { gig: Gig }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [userGig, setUserGig] = useState<UserGig | null>(null);
   const [isBookmarked, setIsBookmarked] = useState(false);
-
+  const router = useRouter();
   // Fetch user's gig application status
   useEffect(() => {
     const fetchUserGig = async () => {
@@ -69,6 +70,7 @@ export default function GigDescription({ gig }: { gig: Gig }) {
         description: "Please login to apply for this gig",
         variant: "destructive",
       });
+      router.push("/login");
       return;
     }
 
@@ -93,7 +95,8 @@ export default function GigDescription({ gig }: { gig: Gig }) {
           if (profile?.approved === false) {
             toast({
               title: "Approval pending",
-              description: "Your account is pending approval. You will be redirected.",
+              description:
+                "Your account is pending approval. You will be redirected.",
               variant: "destructive",
             });
             window.location.href = "/pending-approval?type=user";
@@ -129,7 +132,8 @@ export default function GigDescription({ gig }: { gig: Gig }) {
         if (data?.code === "USER_NOT_APPROVED") {
           toast({
             title: "Approval pending",
-            description: "Your account is pending approval. You will be redirected.",
+            description:
+              "Your account is pending approval. You will be redirected.",
             variant: "destructive",
           });
           window.location.href = "/pending-approval?type=user";
@@ -312,7 +316,9 @@ export default function GigDescription({ gig }: { gig: Gig }) {
 
         <div className="space-y-3 ">
           <h2 className="font-semibold text-black">Job Description</h2>
-          <p className="text-sm text-gray-700">{gig.description}</p>
+          <p className="text-sm text-gray-700 whitespace-pre-wrap break-words">
+            {gig.description}
+          </p>
         </div>
         {/* Skills Required */}
         <div className="space-y-3">
@@ -338,7 +344,9 @@ export default function GigDescription({ gig }: { gig: Gig }) {
         {/* About Company */}
         <div className="space-y-2">
           <h2 className="font-semibold text-black">About Company</h2>
-          <p className="text-sm text-gray-700">{gig.aboutCompany}</p>
+          <p className="text-sm text-gray-700 whitespace-pre-wrap break-words">
+            {gig.aboutCompany}
+          </p>
         </div>
       </div>
     </div>

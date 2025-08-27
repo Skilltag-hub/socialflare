@@ -14,7 +14,15 @@ export async function PUT(request: Request) {
     }
 
     const data = await request.json();
-    const { companyName, companyWebsite, contactName, businessEmail, logoUrl } = data;
+    const {
+      companyName,
+      companyWebsite,
+      contactName,
+      businessEmail,
+      logoUrl,
+      gstCertificate,
+      cinDocument,
+    } = data;
 
     if (!companyName || !companyWebsite || !contactName || !businessEmail) {
       return NextResponse.json(
@@ -26,7 +34,7 @@ export async function PUT(request: Request) {
     const client = await clientPromise;
     const db = client.db("waitlist");
 
-    const updateData = {
+    const updateData: Record<string, any> = {
       companyName,
       companyWebsite,
       contactName,
@@ -35,6 +43,21 @@ export async function PUT(request: Request) {
       updatedAt: new Date(),
       ...(logoUrl && { logoUrl }), // Only include logoUrl if provided
     };
+
+    // Optionally persist document metadata if provided
+    if (gstCertificate && (gstCertificate.url || typeof gstCertificate.uploaded === "boolean")) {
+      updateData.gstCertificate = {
+        uploaded: Boolean(gstCertificate.uploaded),
+        url: gstCertificate.url || null,
+      };
+    }
+
+    if (cinDocument && (cinDocument.url || typeof cinDocument.uploaded === "boolean")) {
+      updateData.cinDocument = {
+        uploaded: Boolean(cinDocument.uploaded),
+        url: cinDocument.url || null,
+      };
+    }
 
     const result = await db.collection("companies").updateOne(
       { email: session.user.email },

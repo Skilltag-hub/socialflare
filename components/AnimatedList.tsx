@@ -215,7 +215,7 @@ const AnimatedList: React.FC<AnimatedListProps> = ({
           >
             <Card
               className="bg-white max-w-[300px] lg:max-w-[400px] w-full mx-auto rounded-2xl shadow-sm h-[200px] cursor-pointer hover:shadow-md transition-shadow"
-              onClick={() => router.push(`/login`)}
+              onClick={() => router.push(`/zigs/${job._id}`)}
             >
               <CardContent className="p-4 flex flex-col h-full">
                 <div className="flex items-start gap-3 mb-3">
@@ -247,7 +247,7 @@ const AnimatedList: React.FC<AnimatedListProps> = ({
                 <div className="text-gray-700 text-sm h-[60px] overflow-hidden">
                   <p className="leading-relaxed">
                     {truncateDescription(job.description)}
-                    {job.description && job.description.length > 100 && (
+                    {job.description && job.description.length > 30 && (
                       <span className="inline-flex items-center ml-1 bg-gray-100 text-gray-600 text-xs px-2 py-0.5 rounded-full">
                         ...
                       </span>

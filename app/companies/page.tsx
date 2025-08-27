@@ -4,7 +4,7 @@ import ZigworkDashboard from "@/components/zigwork-dashboard";
 
 export default function CompaniesHome() {
   return (
-    <div className="min-h-screen bg-black flex items-center justify-center px-6">
+    <div className="min-h-screen flex items-center justify-center px-6 bg-transparent">
       {/* Mobile/Tablet message */}
       <div className="block lg:hidden text-center space-y-3">
         <h1 className="text-white text-3xl font-semibold tracking-tight">Skilltag</h1>
