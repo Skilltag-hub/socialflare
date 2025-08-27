@@ -22,6 +22,12 @@ export default function CompaniesDetailsPage() {
   const [error, setError] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [errors, setErrors] = useState<{ [key: string]: boolean }>({});
+  // Normalize URL to ensure it includes protocol
+  const normalizeUrl = (value: string) => {
+    if (!value) return value;
+    return /^https?:\/\//i.test(value) ? value : `https://${value}`;
+  };
+
 
   // Document upload states
   const [gstCertificate, setGstCertificate] = useState<{
@@ -143,10 +149,14 @@ export default function CompaniesDetailsPage() {
     e.preventDefault();
     setError("");
     setSuccess("");
+    const normalizedWebsite = normalizeUrl(companyWebsite);
+    if (normalizedWebsite !== companyWebsite) {
+      setCompanyWebsite(normalizedWebsite);
+    }
     // Validate required fields and set inline errors
     const req: { [k: string]: boolean } = {
       companyName: !companyName,
-      companyWebsite: !companyWebsite,
+      companyWebsite: !normalizedWebsite,
       contactName: !contactName,
       businessEmail: !businessEmail,
       logoUrl: !logoUrl,
@@ -164,7 +174,7 @@ export default function CompaniesDetailsPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           companyName,
-          companyWebsite,
+          companyWebsite: normalizedWebsite,
           contactName,
           businessEmail,
           logoUrl,
@@ -232,6 +242,7 @@ export default function CompaniesDetailsPage() {
               type="url"
               value={companyWebsite}
               onChange={(e) => setCompanyWebsite(e.target.value)}
+              onBlur={() => setCompanyWebsite((v) => normalizeUrl(v))}
               className={`w-full h-[45px] px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:border-transparent ${errors.companyWebsite ? "border-red-500 focus:ring-red-500" : "focus:ring-blue-500"}`}
               required
             />

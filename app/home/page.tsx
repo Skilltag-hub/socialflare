@@ -15,10 +15,11 @@ import {
   FileText,
   Clock3,
   CheckCircle,
+  Filter,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import ClickSpark from "@/utils/ClickSpark/ClickSpark";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Ripples } from "ldrs/react";
 import "ldrs/react/Ripples.css";
 import { useToast } from "@/hooks/use-toast";
@@ -36,6 +37,11 @@ import { useRouter } from "next/navigation";
 
 export default function Component() {
   const [gigs, setGigs] = useState<any[]>([]);
+  const [showFilter, setShowFilter] = useState(false);
+  const [filterCompany, setFilterCompany] = useState("");
+  const [minPrice, setMinPrice] = useState<string>("");
+  const [maxPrice, setMaxPrice] = useState<string>("");
+  const [jobType, setJobType] = useState<string>("");
   const [userGigs, setUserGigs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
@@ -137,6 +143,37 @@ export default function Component() {
     if (text.length <= maxLength) return text;
     return text.substring(0, maxLength);
   };
+
+  const filteredGigs = useMemo(() => {
+    const parsePrice = (payment: string | number | undefined): number => {
+      if (payment === undefined || payment === null) return 0;
+      const str = String(payment);
+      const num = Number(str.replace(/[^0-9.]/g, ""));
+      return isNaN(num) ? 0 : num;
+    };
+    const normalizedCompany = filterCompany.trim().toLowerCase();
+    const min = minPrice ? Number(minPrice) : undefined;
+    const max = maxPrice ? Number(maxPrice) : undefined;
+    const normalizedType = jobType.trim().toLowerCase();
+    return gigs.filter((gig) => {
+      if (
+        normalizedCompany &&
+        !(gig.companyName || "").toLowerCase().includes(normalizedCompany)
+      ) {
+        return false;
+      }
+      const price = parsePrice(gig.payment);
+      if (min !== undefined && price < min) return false;
+      if (max !== undefined && price > max) return false;
+      if (
+        normalizedType &&
+        !String(gig.category || "").toLowerCase().includes(normalizedType)
+      ) {
+        return false;
+      }
+      return true;
+    });
+  }, [gigs, filterCompany, minPrice, maxPrice, jobType]);
 
   // Handle applying for a gig
   const handleApply = async (gigId: string) => {
@@ -421,7 +458,84 @@ export default function Component() {
               </p>
               <p className="text-skill text-xl font-semibold">You Earned ₹0</p>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 relative">
+              <Button
+                variant="outline"
+                className="h-9 bg-transparent border-gray-300 text-gray-700 hover:bg-gray-100"
+                onClick={() => setShowFilter((s) => !s)}
+              >
+                <Filter className="w-4 h-4 mr-2" /> Filter
+              </Button>
+              {showFilter && (
+                <div className="absolute right-0 top-12 w-80 bg-white text-black rounded-xl shadow-xl p-4 z-10">
+                  <div className="space-y-3">
+                    <div>
+                      <label className="block text-xs font-semibold mb-1">Company</label>
+                      <input
+                        type="text"
+                        value={filterCompany}
+                        onChange={(e) => setFilterCompany(e.target.value)}
+                        placeholder="e.g., Acme Corp"
+                        className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-200"
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <label className="block text-xs font-semibold mb-1">Min Price</label>
+                        <input
+                          type="number"
+                          min="0"
+                          value={minPrice}
+                          onChange={(e) => setMinPrice(e.target.value)}
+                          placeholder="0"
+                          className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-200"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-semibold mb-1">Max Price</label>
+                        <input
+                          type="number"
+                          min="0"
+                          value={maxPrice}
+                          onChange={(e) => setMaxPrice(e.target.value)}
+                          placeholder="5000"
+                          className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-200"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold mb-1">Job Type</label>
+                      <input
+                        type="text"
+                        value={jobType}
+                        onChange={(e) => setJobType(e.target.value)}
+                        placeholder="e.g., design, marketing, ..."
+                        className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-200"
+                      />
+                    </div>
+                    <div className="flex gap-2 pt-2">
+                      <Button
+                        className="bg-skill hover:bg-purple-700 text-white flex-1"
+                        onClick={() => setShowFilter(false)}
+                      >
+                        Apply
+                      </Button>
+                      <Button
+                        variant="outline"
+                        className="flex-1"
+                        onClick={() => {
+                          setFilterCompany("");
+                          setMinPrice("");
+                          setMaxPrice("");
+                          setJobType("");
+                        }}
+                      >
+                        Clear
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              )}
               <DropdownMenu>
                 <DropdownMenuTrigger>
                   <Avatar className="w-12 h-12 bg-gray-300">
@@ -457,7 +571,7 @@ export default function Component() {
                 <Ripples size={45} speed={2} color="#B4E140" />
               </div>
             ) : (
-              gigs.map((gig, index) => (
+              filteredGigs.map((gig, index) => (
                 <JobCard
                   key={gig._id || index}
                   job={transformGigToJobCard(gig)}
@@ -474,14 +588,96 @@ export default function Component() {
         <Navbar />
         {/* Main Content */}
         <div className="flex-1 p-8 lg:ml-64">
-          {/* Tabs removed; Bookmarked is now a separate page */}
+          {/* Filter top-right */}
+          <div className="flex items-center justify-between mb-8">
+            <div></div>
+            <div className="relative">
+              <Button
+                variant="outline"
+                className="bg-transparent border-gray-600 text-gray-400 hover:bg-gray-800 hover:text-white"
+                onClick={() => setShowFilter((s) => !s)}
+              >
+                <Filter className="w-4 h-4 mr-2" /> Filter
+              </Button>
+              {showFilter && (
+                <div className="absolute right-0 mt-2 w-80 bg-white text-black rounded-xl shadow-xl p-4 z-10">
+                  <div className="space-y-3">
+                    <div>
+                      <label className="block text-xs font-semibold mb-1">Company</label>
+                      <input
+                        type="text"
+                        value={filterCompany}
+                        onChange={(e) => setFilterCompany(e.target.value)}
+                        placeholder="e.g., Acme Corp"
+                        className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-200"
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <label className="block text-xs font-semibold mb-1">Min Price</label>
+                        <input
+                          type="number"
+                          min="0"
+                          value={minPrice}
+                          onChange={(e) => setMinPrice(e.target.value)}
+                          placeholder="0"
+                          className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-200"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-semibold mb-1">Max Price</label>
+                        <input
+                          type="number"
+                          min="0"
+                          value={maxPrice}
+                          onChange={(e) => setMaxPrice(e.target.value)}
+                          placeholder="5000"
+                          className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-200"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold mb-1">Job Type</label>
+                      <input
+                        type="text"
+                        value={jobType}
+                        onChange={(e) => setJobType(e.target.value)}
+                        placeholder="e.g., design, marketing, ..."
+                        className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-200"
+                      />
+                    </div>
+                    <div className="flex gap-2 pt-2">
+                      <Button
+                        className="bg-skill hover:bg-purple-700 text-white flex-1"
+                        onClick={() => setShowFilter(false)}
+                      >
+                        Apply
+                      </Button>
+                      <Button
+                        variant="outline"
+                        className="flex-1"
+                        onClick={() => {
+                          setFilterCompany("");
+                          setMinPrice("");
+                          setMaxPrice("");
+                          setJobType("");
+                        }}
+                      >
+                        Clear
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
           <div className="grid grid-cols-3 gap-6 max-w-6xl">
             {loading ? (
               <div className="col-span-3 flex items-center justify-center min-h-[400px]">
                 <Ripples size={90} speed={2} color="#B4E140" />
               </div>
             ) : (
-              gigs.map((gig, index) => (
+              filteredGigs.map((gig, index) => (
                 <JobCard
                   key={gig._id || index}
                   job={transformGigToJobCard(gig)}

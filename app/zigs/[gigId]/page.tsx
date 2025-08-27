@@ -1,6 +1,8 @@
 import GigDescription from "@/components/gig-description";
 import { notFound } from "next/navigation";
 import { headers } from "next/headers";
+import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 
 async function getBaseUrlFromHeaders(): Promise<string> {
   const hdrs = await headers();
@@ -67,6 +69,12 @@ export default async function GigDetailsPage({
   return (
     <div className="min-h-screen bg-black">
       <div className="max-w-md mx-auto bg-white min-h-screen">
+        <div className="bg-black text-white py-4 px-4 sm:px-6">
+          <Link href="/home" className="flex items-center gap-3">
+            <ArrowLeft className="w-5 h-5" />
+            <span className="font-medium">Back</span>
+          </Link>
+        </div>
         <GigDescription gig={gig} />
       </div>
     </div>

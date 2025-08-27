@@ -37,118 +37,9 @@ import "ldrs/react/Ripples.css";
 import collegesData from "../telangana_colleges.json";
 import { upload } from "@imagekit/next";
 
-interface StateOption {
-  value: string;
-  label: string;
-}
+// State field removed from this component
 
-function StateCombobox({
-  states,
-  value,
-  onChange,
-}: {
-  states: StateOption[];
-  value: string;
-  onChange: (value: string) => void;
-}) {
-  const [open, setOpen] = useState(false);
-  const isDesktop = useMediaQuery("(min-width: 768px)");
-  const selectedState = states.find((state) => state.value === value);
-
-  const StateList = ({
-    states,
-    setOpen,
-    onChange,
-    value,
-  }: {
-    states: StateOption[];
-    setOpen: (open: boolean) => void;
-    onChange: (value: string) => void;
-    value: string;
-  }) => (
-    <Command>
-      <CommandInput placeholder="Search states..." />
-      <CommandList>
-        <CommandEmpty>No state found.</CommandEmpty>
-        <CommandGroup>
-          {states.map((state) => (
-            <CommandItem
-              key={state.value}
-              value={state.value}
-              onSelect={() => {
-                onChange(state.value);
-                setOpen(false);
-              }}
-            >
-              <Check
-                className={cn(
-                  "mr-2 h-4 w-4",
-                  value === state.value ? "opacity-100" : "opacity-0"
-                )}
-              />
-              {state.label}
-            </CommandItem>
-          ))}
-        </CommandGroup>
-      </CommandList>
-    </Command>
-  );
-
-  if (isDesktop) {
-    return (
-      <Popover open={open} onOpenChange={setOpen}>
-        <PopoverTrigger asChild>
-          <Button
-            variant="outline"
-            role="combobox"
-            className={cn(
-              "w-full justify-between",
-              !selectedState && "text-muted-foreground"
-            )}
-          >
-            {selectedState ? selectedState.label : "Select your state"}
-            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent className="w-[300px] p-0" align="start">
-          <StateList
-            states={states}
-            setOpen={setOpen}
-            onChange={onChange}
-            value={value}
-          />
-        </PopoverContent>
-      </Popover>
-    );
-  }
-
-  return (
-    <Drawer open={open} onOpenChange={setOpen}>
-      <DrawerTrigger asChild>
-        <Button
-          variant="outline"
-          className={cn(
-            "w-full justify-between",
-            !selectedState && "text-muted-foreground"
-          )}
-        >
-          {selectedState ? selectedState.label : "Select your state"}
-          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-        </Button>
-      </DrawerTrigger>
-      <DrawerContent>
-        <div className="mt-4 border-t">
-          <StateList
-            states={states}
-            setOpen={setOpen}
-            onChange={onChange}
-            value={value}
-          />
-        </div>
-      </DrawerContent>
-    </Drawer>
-  );
-}
+ 
 
 function InstitutionCombobox({
   colleges,
@@ -280,7 +171,6 @@ function InstitutionList({
 export default function AdditionalDetails() {
   const [institution, setInstitution] = useState("Select Institution");
   const [customInstitution, setCustomInstitution] = useState("");
-  const [state, setState] = useState("Select State");
   const [graduationYear, setGraduationYear] = useState("2025");
   const [customGraduationYear, setCustomGraduationYear] = useState("");
   const [phone, setPhone] = useState("");
@@ -454,7 +344,6 @@ export default function AdditionalDetails() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         institution: institutionToSubmit,
-        state,
         graduationYear: graduationYearToSubmit,
         phone,
         idImageUrl: imageUrl,
@@ -550,24 +439,7 @@ export default function AdditionalDetails() {
                 )}
               </div>
 
-              <div className="space-y-2">
-                <Label
-                  htmlFor="state"
-                  className="text-sm font-medium text-gray-700"
-                >
-                  State*
-                </Label>
-                <StateCombobox
-                  states={[
-                    { value: "telangana", label: "Telangana" },
-                    { value: "andhra-pradesh", label: "Andhra Pradesh" },
-                    { value: "karnataka", label: "Karnataka" },
-                    { value: "tamil-nadu", label: "Tamil Nadu" },
-                  ]}
-                  value={state}
-                  onChange={setState}
-                />
-              </div>
+              {/* State field removed intentionally */}
 
               <div className="space-y-2">
                 <Label

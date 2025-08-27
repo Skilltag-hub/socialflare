@@ -135,7 +135,7 @@ export default function HomePage() {
                       transform them into impactful work!
                     </p>
                     <Link
-                      href="/"
+                      href="/home"
                       className="inline-flex items-center bg-[#ADFF00] text-[#1F2E47] font-bold font-poppins rounded-full px-6 py-2 hover:scale-105 transition-transform gap-2 mx-auto md:mx-0"
                     >
                       View All Jobs <FaArrowRight className="rotate-45" />
@@ -369,7 +369,7 @@ export default function HomePage() {
                   </button>
                 </div>
                 <Link
-                  href="/login"
+                  href="/home"
                   className="mt-4 bg-[#ADFF00] text-[#1F2E47] font-bold font-poppins rounded-full px-6 py-2 shadow hover:scale-105 transition-transform flex items-center gap-2"
                 >
                   View All Jobs <FaArrowRight className="rotate-315" />
@@ -391,7 +391,7 @@ export default function HomePage() {
                       transform them into impactful work!
                     </p>
                     <Link
-                      href="/login"
+                      href="/home"
                       className="inline-flex items-center bg-[#ADFF00] text-[#1F2E47] font-bold font-poppins rounded-full px-6 py-2 hover:scale-105 transition-transform gap-2 mx-auto md:mx-0"
                     >
                       View All Jobs <FaArrowRight className="rotate-45" />
