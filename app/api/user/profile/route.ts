@@ -87,6 +87,10 @@ export async function PUT(req: Request) {
       gender,
       dateOfBirth,
       phone,
+      institution,
+      state,
+      graduationYear,
+      idImageUrl,
       referredBy,
       referredPeople,
       githubUrl,
@@ -105,6 +109,10 @@ export async function PUT(req: Request) {
     if (gender !== undefined) updateData.gender = gender;
     if (dateOfBirth !== undefined) updateData.dateOfBirth = dateOfBirth;
     if (phone !== undefined) updateData.phone = phone;
+    if (institution !== undefined) updateData.institution = institution;
+    if (state !== undefined) updateData.state = state;
+    if (graduationYear !== undefined) updateData.graduationYear = graduationYear;
+    if (idImageUrl !== undefined) updateData.idImageUrl = idImageUrl;
     if (referredBy !== undefined) updateData.referredBy = referredBy;
     if (referredPeople !== undefined && Array.isArray(referredPeople)) {
       updateData.referredPeople = referredPeople;

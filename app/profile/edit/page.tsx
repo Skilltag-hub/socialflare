@@ -30,15 +30,18 @@ import {
 } from "lucide-react";
 import { SkillsCombobox } from "@/components/skills-combobox";
 import { useSession } from "next-auth/react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
+import { upload } from "@imagekit/next";
+import collegesData from "../../../telangana_colleges.json";
 
 export default function Component() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const { toast } = useToast();
+  const idFileInputRef = useRef<HTMLInputElement>(null);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -48,6 +51,10 @@ export default function Component() {
     status: "available",
     gender: "",
     dateOfBirth: "",
+    institution: "",
+    state: "",
+    graduationYear: "",
+    idImageUrl: "",
     githubUrl: "",
     linkedinUrl: "",
     resumeUrl: "",
@@ -57,6 +64,9 @@ export default function Component() {
   const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isUploadingIdImage, setIsUploadingIdImage] = useState(false);
+  const [customInstitution, setCustomInstitution] = useState("");
+  const [customGraduationYear, setCustomGraduationYear] = useState("");
 
   // Define required fields
   const requiredFields = [
@@ -153,6 +163,10 @@ export default function Component() {
             status: profileData.status || "available",
             gender: profileData.gender || "",
             dateOfBirth: profileData.dateOfBirth || "",
+            institution: profileData.institution || "",
+            state: profileData.state || "",
+            graduationYear: profileData.graduationYear || "",
+            idImageUrl: profileData.idImageUrl || "",
             githubUrl: profileData.githubUrl || "",
             linkedinUrl: profileData.linkedinUrl || "",
             resumeUrl: profileData.resumeUrl || "",
@@ -218,6 +232,48 @@ export default function Component() {
 
     setIsSubmitting(true);
     try {
+      // Resolve institution/year if 'other' selected
+      const institutionToSubmit =
+        formData.institution === "other" ? customInstitution.trim() : formData.institution;
+      const graduationYearToSubmit =
+        formData.graduationYear === "other" ? customGraduationYear.trim() : formData.graduationYear;
+      if (formData.institution === "other" && !institutionToSubmit) {
+        setErrors((prev) => ({ ...prev, institution: "Institution is required" }));
+        setIsSubmitting(false);
+        return;
+      }
+      if (formData.graduationYear === "other" && !graduationYearToSubmit) {
+        setErrors((prev) => ({ ...prev, graduationYear: "Graduation year is required" }));
+        setIsSubmitting(false);
+        return;
+      }
+      // Upload ID image if selected and no URL set yet
+      if (
+        idFileInputRef.current &&
+        idFileInputRef.current.files &&
+        idFileInputRef.current.files[0] &&
+        !formData.idImageUrl
+      ) {
+        setIsUploadingIdImage(true);
+        const authRes = await fetch("/api/upload-auth");
+        if (!authRes.ok) throw new Error("Failed to get upload auth params");
+        const { signature, expire, token, publicKey } = await authRes.json();
+        const file = idFileInputRef.current.files[0];
+        const uploadRes = await upload({
+          expire,
+          token,
+          signature,
+          publicKey,
+          file,
+          fileName: file.name,
+        });
+        const uploadedUrl = uploadRes.url || "";
+        if (uploadedUrl) {
+          setFormData((prev) => ({ ...prev, idImageUrl: uploadedUrl }));
+        }
+        setIsUploadingIdImage(false);
+      }
+
       // Send the updated profile data to the API
       const response = await fetch("/api/user/profile", {
         method: "PUT",
@@ -232,6 +288,10 @@ export default function Component() {
           phone: formData.phone,
           gender: formData.gender,
           dateOfBirth: formData.dateOfBirth,
+          institution: institutionToSubmit,
+          state: formData.state,
+          graduationYear: graduationYearToSubmit,
+          idImageUrl: formData.idImageUrl,
           githubUrl: formData.githubUrl,
           linkedinUrl: formData.linkedinUrl,
           resumeUrl: formData.resumeUrl,
@@ -309,6 +369,88 @@ export default function Component() {
               <CardContent className="p-4 space-y-4">
                 <div className="space-y-4">
                   <div className="grid grid-cols-1 gap-4">
+                    <div>
+                      <Label htmlFor="institution">Institution</Label>
+                      <Select
+                        value={formData.institution}
+                        onValueChange={(value) => {
+                          setFormData((prev) => ({ ...prev, institution: value }));
+                          if (value !== "other") setCustomInstitution("");
+                        }}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select your institution" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {collegesData.colleges.map((c: string, idx: number) => (
+                            <SelectItem key={idx} value={c}>
+                              {c}
+                            </SelectItem>
+                          ))}
+                          <SelectItem value="other">Other</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      {formData.institution === "other" && (
+                        <Input
+                          id="institution-other"
+                          className="mt-2"
+                          value={customInstitution}
+                          onChange={(e) => setCustomInstitution(e.target.value)}
+                          placeholder="Enter your institution"
+                        />
+                      )}
+                    </div>
+                    <div>
+                      <Label htmlFor="state">State</Label>
+                      <Select
+                        value={formData.state}
+                        onValueChange={(value) =>
+                          setFormData((prev) => ({ ...prev, state: value }))
+                        }
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select state" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="telangana">Telangana</SelectItem>
+                          <SelectItem value="andhra-pradesh">Andhra Pradesh</SelectItem>
+                          <SelectItem value="karnataka">Karnataka</SelectItem>
+                          <SelectItem value="tamil-nadu">Tamil Nadu</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label htmlFor="graduationYear">Graduation Year</Label>
+                      <Select
+                        value={formData.graduationYear}
+                        onValueChange={(value) => {
+                          setFormData((prev) => ({ ...prev, graduationYear: value }));
+                          if (value !== "other") setCustomGraduationYear("");
+                        }}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select graduation year" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="2025">2025</SelectItem>
+                          <SelectItem value="2024">2024</SelectItem>
+                          <SelectItem value="2023">2023</SelectItem>
+                          <SelectItem value="2022">2022</SelectItem>
+                          <SelectItem value="other">Other</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      {formData.graduationYear === "other" && (
+                        <Input
+                          id="graduationYear-other"
+                          className="mt-2"
+                          inputMode="numeric"
+                          pattern="[0-9]*"
+                          value={customGraduationYear}
+                          onChange={(e) => setCustomGraduationYear(e.target.value)}
+                          placeholder="Enter graduation year (e.g., 2026)"
+                        />
+                      )}
+                    </div>
                     <div>
                       <Label htmlFor="name">Full Name</Label>
                       <Input
@@ -433,6 +575,21 @@ export default function Component() {
                       )}
                     </div>
                     <div>
+                      <Label htmlFor="idImageFile">Upload ID Image</Label>
+                      <input
+                        id="idImageFile"
+                        type="file"
+                        accept="image/*"
+                        ref={idFileInputRef}
+                        className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                      />
+                      {formData.idImageUrl && (
+                        <div className="mt-2 text-xs text-green-600">
+                          ID image uploaded
+                        </div>
+                      )}
+                    </div>
+                    <div>
                       <Label htmlFor="phone">Phone Number</Label>
                       <Input
                         id="phone"
@@ -553,7 +710,7 @@ export default function Component() {
                       onClick={handleSubmit}
                       disabled={isSubmitting}
                     >
-                      {isSubmitting ? "Saving..." : "Save"}
+                      {isSubmitting || isUploadingIdImage ? "Saving..." : "Save"}
                     </Button>
                     <Button
                       variant="outline"
@@ -811,6 +968,114 @@ export default function Component() {
               </CardContent>
             </Card>
 
+            <Card className="bg-white border-gray-800 mb-6">
+              <CardHeader>
+                <CardTitle className="text-black">Education</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <Label htmlFor="institution-desktop" className="text-black">Institution</Label>
+                    <Select
+                      value={formData.institution}
+                      onValueChange={(value) => {
+                        setFormData((prev) => ({ ...prev, institution: value }));
+                        if (value !== "other") setCustomInstitution("");
+                      }}
+                    >
+                      <SelectTrigger className="bg-white border-gray-700 text-gray-700 mt-1">
+                        <SelectValue placeholder="Select your institution" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-gray-800 border-gray-700 text-white">
+                        {collegesData.colleges.map((c: string, idx: number) => (
+                          <SelectItem key={idx} value={c} className="hover:bg-gray-700">
+                            {c}
+                          </SelectItem>
+                        ))}
+                        <SelectItem value="other" className="hover:bg-gray-700">Other</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    {formData.institution === "other" && (
+                      <Input
+                        id="institution-desktop-other"
+                        className="mt-2 bg-white border-gray-700 text-gray-700"
+                        value={customInstitution}
+                        onChange={(e) => setCustomInstitution(e.target.value)}
+                        placeholder="Enter your institution"
+                      />
+                    )}
+                  </div>
+
+                  <div>
+                    <Label htmlFor="state-desktop" className="text-black">State</Label>
+                    <Select
+                      value={formData.state}
+                      onValueChange={(value) =>
+                        setFormData((prev) => ({ ...prev, state: value }))
+                      }
+                    >
+                      <SelectTrigger className="bg-white border-gray-700 text-gray-700 mt-1">
+                        <SelectValue placeholder="Select state" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-gray-800 border-gray-700 text-white">
+                        <SelectItem value="telangana" className="hover:bg-gray-700">Telangana</SelectItem>
+                        <SelectItem value="andhra-pradesh" className="hover:bg-gray-700">Andhra Pradesh</SelectItem>
+                        <SelectItem value="karnataka" className="hover:bg-gray-700">Karnataka</SelectItem>
+                        <SelectItem value="tamil-nadu" className="hover:bg-gray-700">Tamil Nadu</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="graduationYear-desktop" className="text-black">Graduation Year</Label>
+                    <Select
+                      value={formData.graduationYear}
+                      onValueChange={(value) => {
+                        setFormData((prev) => ({ ...prev, graduationYear: value }));
+                        if (value !== "other") setCustomGraduationYear("");
+                      }}
+                    >
+                      <SelectTrigger className="bg-white border-gray-700 text-gray-700 mt-1">
+                        <SelectValue placeholder="Select graduation year" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-gray-800 border-gray-700 text-white">
+                        <SelectItem value="2025" className="hover:bg-gray-700">2025</SelectItem>
+                        <SelectItem value="2024" className="hover:bg-gray-700">2024</SelectItem>
+                        <SelectItem value="2023" className="hover:bg-gray-700">2023</SelectItem>
+                        <SelectItem value="2022" className="hover:bg-gray-700">2022</SelectItem>
+                        <SelectItem value="other" className="hover:bg-gray-700">Other</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    {formData.graduationYear === "other" && (
+                      <Input
+                        id="graduationYear-desktop-other"
+                        className="mt-2 bg-white border-gray-700 text-gray-700"
+                        inputMode="numeric"
+                        pattern="[0-9]*"
+                        value={customGraduationYear}
+                        onChange={(e) => setCustomGraduationYear(e.target.value)}
+                        placeholder="Enter graduation year (e.g., 2026)"
+                      />
+                    )}
+                  </div>
+
+                  <div>
+                    <Label htmlFor="idImageFile-desktop" className="text-black">Upload ID Image</Label>
+                    <input
+                      id="idImageFile-desktop"
+                      type="file"
+                      accept="image/*"
+                      ref={idFileInputRef}
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 bg-white text-gray-700 mt-1"
+                    />
+                    {formData.idImageUrl && (
+                      <p className="text-green-600 text-xs mt-1">ID image uploaded</p>
+                    )}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
             <Card className="bg-white border-gray-800">
               <CardHeader>
                 <CardTitle className="text-black">Online Profiles</CardTitle>
@@ -885,7 +1150,7 @@ export default function Component() {
                 onClick={handleSubmit}
                 disabled={isSubmitting}
               >
-                {isSubmitting ? "Saving..." : "Save Changes"}
+                {isSubmitting || isUploadingIdImage ? "Saving..." : "Save Changes"}
               </Button>
             </div>
           </div>
