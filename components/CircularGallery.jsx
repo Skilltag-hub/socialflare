@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import Image from "next/image"
 import { ChevronLeft, ChevronRight, ArrowRight } from "lucide-react"
 import { Button } from "../components/ui/Button"
 
@@ -25,7 +26,7 @@ const profiles = [
   {
     id: 3,
     name: "Siddharth T S",
-    role: "Web Developer",
+    role: "Game Developer",
     avatar: "/profiles/3.jpeg",
     trending: true,
   },
@@ -33,14 +34,14 @@ const profiles = [
     id: 4,
     name: "Alex Johnson",
     role: "UI/UX Designer",
-    avatar: "/profiles/4.avif",
+    avatar: "/profiles/4.jpg",
     trending: true,
   },
   {
     id: 5,
     name: "Sarah Williams",
     role: "Content Writer",
-    avatar: "/profiles/5.avif",
+    avatar: "/profiles/5.jpg",
     trending: true,
   },
 ]
@@ -168,10 +169,13 @@ export default function CircularGallery() {
                 <div className="w-full h-full bg-white rounded-2xl overflow-hidden transform-gpu flex flex-col">
                   {/* Image Area */}
                   <div className="relative flex-1 bg-gray-400 overflow-hidden">
-                    <img
+                    <Image
                       src={profile.avatar}
                       alt={`${profile.name} profile`}
-                      className="w-full h-full object-cover"
+                      fill
+                      sizes="(max-width: 640px) 192px, (max-width: 1024px) 224px, 256px"
+                      priority={isCenter}
+                      className="object-cover"
                     />
                     {profile.trending && (
                       <div
