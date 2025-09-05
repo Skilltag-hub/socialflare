@@ -93,8 +93,9 @@ export default function ZigworkDashboard() {
       <div className="flex h-[calc(100vh-120px)] gap-6 p-6 pt-4">
         {/* Main Content */}
         <div className="flex-1 flex flex-col overflow-hidden">
+          <div className="w-full max-w-2xl mx-auto">
           {/* Stats Cards - 2x2 Grid */}
-          <div className="grid grid-cols-2 gap-3 mb-4 max-w-2xl">
+          <div className="grid grid-cols-2 gap-3 mb-4">
             {loading ? (
               // Loading state
               <Card className="bg-white rounded-xl shadow-sm col-span-2">
@@ -214,7 +215,7 @@ export default function ZigworkDashboard() {
                   })
                   .slice(0, 4);
                 return (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-w-2xl">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 w-full">
                     {latestGigs.map((g) => {
                       const job = {
                         _id: g._id,
@@ -244,7 +245,7 @@ export default function ZigworkDashboard() {
                 );
               })()
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-w-2xl">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 w-full">
                 {/* Create First Zig Card - Clickable, leads to post-gig with pre-fill */}
                 <Card
                   className="bg-transparent border-2 border-dashed border-gray-600 rounded-xl cursor-pointer hover:border-skillText transition-colors"
@@ -383,10 +384,11 @@ export default function ZigworkDashboard() {
               </div>
             )}
           </div>
+          </div>
         </div>
 
         {/* Right Sidebar - Notifications */}
-        <div className="w-72">
+        <div className="w-72 hidden lg:block">
           <Card className="bg-white text-black rounded-xl shadow-sm h-fit flex flex-col">
             <CardContent className="p-6">
               <h2 className="text-xl font-bold mb-6 text-black">
