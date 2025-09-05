@@ -82,7 +82,9 @@ export default function HomePage() {
         {tab === "talent" ? (
           <>
             {/* Talent View */}
-            <Lanyard position={[0, 0, 15]} gravity={[0, -40, 0]} />
+            <div className="pointer-events-none">
+              <Lanyard position={[0, 0, 15]} gravity={[0, -40, 0]} />
+            </div>
             <div className="absolute top-[75vh] sm:top-[35vh] left-0 sm:left-[10vw] z-20 w-full sm:w-auto flex flex-col items-center sm:items-start">
               <div className="w-full max-w-[95vw] sm:max-w-[45vw] px-2 sm:px-0 flex flex-col sm:block items-center sm:items-start justify-center gap-2 sm:gap-0">
                 <div className="text-white text-3xl sm:text-7xl font-poppins text-center sm:text-left mb-2 sm:mb-0 font-extrabold">
@@ -134,6 +136,7 @@ export default function HomePage() {
                       A dynamic group of innovators who ignite ideas and
                       transform them into impactful work!
                     </p>
+                    
                     <Link
                       href="/home"
                       className="inline-flex items-center bg-[#ADFF00] text-[#1F2E47] font-bold font-poppins rounded-full px-6 py-2 hover:scale-105 transition-transform gap-2 mx-auto md:mx-0"
@@ -205,7 +208,7 @@ export default function HomePage() {
                 </div>
               </div>
             </div>
-            <div className="w-full bg-[#F6F9FF] pt-28 lg:pt-4 -mb-32">
+            <div className="w-full bg-[#F6F9FF] pt-28 lg:pt-4 -mb-32 relative z-30">
               <div className="mx-auto max-w-5xl px-6">
                 <div className="flex flex-col md:flex-row items-center justify-center gap-12">
                   {/* Heading */}
@@ -220,7 +223,7 @@ export default function HomePage() {
                       transform them into impactful work!
                     </p>
                     <Link
-                      href="/login"
+                      href="/home"
                       className="inline-flex items-center bg-[#ADFF00] text-[#1F2E47] font-bold font-poppins rounded-full px-6 py-2 hover:scale-105 transition-transform gap-2 mx-auto md:mx-0"
                     >
                       View All Jobs <FaArrowRight className="rotate-45" />
@@ -240,7 +243,9 @@ export default function HomePage() {
         ) : (
           <>
             {/* Companies View */}
-            <Lanyard position={[0, 0, 15]} gravity={[0, -40, 0]} />
+            <div className="pointer-events-none">
+              <Lanyard position={[0, 0, 15]} gravity={[0, -40, 0]} />
+            </div>
             <div className="absolute top-[75vh] sm:top-[35vh] left-0 sm:left-[10vw] z-20 w-full sm:w-auto flex flex-col items-center sm:items-start">
               <div className="w-full max-w-[95vw] sm:max-w-[45vw] px-2 sm:px-0 flex flex-col sm:block items-center sm:items-start justify-center gap-2 sm:gap-0">
                 <div className="text-white text-4xl sm:text-8xl font-poppins text-center sm:text-left mb-2 sm:mb-0 font-extrabold">
@@ -376,7 +381,7 @@ export default function HomePage() {
                 </Link>
               </div>
             </div>
-            <div className="w-full bg-[#F6F9FF] pt-8">
+            <div className="w-full bg-[#F6F9FF] pt-8 relative z-30">
               <div className="mx-auto max-w-5xl px-6">
                 <div className="flex flex-col md:flex-row items-center justify-center gap-12">
                   {/* Heading */}
