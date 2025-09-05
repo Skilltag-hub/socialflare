@@ -40,13 +40,13 @@ export default function CompaniesNavbar() {
         <div className="flex flex-col items-center justify-center mb-8">
           <div className="flex flex-col items-center justify-center mb-2">
             <img
-              src="/zigwork-logo.svg"
-              alt="ZigWork Logo"
-              className="w-16 h-16 object-contain"
+              src="/skilltaglogo.jpg"
+              alt="Skilltag Logo"
+              className="w-16 h-16 object-contain rounded-md"
             />
           </div>
-          <span className="text-white text-2xl font-light">
-            zig<span className="font-normal">work</span>
+          <span className="text-black text-2xl font-light">
+            Skill<span className="font-normal text-black">tag</span>
           </span>
         </div>
 

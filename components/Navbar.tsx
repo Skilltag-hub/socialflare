@@ -49,13 +49,13 @@ export default function Navbar() {
         <div className="flex flex-col items-center justify-center mb-8">
           <div className="flex flex-col items-center justify-center mb-4">
             <img
-              src="/zigwork-logo.svg"
-              alt="ZigWork Logo"
-              className="w-16 h-16 object-contain"
+              src="/skilltaglogo.jpg"
+              alt="Skilltag Logo"
+              className="w-16 h-16 object-contain rounded-md"
             />
           </div>
           <span className="text-white text-2xl font-light text-center">
-            zig<span className="font-normal">work</span>
+            Skill<span className="font-normal">tag</span>
           </span>
         </div>
         {/* Navigation */}
