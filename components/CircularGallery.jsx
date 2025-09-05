@@ -2,53 +2,39 @@
 
 import { useState, useEffect } from "react"
 import Image from "next/image"
-import { ChevronLeft, ChevronRight, ArrowRight } from "lucide-react"
-import { Button } from "../components/ui/Button"
+import { ChevronLeft, ChevronRight } from "lucide-react"
+import { useRouter } from "next/navigation"
 
 // Profile card data structure:
-// { id: number, name: string, role: string, avatar: string, trending: boolean }
-
-const profiles = [
-  {
-    id: 1,
-    name: "Daniel Lee",
-    role: "Graphic Designer",
-    avatar: "/profiles/1.avif",
-    trending: true,
-  },
-  {
-    id: 2,
-    name: "Emily Taylor",
-    role: "Social Media Manager",
-    avatar: "/profiles/2.avif",
-    trending: true,
-  },
-  {
-    id: 3,
-    name: "Siddharth T S",
-    role: "Game Developer",
-    avatar: "/profiles/3.jpeg",
-    trending: true,
-  },
-  {
-    id: 4,
-    name: "Alex Johnson",
-    role: "UI/UX Designer",
-    avatar: "/profiles/4.jpg",
-    trending: true,
-  },
-  {
-    id: 5,
-    name: "Sarah Williams",
-    role: "Content Writer",
-    avatar: "/profiles/5.jpg",
-    trending: true,
-  },
-]
+// { id: string, name: string, image: string, trending: boolean }
 
 export default function CircularGallery() {
+  const [profiles, setProfiles] = useState([])
   const [currentIndex, setCurrentIndex] = useState(0)
   const [isAnimating, setIsAnimating] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState(null)
+  const router = useRouter()
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const response = await fetch('/api/waitlist-users')
+        if (!response.ok) {
+          throw new Error('Failed to fetch users')
+        }
+        const data = await response.json()
+        setProfiles(data)
+      } catch (err) {
+        console.error('Error fetching users:', err)
+        setError(err.message)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchUsers()
+  }, [])
 
   const nextSlide = () => {
     if (isAnimating) return
@@ -112,7 +98,7 @@ export default function CircularGallery() {
     } else if (isTransitioning) {
       // Cards transitioning in/out - smaller and completely transparent
       scale = 0.7
-      opacity = 0 // Changed from 0.3 to 0
+      opacity = 0
       zIndex = 5
     } else {
       // Completely hidden cards
@@ -127,29 +113,29 @@ export default function CircularGallery() {
     }
   }
 
+  if (isLoading) return <div className="flex justify-center items-center h-64">Loading...</div>
+  if (error) return <div className="text-center text-red-500 p-4">Error: {error}</div>
+  if (profiles.length === 0) return <div className="text-center p-4">No users found</div>
+
   return (
     <div className="flex flex-col items-center justify-center min-h-screen p-2 sm:p-4" style={{ background: 'transparent' }}>
       <div className="relative w-full max-w-sm sm:max-w-4xl lg:max-w-6xl xl:max-w-7xl">
         {/* Navigation Buttons */}
-        <Button
-          variant="outline"
-          size="icon"
+        <button
           className="absolute left-4 top-1/2 -translate-y-1/2 z-20 bg-white/90 backdrop-blur-sm hover:bg-white border-gray-200 shadow-md"
           onClick={prevSlide}
           disabled={isAnimating}
         >
           <ChevronLeft className="h-4 w-4" style={{ color: "#ADFF00" }} />
-        </Button>
+        </button>
 
-        <Button
-          variant="outline"
-          size="icon"
+        <button
           className="absolute right-4 top-1/2 -translate-y-1/2 z-20 bg-white/90 backdrop-blur-sm hover:bg-white border-gray-200 shadow-md"
           onClick={nextSlide}
           disabled={isAnimating}
         >
           <ChevronRight className="h-4 w-4" style={{ color: "#ADFF00" }} />
-        </Button>
+        </button>
 
         {/* Cards Container */}
         <div className="relative h-[320px] sm:h-[360px] lg:h-[400px] xl:h-[440px] flex items-center justify-center overflow-hidden px-4">
@@ -170,7 +156,7 @@ export default function CircularGallery() {
                   {/* Image Area */}
                   <div className="relative flex-1 bg-gray-400 overflow-hidden">
                     <Image
-                      src={profile.avatar}
+                      src={profile.image}
                       alt={`${profile.name} profile`}
                       fill
                       sizes="(max-width: 640px) 192px, (max-width: 1024px) 224px, 256px"
@@ -190,17 +176,21 @@ export default function CircularGallery() {
                   {/* Profile Info - Black Bottom Section */}
                   <div className="bg-gradient-to-r from-gray-900 to-black text-white flex items-center justify-between p-3 sm:p-4 rounded-b-2xl">
                     <div className="flex-1">
-                      <h3 className="font-semibold text-sm sm:text-base lg:text-lg" style={{ color: "#ADFF00" }}>
-                        {profile.name}
-                      </h3>
-                      <p className="text-gray-300 text-xs sm:text-sm mt-0.5">{profile.role}</p>
+                      <div className="mt-2 text-center">
+                        <h3 className="font-bold text-lg">{profile.name}</h3>
+                      </div>
                     </div>
-                    <div
-                      className="w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center ml-2"
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        router.push(`/profile/${profile.id}`);
+                      }}
+                      className="w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center ml-2 hover:opacity-90 transition-opacity"
                       style={{ backgroundColor: "#ADFF00" }}
+                      aria-label={`View ${profile.name}'s profile`}
                     >
-                      <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 text-black" />
-                    </div>
+                      <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5 text-black" />
+                    </button>
                   </div>
                 </div>
               </div>
