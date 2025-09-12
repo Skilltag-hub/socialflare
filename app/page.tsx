@@ -248,7 +248,7 @@ export default function HomePage() {
             </div>
             <div className="absolute top-[75vh] sm:top-[35vh] left-0 sm:left-[10vw] z-20 w-full sm:w-auto flex flex-col items-center sm:items-start">
               <div className="w-full max-w-[95vw] sm:max-w-[45vw] px-2 sm:px-0 flex flex-col sm:block items-center sm:items-start justify-center gap-2 sm:gap-0">
-                <div className="text-white text-4xl sm:text-8xl font-poppins text-center sm:text-left mb-2 sm:mb-0 font-extrabold">
+                <div className="text-white text-4xl sm:text-8xl text-center sm:text-left mb-2 sm:mb-0 font-bold">
                   India's #1
                   <br />
                   Early Talent <br />
