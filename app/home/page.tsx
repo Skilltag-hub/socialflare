@@ -66,43 +66,61 @@ export default function Component() {
 
   // Fetch gigs from API
   useEffect(() => {
-    const fetchGigs = async () => {
+    let isMounted = true;
+    
+    const fetchData = async () => {
+      if (!isMounted) return;
+      
       try {
-        const response = await fetch("/api/gigs");
-        if (!response.ok) {
+        setLoading(true);
+        // Fetch both gigs and user gigs in parallel
+        const [gigsResponse, userGigsResponse] = await Promise.all([
+          fetch("/api/gigs"),
+          session?.user ? fetch("/api/user/gigs") : Promise.resolve(null)
+        ]);
+
+        if (!isMounted) return;
+
+        // Process gigs response
+        if (gigsResponse.ok) {
+          const data = await gigsResponse.json();
+          if (isMounted) {
+            setGigs(Array.isArray(data.gigs) ? data.gigs : []);
+          }
+        } else {
           throw new Error("Failed to fetch gigs");
         }
-        const data = await response.json();
-        setGigs(data.gigs);
-      } catch (error) {
-        console.error("Error fetching gigs:", error);
-        toast({
-          title: "Error",
-          description: "Failed to load gigs. Please try again later.",
-          variant: "destructive",
-        });
-      } finally {
-        setLoading(false);
-      }
-    };
 
-    const fetchUserGigs = async () => {
-      if (session?.user) {
-        try {
-          const response = await fetch("/api/user/gigs");
-          if (response.ok) {
-            const data = await response.json();
-            setUserGigs(data.gigs);
+        // Process user gigs response if user is logged in
+        if (userGigsResponse?.ok) {
+          const userData = await userGigsResponse.json();
+          if (isMounted) {
+            setUserGigs(Array.isArray(userData.gigs) ? userData.gigs : []);
           }
-        } catch (error) {
-          console.error("Error fetching user gigs:", error);
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        if (isMounted) {
+          toast({
+            title: "Error",
+            description: "Failed to load data. Please try again later.",
+            variant: "destructive",
+          });
+        }
+      } finally {
+        if (isMounted) {
+          setLoading(false);
         }
       }
     };
-
-    fetchGigs();
-    fetchUserGigs();
-  }, [toast, session]);
+    
+    fetchData();
+    
+    // Cleanup function
+    return () => {
+      isMounted = false;
+    };
+  }, [toast, session]); // Only re-run when session changes
 
   // Fallback job card for loading state
   const fallbackJobCard = {
