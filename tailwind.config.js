@@ -9,7 +9,7 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        poppins: ["Poppins", "sans-serif"],
+        sans: ["Figtree", "sans-serif"],
       },
       borderRadius: {
         lg: "var(--radius)",
