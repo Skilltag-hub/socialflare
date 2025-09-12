@@ -103,7 +103,7 @@ export default function JobCard({
         )}
 
         {/* Stats Section */}
-        <div className="flex items-center gap-4 mb-4 text-xs text-gray-500">
+        <div className="flex items-center justify-between mb-4 text-xs text-gray-500">
           <div className="flex items-center gap-2">
             <Users className="w-3.5 h-3.5 text-purple-500" />
             <span className="font-medium">
@@ -115,41 +115,6 @@ export default function JobCard({
             <span>{new Date(job.datePosted).toLocaleDateString()}</span>
           </div>
         </div>
-
-        {/* Applications Section */}
-        {applications[job._id] && applications[job._id].length > 0 && (
-          <div className="mb-4 space-y-2">
-            <h4 className="text-xs font-medium text-gray-700 mb-1.5">
-              Recent Applications
-            </h4>
-            {applications[job._id].slice(0, 2).map((app) => (
-              <div
-                key={app._id}
-                className="flex items-center justify-between text-xs bg-gray-50 rounded-lg px-2.5 py-1.5 border border-gray-100"
-              >
-                <span className="text-gray-700 font-medium">
-                  {app.applicantEmail}
-                </span>
-                <span
-                  className={`px-2 py-0.5 rounded-full text-[10px] font-medium ${
-                    app.status === "accepted"
-                      ? "bg-green-100 text-green-700 border border-green-200"
-                      : app.status === "rejected"
-                      ? "bg-red-100 text-red-700 border border-red-200"
-                      : "bg-yellow-100 text-yellow-700 border border-yellow-200"
-                  }`}
-                >
-                  {app.status.charAt(0).toUpperCase() + app.status.slice(1)}
-                </span>
-              </div>
-            ))}
-            {applications[job._id].length > 2 && (
-              <p className="text-xs text-gray-500 text-center">
-                +{applications[job._id].length - 2} more applications
-              </p>
-            )}
-          </div>
-        )}
 
         {/* Action Buttons */}
         {!hideActions && (

@@ -153,9 +153,56 @@ export default function MyZigs() {
     }
   }
 
+  // Fetch applications for all jobs
+  const fetchApplications = async (jobIds) => {
+    if (!jobIds || jobIds.length === 0) return {};
+    
+    try {
+      const response = await fetch(`/api/applications?jobIds=${jobIds.join(',')}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch applications');
+      }
+      const data = await response.json();
+      // The API returns { applications: { [jobId]: [...] } }
+      return data.applications || {};
+    } catch (error) {
+      console.error('Error fetching applications:', error);
+      // Return an object with empty arrays for each job ID to prevent errors
+      const emptyApps = {};
+      jobIds.forEach(id => emptyApps[id] = []);
+      return emptyApps;
+    }
+  };
+
+  // Update jobs and fetch applications when jobs change
+  useEffect(() => {
+    const updateJobsAndApplications = async () => {
+      if (jobs.length > 0) {
+        const jobIds = jobs.map(job => job._id);
+        const appsData = await fetchApplications(jobIds);
+        
+        // Ensure we have an entry for each job, even if no applications
+        const updatedApps = { ...applications };
+        jobIds.forEach(id => {
+          if (!updatedApps[id]) {
+            updatedApps[id] = [];
+          }
+        });
+        
+        setApplications({
+          ...updatedApps,
+          ...appsData
+        });
+      }
+    };
+    
+    updateJobsAndApplications();
+  }, [jobs]);
+
+  // Initial fetch of jobs
   useEffect(() => {
     fetchJobs();
-  }, [companyId]); // Add companyId as a dependency to refetch when it changes
+  }, [companyId]);
 
   const filteredJobs =
     activeFilter === "all"
