@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { ObjectId } from "mongodb";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/authOptions";
+import { createNotification } from "@/lib/createNotification";
 
 function isAdmin(email?: string | null) {
   if (!email) return false;
@@ -167,6 +168,32 @@ export async function PATCH(request: Request) {
         { error: `${entity} not found` },
         { status: 404 }
       );
+    }
+
+    // Send notification to user on status changes
+    if (collectionName === "users") {
+      try {
+        const updatedUser = await db
+          .collection("users")
+          .findOne({ _id: new ObjectId(id) });
+        const email = (updatedUser as any)?.email as string | undefined;
+        if (email) {
+          const status = approved ? "approved" : "under_review";
+          const title = approved ? "Account approved 🎉" : "Account under review";
+          const body = approved
+            ? "Your account is approved. You now have full access."
+            : "Your account is currently under review. We’ll notify you on updates.";
+          await createNotification({
+            userId: email,
+            type: "ACCOUNT_STATUS",
+            title,
+            body,
+            entityType: "account",
+            entityId: id,
+            metadata: { status },
+          });
+        }
+      } catch {}
     }
 
     return NextResponse.json({ success: true });

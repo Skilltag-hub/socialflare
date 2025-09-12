@@ -80,7 +80,7 @@ export default function LoginForm() {
     >
       <div
         // ref={containerRef}
-        className="w-full max-w-md bg-white rounded-md shadow-lg overflow-hidden"
+        className="w-full max-w-[400px] py-4 bg-white rounded-[16px] shadow-lg overflow-hidden"
       >
         <div className="p-8">
           <div className="flex flex-col items-center justify-center">
@@ -139,10 +139,6 @@ export default function LoginForm() {
         <div className="px-8 pb-8">
           <div className="pt-6 border-t border-gray-200">
             <div className="flex justify-center space-x-6 text-sm text-gray-600 font-sans">
-              <Link href="/support" className="hover:text-gray-900">
-                Support
-              </Link>
-              <span>•</span>
               <Link href="/privacy" className="hover:text-gray-900">
                 Privacy Policy
               </Link>

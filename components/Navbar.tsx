@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import useSWR from "swr";
 import {
   Home,
   FileText,
@@ -10,6 +11,7 @@ import {
   Bell,
   LogOut,
   Bookmark,
+  BellDot,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { signOut } from "next-auth/react";
@@ -24,6 +26,11 @@ const navItems = [
 
 export default function Navbar() {
   const pathname = usePathname();
+  const fetcher = (url: string) => fetch(url).then((r) => r.json());
+  const { data } = useSWR("/api/notifications?unread=1&limit=1", fetcher, {
+    refreshInterval: 20000,
+  });
+  const unread = data?.unreadCount ?? 0;
   const showNavbar = [
     "/home",
     "/bookmarked",
@@ -71,7 +78,12 @@ export default function Navbar() {
                 }`}
               >
                 <span className="flex items-center">
-                  <Icon className="w-5 h-5 mr-3" />
+                  <span className="relative mr-3 inline-flex items-center justify-center">
+                    <Icon className="w-5 h-5" />
+                    {name === "Notifications" && unread > 0 && (
+                      <span className="pointer-events-none absolute top-0 right-0 h-2 w-2 rounded-full bg-orange-500 ring-2 ring-skillText lg:ring-black"></span>
+                    )}
+                  </span>
                   {name}
                 </span>
               </Button>
@@ -100,6 +112,7 @@ export default function Navbar() {
       </div>
 
       {/* Mobile Navbar (hidden on large screens) */}
+      {/* Mobile Navbar (hidden on large screens) */}
       <div className="absolute bottom-4 inset-x-0 w-[65%] mx-auto px-4 rounded-3xl z-40 lg:hidden bg-skillText py-4">
         <div className="flex items-center justify-around">
           {navItems.map(({ name, href, icon: Icon }) => (
@@ -114,7 +127,17 @@ export default function Navbar() {
                     : "text-gray-400 hover:text-skill"
                 }`}
               >
-                <Icon className="w-6 h-6" />
+                {/* Wrap the icon to position badge correctly */}
+                {/* Mobile icon (color-change approach) */}
+                {name === "Notifications" ? (
+                  unread > 0 ? (
+                    <BellDot className="w-6 h-6 text-orange-500" />
+                  ) : (
+                    <Bell className="w-6 h-6" />
+                  )
+                ) : (
+                  <Icon className="w-6 h-6" />
+                )}
               </Button>
             </Link>
           ))}

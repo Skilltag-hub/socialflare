@@ -63,6 +63,11 @@ const AdminPage: React.FC = () => {
   const [forbidden, setForbidden] = useState(false);
   const [saving, setSaving] = useState<Record<string, boolean>>({});
   const [selectedImage, setSelectedImage] = useState<{ url: string; title: string } | null>(null);
+  // Site content state
+  const [privacyContent, setPrivacyContent] = useState<string>("");
+  const [termsContent, setTermsContent] = useState<string>("");
+  const [contentLoading, setContentLoading] = useState<boolean>(false);
+  const [contentSaving, setContentSaving] = useState<Record<string, boolean>>({});
 
   const fetchApprovals = async () => {
     setLoading(true);
@@ -89,6 +94,28 @@ const AdminPage: React.FC = () => {
   useEffect(() => {
     if (status === 'authenticated') {
       fetchApprovals();
+      // Fetch site content
+      (async () => {
+        try {
+          setContentLoading(true);
+          const [privacyRes, termsRes] = await Promise.all([
+            fetch('/api/content/privacy'),
+            fetch('/api/content/terms'),
+          ]);
+          if (privacyRes.ok) {
+            const p = await privacyRes.json();
+            setPrivacyContent(p?.content || "");
+          }
+          if (termsRes.ok) {
+            const t = await termsRes.json();
+            setTermsContent(t?.content || "");
+          }
+        } catch (e) {
+          // Non-blocking error
+        } finally {
+          setContentLoading(false);
+        }
+      })();
     }
   }, [status]);
 
@@ -194,6 +221,8 @@ const AdminPage: React.FC = () => {
           <TabsList>
             <TabsTrigger value="companies">Companies ({companies.length})</TabsTrigger>
             <TabsTrigger value="users">Students ({users.length})</TabsTrigger>
+            <TabsTrigger value="privacy">Privacy Policy</TabsTrigger>
+            <TabsTrigger value="terms">Terms & Conditions</TabsTrigger>
           </TabsList>
           
           <TabsContent value="companies">
@@ -437,6 +466,84 @@ const AdminPage: React.FC = () => {
                 </table>
               </div>
             )}
+          </TabsContent>
+
+          {/* Privacy Policy Editor */}
+          <TabsContent value="privacy">
+            <div className="space-y-4 p-2">
+              <div className="flex items-center justify-between">
+                <h2 className="text-lg font-semibold">Privacy Policy</h2>
+                {contentLoading && <span className="text-xs text-gray-500">Loading…</span>}
+              </div>
+              <textarea
+                value={privacyContent}
+                onChange={(e) => setPrivacyContent(e.target.value)}
+                className="w-full min-h-[300px] border border-gray-300 rounded-md p-3 text-sm focus:outline-none focus:ring-2 focus:ring-purple-200"
+                placeholder="Write your Privacy Policy here…"
+              />
+              <div className="flex gap-2">
+                <Button
+                  onClick={async () => {
+                    setContentSaving((s) => ({ ...s, privacy: true }));
+                    try {
+                      const res = await fetch('/api/content/privacy', {
+                        method: 'PATCH',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ content: privacyContent }),
+                      });
+                      if (!res.ok) throw new Error('Failed to save Privacy Policy');
+                      toast({ title: 'Saved', description: 'Privacy Policy updated.' });
+                    } catch (e: any) {
+                      toast({ title: 'Error', description: e.message || 'Failed to save', variant: 'destructive' });
+                    } finally {
+                      setContentSaving((s) => ({ ...s, privacy: false }));
+                    }
+                  }}
+                  disabled={!!contentSaving.privacy}
+                >
+                  {contentSaving.privacy ? 'Saving…' : 'Save Changes'}
+                </Button>
+              </div>
+            </div>
+          </TabsContent>
+
+          {/* Terms & Conditions Editor */}
+          <TabsContent value="terms">
+            <div className="space-y-4 p-2">
+              <div className="flex items-center justify-between">
+                <h2 className="text-lg font-semibold">Terms & Conditions</h2>
+                {contentLoading && <span className="text-xs text-gray-500">Loading…</span>}
+              </div>
+              <textarea
+                value={termsContent}
+                onChange={(e) => setTermsContent(e.target.value)}
+                className="w-full min-h-[300px] border border-gray-300 rounded-md p-3 text-sm focus:outline-none focus:ring-2 focus:ring-purple-200"
+                placeholder="Write your Terms & Conditions here…"
+              />
+              <div className="flex gap-2">
+                <Button
+                  onClick={async () => {
+                    setContentSaving((s) => ({ ...s, terms: true }));
+                    try {
+                      const res = await fetch('/api/content/terms', {
+                        method: 'PATCH',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ content: termsContent }),
+                      });
+                      if (!res.ok) throw new Error('Failed to save Terms & Conditions');
+                      toast({ title: 'Saved', description: 'Terms & Conditions updated.' });
+                    } catch (e: any) {
+                      toast({ title: 'Error', description: e.message || 'Failed to save', variant: 'destructive' });
+                    } finally {
+                      setContentSaving((s) => ({ ...s, terms: false }));
+                    }
+                  }}
+                  disabled={!!contentSaving.terms}
+                >
+                  {contentSaving.terms ? 'Saving…' : 'Save Changes'}
+                </Button>
+              </div>
+            </div>
           </TabsContent>
         </Tabs>
       </div>

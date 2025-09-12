@@ -2,6 +2,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/authOptions";
 import clientPromise from "@/lib/mongodb";
 import { ObjectId } from "mongodb";
+import { createNotification } from "@/lib/createNotification";
 
 // Get all applications for the current user
 export async function GET(req: Request) {
@@ -130,13 +131,19 @@ export async function POST(req: Request) {
     // Enforce approval and profile completeness before allowing application submission
     if (!currentUser.approved) {
       return new Response(
-        JSON.stringify({ error: "User is not approved to apply for gigs", code: "USER_NOT_APPROVED" }),
+        JSON.stringify({
+          error: "User is not approved to apply for gigs",
+          code: "USER_NOT_APPROVED",
+        }),
         { status: 403, headers: { "Content-Type": "application/json" } }
       );
     }
     if (!currentUser.profileFilled) {
       return new Response(
-        JSON.stringify({ error: "Please complete your profile to apply for gigs", code: "PROFILE_INCOMPLETE" }),
+        JSON.stringify({
+          error: "Please complete your profile to apply for gigs",
+          code: "PROFILE_INCOMPLETE",
+        }),
         { status: 400, headers: { "Content-Type": "application/json" } }
       );
     }
@@ -203,6 +210,21 @@ export async function POST(req: Request) {
         await dbSession.endSession();
       }
 
+      // Fire notification for applied
+      try {
+        const _gigTitle =
+          (gig as any)?.companyName ?? (gig as any)?.name ?? "Gig";
+        await createNotification({
+          userId: currentUser.email,
+          type: "GIG_STATUS",
+          title: "Application applied",
+          body: 'Your application for "' + _gigTitle + '" was submitted.',
+          entityType: "gigApplication",
+          entityId: gigId,
+          metadata: { newStatus: "applied", promotedFrom: "bookmarked" },
+        });
+      } catch {}
+
       return new Response(
         JSON.stringify({ message: "Application submitted successfully" }),
         {
@@ -253,24 +275,38 @@ export async function POST(req: Request) {
         // Add the application to the gig's applications array
         await db.collection("gigs").updateOne(
           { _id: new ObjectId(gigId) },
-          ({
+          {
             $push: { applications: application },
-          } as any),
+          } as any,
           { session: dbSession }
         );
 
         // Update the user's gigs array - initialize gigs array if it doesn't exist
         await db.collection("users").updateOne(
           { _id: currentUser._id },
-          ({
+          {
             $push: { gigs: userGig },
-          } as any),
+          } as any,
           { session: dbSession }
         );
       });
     } finally {
       await dbSession.endSession();
     }
+
+    // Fire notification for applied
+    try {
+      const gigTitle = (gig as any)?.title ?? (gig as any)?.name ?? "Gig";
+      await createNotification({
+        userId: currentUser.email,
+        type: "GIG_STATUS",
+        title: "Application applied",
+        body: 'Your application for "' + gigTitle + '" was submitted.',
+        entityType: "gigApplication",
+        entityId: gigId,
+        metadata: { newStatus: "applied" },
+      });
+    } catch {}
 
     return new Response(
       JSON.stringify({
@@ -401,6 +437,26 @@ export async function PUT(req: Request) {
       await dbSession.endSession();
     }
 
+    // Fire notification for status change
+    try {
+      const gigTitle = (gig as any)?.title ?? (gig as any)?.name ?? "Gig";
+      const statusTitle = String(status).replace(/_/g, " ");
+      await createNotification({
+        userId: currentUser.email,
+        type: "GIG_STATUS",
+        title: "Application " + statusTitle,
+        body:
+          'Your application for "' +
+          gigTitle +
+          '" is now "' +
+          String(status) +
+          '".',
+        entityType: "gigApplication",
+        entityId: gigId,
+        metadata: { newStatus: status },
+      });
+    } catch {}
+
     return new Response(
       JSON.stringify({
         message: "Application status updated successfully",
@@ -507,14 +563,14 @@ export async function PATCH(req: Request) {
             .collection("gigs")
             .updateOne(
               { _id: new ObjectId(gigId) },
-              ({ $push: { applications: application } } as any),
+              { $push: { applications: application } } as any,
               { session: dbSession }
             );
           await db
             .collection("users")
             .updateOne(
               { _id: currentUser._id },
-              ({ $push: { gigs: userGig } } as any),
+              { $push: { gigs: userGig } } as any,
               { session: dbSession }
             );
         } else if (action === "withdraw") {
@@ -538,13 +594,13 @@ export async function PATCH(req: Request) {
               _id: currentUser._id,
               "gigs.gigId": gigId,
             },
-            ({
+            {
               $push: { "gigs.$.withdrawals": withdrawalData },
               $set: {
                 "gigs.$.updatedAt": now,
                 "gigs.$.status": "withdrawal_requested",
               },
-            } as any),
+            } as any,
             { session: dbSession }
           );
 
@@ -554,13 +610,13 @@ export async function PATCH(req: Request) {
               _id: new ObjectId(gigId),
               "applications.userId": currentUser._id.toString(),
             },
-            ({
+            {
               $push: { "applications.$.withdrawals": withdrawalData },
               $set: {
                 "applications.$.lastUpdated": now,
                 "applications.$.status": "withdrawal_requested",
               },
-            } as any),
+            } as any,
             { session: dbSession }
           );
         } else if (action === "submitWork") {
@@ -581,13 +637,13 @@ export async function PATCH(req: Request) {
               _id: currentUser._id,
               "gigs.gigId": gigId,
             },
-            ({
+            {
               $push: { "gigs.$.submissions": submissionData },
               $set: {
                 "gigs.$.updatedAt": now,
                 "gigs.$.status": "completed",
               },
-            } as any),
+            } as any,
             { session: dbSession }
           );
 
@@ -597,13 +653,13 @@ export async function PATCH(req: Request) {
               _id: new ObjectId(gigId),
               "applications.userId": currentUser._id.toString(),
             },
-            ({
+            {
               $push: { "applications.$.submissions": submissionData },
               $set: {
                 "applications.$.lastUpdated": now,
                 "applications.$.status": "completed",
               },
-            } as any),
+            } as any,
             { session: dbSession }
           );
         } else {

@@ -3,6 +3,7 @@ import { ObjectId } from "mongodb";
 import clientPromise from "@/lib/mongodb";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/authOptions";
+import { createNotification } from "@/lib/createNotification";
 
 export async function PATCH(
   request: Request,
@@ -37,6 +38,22 @@ export async function PATCH(
 
     const client = await clientPromise;
     const db = client.db("waitlist");
+    // Resolve applicant user email for notifications
+    let targetUser: any = null;
+    try {
+      const userQuery: any = ObjectId.isValid(userId)
+        ? { _id: new ObjectId(userId) }
+        : {
+            $or: [{ userId: userId }, { id: userId }, { email: userId }],
+          };
+      targetUser = await db.collection("users").findOne(userQuery);
+    } catch {}
+
+    // Read gig title for better notification body
+    let gigDoc: any = null;
+    try {
+      gigDoc = await db.collection("gigs").findOne({ _id: new ObjectId(gigId) });
+    } catch {}
     const now = new Date();
 
     // Start a session for transaction
@@ -89,6 +106,29 @@ export async function PATCH(
     } finally {
       await dbSession.endSession();
     }
+
+    // Emit notification (best-effort)
+    try {
+      const email = targetUser?.email as string | undefined;
+      if (email) {
+        const gigTitle = (gigDoc && (gigDoc.title || gigDoc.companyName || gigDoc.name)) || "Gig";
+        const statusTitle = String(status).replace(/_/g, " ");
+        await createNotification({
+          userId: email,
+          type: "GIG_STATUS",
+          title: "Application " + statusTitle,
+          body:
+            'Your application for "' +
+            gigTitle +
+            '" is now "' +
+            String(status) +
+            '".',
+          entityType: "gigApplication",
+          entityId: gigId,
+          metadata: { newStatus: status },
+        });
+      }
+    } catch {}
 
     return NextResponse.json({
       success: true,

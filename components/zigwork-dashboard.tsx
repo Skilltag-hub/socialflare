@@ -238,6 +238,7 @@ export default function ZigworkDashboard() {
                           handleDeleteJob={handleDeleteJob}
                           markCompleted={markCompleted}
                           isDeleting={false}
+                          hideActions
                         />
                       );
                     })}

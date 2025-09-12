@@ -40,6 +40,7 @@ interface JobCardProps {
   handleDeleteJob: (jobId: string, e: React.MouseEvent) => void;
   markCompleted: (jobId: string, e: React.MouseEvent) => void;
   isDeleting: boolean;
+  hideActions?: boolean;
 }
 
 export default function JobCard({
@@ -49,6 +50,7 @@ export default function JobCard({
   handleDeleteJob,
   markCompleted,
   isDeleting,
+  hideActions = false,
 }: JobCardProps) {
   const handleViewApplications = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -150,88 +152,90 @@ export default function JobCard({
         )}
 
         {/* Action Buttons */}
-        <div className="flex items-center justify-between pt-3 border-t border-gray-100">
-          <TooltipProvider>
-            <div className="flex items-center gap-1">
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-8 w-8 text-gray-500 hover:text-blue-600 hover:bg-blue-50"
-                    onClick={(e) => handleEditJob(job, e)}
-                  >
-                    <Edit2 className="h-3.5 w-3.5" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Edit job</p>
-                </TooltipContent>
-              </Tooltip>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-8 w-8 text-gray-500 hover:text-red-600 hover:bg-red-50"
-                    onClick={(e) => handleDeleteJob(job._id, e)}
-                    disabled={isDeleting}
-                  >
-                    {isDeleting ? (
-                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                    ) : (
-                      <Trash2 className="h-3.5 w-3.5" />
-                    )}
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Delete job</p>
-                </TooltipContent>
-              </Tooltip>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-8 w-8 text-gray-600 hover:text-gray-900 hover:bg-gray-50"
-                    onClick={handleViewApplications}
-                  >
-                    <Eye className="h-3.5 w-3.5" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>View applications</p>
-                </TooltipContent>
-              </Tooltip>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant={job.status === "completed" ? "outline" : "default"}
-                    size="sm"
-                    className={`${
-                      job.status === "completed"
-                        ? "h-8 w-8 text-green-700 bg-green-50 border border-green-200 cursor-not-allowed"
-                        : "h-8 w-8 bg-purple-600 hover:bg-purple-700 text-white"
-                    }`}
-                    onClick={(e) => markCompleted(job._id, e)}
-                    disabled={job.status === "completed"}
-                  >
-                    <CheckCircle className="h-3.5 w-3.5" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>
-                    {job.status === "completed"
-                      ? "Completed"
-                      : "Mark completed"}
-                  </p>
-                </TooltipContent>
-              </Tooltip>
-            </div>
-          </TooltipProvider>
-        </div>
+        {!hideActions && (
+          <div className="flex items-center justify-between pt-3 border-t border-gray-100">
+            <TooltipProvider>
+              <div className="flex items-center gap-1">
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-8 w-8 text-gray-500 hover:text-blue-600 hover:bg-blue-50"
+                      onClick={(e) => handleEditJob(job, e)}
+                    >
+                      <Edit2 className="h-3.5 w-3.5" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Edit job</p>
+                  </TooltipContent>
+                </Tooltip>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-8 w-8 text-gray-500 hover:text-red-600 hover:bg-red-50"
+                      onClick={(e) => handleDeleteJob(job._id, e)}
+                      disabled={isDeleting}
+                    >
+                      {isDeleting ? (
+                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                      ) : (
+                        <Trash2 className="h-3.5 w-3.5" />
+                      )}
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Delete job</p>
+                  </TooltipContent>
+                </Tooltip>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-8 w-8 text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                      onClick={handleViewApplications}
+                    >
+                      <Eye className="h-3.5 w-3.5" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>View applications</p>
+                  </TooltipContent>
+                </Tooltip>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant={job.status === "completed" ? "outline" : "default"}
+                      size="sm"
+                      className={`${
+                        job.status === "completed"
+                          ? "h-8 w-8 text-green-700 bg-green-50 border border-green-200 cursor-not-allowed"
+                          : "h-8 w-8 bg-purple-600 hover:bg-purple-700 text-white"
+                      }`}
+                      onClick={(e) => markCompleted(job._id, e)}
+                      disabled={job.status === "completed"}
+                    >
+                      <CheckCircle className="h-3.5 w-3.5" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>
+                      {job.status === "completed"
+                        ? "Completed"
+                        : "Mark completed"}
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+              </div>
+            </TooltipProvider>
+          </div>
+        )}
       </div>
     </div>
   );
