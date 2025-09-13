@@ -4,8 +4,11 @@ import clientPromise from "@/lib/mongodb";
 import { ObjectId } from "mongodb";
 import { createNotification } from "@/lib/createNotification";
 
-// Get all applications for the current user
+// Get applications for jobs
 export async function GET(req: Request) {
+  const { searchParams } = new URL(req.url);
+  const jobIds = searchParams.get('jobIds')?.split(',').filter(Boolean) || [];
+  
   const session = await getServerSession(authOptions);
   if (!session?.user?.email) {
     return new Response(JSON.stringify({ error: "Unauthorized" }), {
@@ -18,63 +21,30 @@ export async function GET(req: Request) {
     const client = await clientPromise;
     const db = client.db("waitlist");
 
-    // Get the current user
-    const currentUser: any = await db
-      .collection("users")
-      .findOne({ email: session.user.email });
-
-    if (!currentUser) {
-      // Gracefully handle first-time users with no record yet
-      return new Response(JSON.stringify({ applications: [] }), {
-        status: 200,
-        headers: { "Content-Type": "application/json" },
-      });
+    // Build the query
+    const query: any = { "applications": { $exists: true, $ne: [] } };
+    
+    // If jobIds are provided, filter by them
+    if (jobIds.length > 0) {
+      query._id = { $in: jobIds.map((id: string) => new ObjectId(id)) };
     }
 
-    // Get all gigs that have applications from this user
-    const gigsWithUserApplications = await db
+    // Get all gigs that have applications
+    const gigsWithApplications = await db
       .collection("gigs")
-      .find({
-        "applications.userId": currentUser._id.toString(),
-      })
+      .find(query)
       .toArray();
-
-    // Extract applications with gig details
-    const applicationsWithGigs = gigsWithUserApplications.map((gig) => {
-      const userApplication = (gig.applications || []).find(
-        (app: any) => app.userId === currentUser._id.toString()
-      );
-
-      // Safely normalize datePosted to ISO string
-      let datePostedISO: string;
-      try {
-        if (gig.datePosted instanceof Date) {
-          datePostedISO = gig.datePosted.toISOString();
-        } else if (typeof gig.datePosted === "string") {
-          datePostedISO = new Date(gig.datePosted).toISOString();
-        } else {
-          datePostedISO = new Date().toISOString();
-        }
-      } catch {
-        datePostedISO = new Date().toISOString();
-      }
-
-      return {
-        ...userApplication,
-        gigId: gig._id.toString(),
-        gig: {
-          ...gig,
-          _id: gig._id.toString(),
-          datePosted: datePostedISO,
-          // Remove applications array from gig details to avoid circular data
-          applications: undefined,
-        },
-      };
-    });
+      
+    // Group applications by job ID
+    const applicationsByJob: Record<string, any[]> = {};
+    
+    for (const gig of gigsWithApplications) {
+      applicationsByJob[gig._id.toString()] = gig.applications || [];
+    }
 
     return new Response(
       JSON.stringify({
-        applications: applicationsWithGigs,
+        applications: applicationsByJob,
       }),
       {
         status: 200,

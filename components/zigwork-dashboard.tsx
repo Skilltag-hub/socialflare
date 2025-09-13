@@ -34,6 +34,7 @@ export default function ZigworkDashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [gigs, setGigs] = useState<any[]>([]);
+  const [applications, setApplications] = useState<Record<string, any[]>>({});
   // Minimal handlers to satisfy JobCard props in this context
   const handleEditJob = (job: any, e: any) => {
     e?.stopPropagation?.();
@@ -48,6 +49,25 @@ export default function ZigworkDashboard() {
     // Completion not supported from dashboard quick view
   };
 
+  // Fetch applications for all jobs
+  const fetchApplications = async (jobIds: string[]) => {
+    if (!jobIds || jobIds.length === 0) return {};
+    
+    try {
+      const response = await fetch(`/api/applications?jobIds=${jobIds.join(',')}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch applications');
+      }
+      const data = await response.json();
+      return data.applications || {};
+    } catch (error) {
+      console.error('Error fetching applications:', error);
+      const emptyApps: Record<string, any[]> = {};
+      jobIds.forEach(id => emptyApps[id] = []);
+      return emptyApps;
+    }
+  };
+
   useEffect(() => {
     const fetchStats = async () => {
       if (status === "authenticated") {
@@ -60,8 +80,16 @@ export default function ZigworkDashboard() {
             throw new Error(data.error || "Failed to fetch stats");
           }
 
+          const gigsList = Array.isArray(data.gigs) ? data.gigs : [];
           setStats(data.stats);
-          setGigs(Array.isArray(data.gigs) ? data.gigs : []);
+          setGigs(gigsList);
+          
+          // Fetch applications for all gigs
+          if (gigsList.length > 0) {
+            const jobIds = gigsList.map(gig => gig._id);
+            const appsData = await fetchApplications(jobIds);
+            setApplications(appsData);
+          }
         } catch (err) {
           console.error("Error fetching stats:", err);
           setError("Failed to load dashboard stats");
@@ -233,7 +261,7 @@ export default function ZigworkDashboard() {
                         <JobCard
                           key={g._id}
                           job={job}
-                          applications={{}}
+                          applications={applications}
                           handleEditJob={handleEditJob}
                           handleDeleteJob={handleDeleteJob}
                           markCompleted={markCompleted}
