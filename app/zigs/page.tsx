@@ -91,7 +91,8 @@ export default function Component() {
         throw new Error("Failed to fetch applications");
       }
       const data = await response.json();
-      setApplications(data.applications || []);
+      // Ensure we always set an array to avoid runtime errors when using .filter
+      setApplications(Array.isArray(data?.applications) ? data.applications : []);
     } catch (error) {
       console.error("Error fetching applications:", error);
     } finally {
@@ -106,7 +107,8 @@ export default function Component() {
 
   // Filter applications based on active filter
   useEffect(() => {
-    if (applications.length === 0) {
+    // Guard: ensure applications is an array before filtering
+    if (!Array.isArray(applications) || applications.length === 0) {
       setFilteredApplications([]);
       return;
     }
@@ -336,7 +338,7 @@ export default function Component() {
               <Avatar className="w-12 h-12 border-2 border-gray-200">
                 <AvatarImage src={gig.companyLogo} alt={gig.companyName} />
                 <AvatarFallback className="bg-yellow-400 text-black font-bold text-lg">
-                  {gig.companyName.substring(0, 2)}
+                  {(gig.companyName || "CO").substring(0, 2)}
                 </AvatarFallback>
               </Avatar>
             </div>
@@ -662,7 +664,9 @@ export default function Component() {
 
   // Get count of applications by status
   const getStatusCount = (status: string) => {
-    return applications.filter((app) => app.status === status).length;
+    return Array.isArray(applications)
+      ? applications.filter((app) => app.status === status).length
+      : 0;
   };
 
   return (
