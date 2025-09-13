@@ -91,8 +91,28 @@ export default function Component() {
         throw new Error("Failed to fetch applications");
       }
       const data = await response.json();
-      // Ensure we always set an array to avoid runtime errors when using .filter
-      setApplications(Array.isArray(data?.applications) ? data.applications : []);
+      // Debug log: Inspect the API response shape in runtime (prod vs local)
+      try {
+        console.log("[zigs] /api/applications response", {
+          ok: response.ok,
+          status: response.status,
+          dataType: typeof data,
+          dataKeys: data ? Object.keys(data) : null,
+          applicationsType: typeof (data as any)?.applications,
+          isApplicationsArray: Array.isArray((data as any)?.applications),
+          sample:
+            Array.isArray((data as any)?.applications)
+              ? (data as any).applications.slice(0, 2)
+              : (data as any)?.applications,
+        });
+      } catch (e) {
+        console.warn("[zigs] logging /api/applications response failed", e);
+      }
+      // Normalize to array defensively
+      const apps = Array.isArray((data as any)?.applications)
+        ? (data as any).applications
+        : [];
+      setApplications(apps);
     } catch (error) {
       console.error("Error fetching applications:", error);
     } finally {
@@ -107,7 +127,7 @@ export default function Component() {
 
   // Filter applications based on active filter
   useEffect(() => {
-    // Guard: ensure applications is an array before filtering
+    // Guard against non-array values
     if (!Array.isArray(applications) || applications.length === 0) {
       setFilteredApplications([]);
       return;
@@ -338,7 +358,7 @@ export default function Component() {
               <Avatar className="w-12 h-12 border-2 border-gray-200">
                 <AvatarImage src={gig.companyLogo} alt={gig.companyName} />
                 <AvatarFallback className="bg-yellow-400 text-black font-bold text-lg">
-                  {(gig.companyName || "CO").substring(0, 2)}
+                  {gig.companyName.substring(0, 2)}
                 </AvatarFallback>
               </Avatar>
             </div>
