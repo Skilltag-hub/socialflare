@@ -16,6 +16,13 @@ import {
   Clock3,
   CheckCircle,
   Filter,
+  Briefcase,
+  Code2,
+  Palette,
+  Megaphone,
+  BarChart2,
+  Globe2,
+  MoreHorizontal,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import ClickSpark from "@/utils/ClickSpark/ClickSpark";
@@ -41,7 +48,7 @@ export default function Component() {
   const [filterCompany, setFilterCompany] = useState("");
   const [minPrice, setMinPrice] = useState<string>("");
   const [maxPrice, setMaxPrice] = useState<string>("");
-  const [jobType, setJobType] = useState<string>("");
+  const [jobType, setJobType] = useState<string>("all");
   const [userGigs, setUserGigs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
@@ -66,43 +73,61 @@ export default function Component() {
 
   // Fetch gigs from API
   useEffect(() => {
-    const fetchGigs = async () => {
+    let isMounted = true;
+    
+    const fetchData = async () => {
+      if (!isMounted) return;
+      
       try {
-        const response = await fetch("/api/gigs");
-        if (!response.ok) {
+        setLoading(true);
+        // Fetch both gigs and user gigs in parallel
+        const [gigsResponse, userGigsResponse] = await Promise.all([
+          fetch("/api/gigs"),
+          session?.user ? fetch("/api/user/gigs") : Promise.resolve(null)
+        ]);
+
+        if (!isMounted) return;
+
+        // Process gigs response
+        if (gigsResponse.ok) {
+          const data = await gigsResponse.json();
+          if (isMounted) {
+            setGigs(Array.isArray(data.gigs) ? data.gigs : []);
+          }
+        } else {
           throw new Error("Failed to fetch gigs");
         }
-        const data = await response.json();
-        setGigs(data.gigs);
-      } catch (error) {
-        console.error("Error fetching gigs:", error);
-        toast({
-          title: "Error",
-          description: "Failed to load gigs. Please try again later.",
-          variant: "destructive",
-        });
-      } finally {
-        setLoading(false);
-      }
-    };
 
-    const fetchUserGigs = async () => {
-      if (session?.user) {
-        try {
-          const response = await fetch("/api/user/gigs");
-          if (response.ok) {
-            const data = await response.json();
-            setUserGigs(data.gigs);
+        // Process user gigs response if user is logged in
+        if (userGigsResponse?.ok) {
+          const userData = await userGigsResponse.json();
+          if (isMounted) {
+            setUserGigs(Array.isArray(userData.gigs) ? userData.gigs : []);
           }
-        } catch (error) {
-          console.error("Error fetching user gigs:", error);
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        if (isMounted) {
+          toast({
+            title: "Error",
+            description: "Failed to load data. Please try again later.",
+            variant: "destructive",
+          });
+        }
+      } finally {
+        if (isMounted) {
+          setLoading(false);
         }
       }
     };
-
-    fetchGigs();
-    fetchUserGigs();
-  }, [toast, session]);
+    
+    fetchData();
+    
+    // Cleanup function
+    return () => {
+      isMounted = false;
+    };
+  }, [toast, session]); // Only re-run when session changes
 
   // Fallback job card for loading state
   const fallbackJobCard = {
@@ -144,6 +169,16 @@ export default function Component() {
     return text.substring(0, maxLength);
   };
 
+  // Job type categories with icons
+  const jobTypes = [
+    { id: 'all', label: 'All Jobs', icon: Briefcase },
+    { id: 'development', label: 'Development', icon: Code2 },
+    { id: 'design', label: 'Design', icon: Palette },
+    { id: 'marketing', label: 'Marketing', icon: Megaphone },
+    { id: 'business', label: 'Business', icon: BarChart2 },
+    { id: 'other', label: 'Other', icon: MoreHorizontal },
+  ];
+
   const filteredGigs = useMemo(() => {
     const parsePrice = (payment: string | number | undefined): number => {
       if (payment === undefined || payment === null) return 0;
@@ -151,26 +186,43 @@ export default function Component() {
       const num = Number(str.replace(/[^0-9.]/g, ""));
       return isNaN(num) ? 0 : num;
     };
+    
     const normalizedCompany = filterCompany.trim().toLowerCase();
     const min = minPrice ? Number(minPrice) : undefined;
     const max = maxPrice ? Number(maxPrice) : undefined;
     const normalizedType = jobType.trim().toLowerCase();
+    
     return gigs.filter((gig) => {
+      // Filter by company name
       if (
         normalizedCompany &&
         !(gig.companyName || "").toLowerCase().includes(normalizedCompany)
       ) {
         return false;
       }
+      
+      // Filter by price range
       const price = parsePrice(gig.payment);
       if (min !== undefined && price < min) return false;
       if (max !== undefined && price > max) return false;
-      if (
-        normalizedType &&
-        !String(gig.category || "").toLowerCase().includes(normalizedType)
-      ) {
-        return false;
+      
+      // Filter by job type
+      if (jobType && jobType !== 'all') {
+        const gigCategory = String(gig.category || "").toLowerCase();
+        if (jobType === 'other') {
+          // For 'other', show gigs that don't match any of our main categories
+          const mainCategories = jobTypes
+            .filter(t => t.id !== 'all' && t.id !== 'other')
+            .map(t => t.id);
+          const isMainCategory = mainCategories.some(cat => 
+            gigCategory.includes(cat)
+          );
+          if (isMainCategory) return false;
+        } else if (!gigCategory.includes(normalizedType)) {
+          return false;
+        }
       }
+      
       return true;
     });
   }, [gigs, filterCompany, minPrice, maxPrice, jobType]);
@@ -449,7 +501,28 @@ export default function Component() {
           <div className="fixed bottom-1 inset-x-0 z-50">
             <Navbar />
           </div>
-          {/* Tabs removed; Bookmarked is now a separate page */}
+          {/* Job Type Tabs - Hidden on mobile */}
+          <div className="hidden lg:flex overflow-x-auto pb-2 pr-4 gap-1 sticky top-0 z-10 bg-transparent pt-2">
+            {jobTypes.map((type) => {
+              const Icon = type.icon;
+              return (
+                <button
+                  key={type.id}
+                  onClick={() => setJobType(type.id)}
+                  className={`flex items-center justify-center gap-2 whitespace-nowrap px-4 py-1.5 rounded-md text-sm font-medium transition-colors border ${
+                    jobType === type.id
+                      ? 'bg-black text-white border-white border-2'
+                      : 'bg-transparent text-gray-300 border-gray-600 hover:border-gray-400'
+                  }`}
+                  style={{ minHeight: '32px' }}
+                >
+                  <Icon className="w-4 h-4" />
+                  <span>{type.label}</span>
+                </button>
+              );
+            })}
+          </div>
+
           {/* Header - Fixed at top */}
           <div className="flex items-center justify-between p-4 pt-8 sticky top-0 z-10 bg-transparent">
             <div>
@@ -504,14 +577,24 @@ export default function Component() {
                       </div>
                     </div>
                     <div>
-                      <label className="block text-xs font-semibold mb-1">Job Type</label>
-                      <input
-                        type="text"
-                        value={jobType}
-                        onChange={(e) => setJobType(e.target.value)}
-                        placeholder="e.g., design, marketing, ..."
-                        className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-200"
-                      />
+                      <label className="block text-xs font-semibold mb-2">Job Type</label>
+                      <div className="grid grid-cols-2 gap-2">
+                        {jobTypes.map((type) => (
+                          <button
+                            key={type.id}
+                            type="button"
+                            onClick={() => setJobType(type.id)}
+                            className={`flex items-center justify-center gap-2 p-2 rounded-md text-sm ${
+                              jobType === type.id
+                                ? 'bg-skill text-white'
+                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                            }`}
+                          >
+                            <type.icon className="w-4 h-4" />
+                            <span>{type.label}</span>
+                          </button>
+                        ))}
+                      </div>
                     </div>
                     <div className="flex gap-2 pt-2">
                       <Button
@@ -589,9 +672,28 @@ export default function Component() {
         {/* Main Content */}
         <div className="flex-1 p-8 lg:ml-64">
           {/* Filter top-right */}
-          <div className="flex items-center justify-between mb-8">
-            <div></div>
-            <div className="relative">
+          <div className="flex items-start mb-4">
+            <div className="flex-1 flex items-center overflow-x-auto gap-2 pr-4">
+              {jobTypes.map((type) => {
+                const Icon = type.icon;
+                return (
+                  <button
+                    key={type.id}
+                    onClick={() => setJobType(type.id)}
+                    className={`flex items-center justify-center gap-2 whitespace-nowrap px-4 py-1.5 rounded-md text-sm font-medium transition-colors border ${
+                      jobType === type.id
+                        ? 'bg-black text-white border-white border-2'
+                        : 'bg-transparent text-gray-300 border-gray-600 hover:border-gray-400'
+                    }`}
+                    style={{ minHeight: '32px' }}
+                  >
+                    <Icon className="w-4 h-4" />
+                    <span>{type.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+            <div className="relative flex-shrink-0 self-center">
               <Button
                 variant="outline"
                 className="bg-transparent border-gray-600 text-gray-400 hover:bg-gray-800 hover:text-white"
@@ -637,14 +739,24 @@ export default function Component() {
                       </div>
                     </div>
                     <div>
-                      <label className="block text-xs font-semibold mb-1">Job Type</label>
-                      <input
-                        type="text"
-                        value={jobType}
-                        onChange={(e) => setJobType(e.target.value)}
-                        placeholder="e.g., design, marketing, ..."
-                        className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-200"
-                      />
+                      <label className="block text-xs font-semibold mb-2">Job Type</label>
+                      <div className="grid grid-cols-2 gap-2">
+                        {jobTypes.map((type) => (
+                          <button
+                            key={type.id}
+                            type="button"
+                            onClick={() => setJobType(type.id)}
+                            className={`flex items-center justify-center gap-2 p-2 rounded-md text-sm ${
+                              jobType === type.id
+                                ? 'bg-skill text-white'
+                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                            }`}
+                          >
+                            <type.icon className="w-4 h-4" />
+                            <span>{type.label}</span>
+                          </button>
+                        ))}
+                      </div>
                     </div>
                     <div className="flex gap-2 pt-2">
                       <Button
