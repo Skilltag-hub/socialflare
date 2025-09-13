@@ -48,16 +48,26 @@ interface Applicant {
   // Add any other applicant fields from waitlist.gigs
 }
 
-interface Job {
+interface Company {
   _id: string;
   companyName: string;
+  // Add other company fields as needed
+}
+
+interface Job {
+  _id: string;
+  companyId?: string;
+  company?: Company | null;
+  companyName?: string;
+  gigTitle?: string;
+  title?: string;
   description: string;
   datePosted: string;
   status: string;
   applicants: Applicant[];
-  // Additional fields from waitlist.gigs
   openings?: number;
   payment?: string;
+  stipend?: string;
   skills?: string[];
   aboutCompany?: string;
 }
@@ -80,7 +90,9 @@ export default function CompaniesJobApplicationsPage({
 }) {
   const [activeTab, setActiveTab] = useState<ApplicationStatus>("pending");
   const [job, setJob] = useState<Job | null>(null);
+  const [company, setCompany] = useState<Company | null>(null);
   const [loading, setLoading] = useState(true);
+  const [applicationState, setApplicationState] = useState<Record<string, ApplicationStatus>>({});
   const [userDataMap, setUserDataMap] = useState<
     Record<string, UserData | null>
   >({});
@@ -109,6 +121,23 @@ export default function CompaniesJobApplicationsPage({
   }, [params]);
 
   // Define fetchJob outside of useEffect so it can be called from other functions
+  const fetchCompanyDetails = async (companyId: string) => {
+    if (!companyId) return null;
+    
+    try {
+      const res = await fetch(`/api/companies/${companyId}`);
+      if (!res.ok) {
+        console.error(`Failed to fetch company details: ${res.status} ${res.statusText}`);
+        return null;
+      }
+      const data = await res.json();
+      return data.company || data; // Handle both { company: {...} } and direct response
+    } catch (error) {
+      console.error('Error fetching company details:', error);
+      return null;
+    }
+  };
+
   const fetchJob = async () => {
     if (!jobId) return;
 
@@ -119,7 +148,19 @@ export default function CompaniesJobApplicationsPage({
         throw new Error(`Failed to fetch job: ${res.status} ${res.statusText}`);
 
       const response = await res.json();
-      const gigData = response.gig || response; // Handle both { gig: {...} } and direct response
+      console.log('Raw API Response:', JSON.stringify(response, null, 2));
+      
+      // The API now returns { gig: {...} } with company data included
+      const gigData = response.gig || response;
+      console.log('Raw gig data:', JSON.stringify(gigData, null, 2));
+      
+      // The API now handles the special case where companyName is the job title
+      const jobTitle = gigData.title || gigData.gigTitle || "Untitled Gig";
+      console.log('Using job title:', jobTitle);
+      
+      // Log company data for debugging
+      console.log('Company data from API:', gigData.company);
+      console.log('Company name from API:', gigData.company?.companyName);
 
       console.log("Raw API Response:", JSON.stringify(response, null, 2));
       console.log("Processed Gig Data:", JSON.stringify(gigData, null, 2));
@@ -131,7 +172,11 @@ export default function CompaniesJobApplicationsPage({
       // Transform the data to match our Job interface
       const jobData: Job = {
         _id: gigData._id,
-        companyName: gigData.companyName,
+        title: jobTitle,
+        gigTitle: jobTitle,
+        companyId: gigData.company?._id || gigData.companyId,
+        company: gigData.company || null,
+        companyName: gigData.company?.companyName || "",
         description: gigData.description,
         datePosted: gigData.datePosted,
         status: gigData.status || "applied",
@@ -242,33 +287,39 @@ export default function CompaniesJobApplicationsPage({
 
   // Debug: Log job data and filtered applicants
   useEffect(() => {
-    if (job?.applicants) {
+    if (job) {
       console.log("Job data:", job);
-      console.log(
-        "All applicants with statuses:",
-        job.applicants.map((app) => ({
-          id: app._id,
-          email: app.student?.email,
-          status: app.status,
-          studentStatus: app.student?.status,
-          appliedAt: app.appliedAt,
-        }))
-      );
-      console.log("Active tab:", activeTab);
-
-      const filtered = job.applicants.filter(
-        (applicant) => applicant.status === activeTab
-      );
-      console.log("Filtered applicants:", filtered);
-
-      // Log why applicants might be filtered out
-      job.applicants.forEach((applicant) => {
+      if (job.applicants) {
         console.log(
-          `Applicant ${applicant._id} status: ${
-            applicant.status
-          }, matches active tab: ${applicant.status === activeTab}`
+          "All applicants with statuses:",
+          job.applicants.map((app) => ({
+            id: app._id,
+            email: app.email,
+            status: app.status,
+            name: app.name,
+            appliedAt: app.appliedAt,
+          }))
         );
-      });
+        console.log("Active tab:", activeTab);
+
+        const filtered = job.applicants.filter(
+          (applicant) => applicant.status === activeTab
+        );
+        console.log("Filtered applicants:", filtered);
+
+        // Log why applicants might be filtered out
+        job.applicants.forEach((applicant) => {
+          console.log(
+            `Applicant ${applicant._id} (${applicant.name || 'No name'}) status: ${
+              applicant.status
+            }, matches active tab: ${applicant.status === activeTab}`
+          );
+        });
+      } else {
+        console.log("No applicants array in job data");
+      }
+    } else {
+      console.log("Job data not loaded yet");
     }
   }, [job, activeTab]);
 
@@ -330,30 +381,19 @@ export default function CompaniesJobApplicationsPage({
     }, 3000);
   };
 
-  // Filter applicants based on active tab
-  const filteredApplicants =
-    job?.applicants?.filter((applicant) => {
-      const matches =
-        (activeTab === "applied" && applicant.status === "applied") ||
-        (activeTab === "shortlisted" && applicant.status === "shortlisted") ||
-        (activeTab === "accepted" && applicant.status === "accepted") ||
-        (activeTab === "rejected" && applicant.status === "rejected") ||
-        (activeTab === "submitted" &&
-          (applicant.status === "completed" ||
-            applicant.status === "withdrawal_requested" ||
-            applicant.status === "withdrawal_processed"));
-
-      console.log("Applicant:", {
-        id: applicant._id,
-        status: applicant.status,
-        activeTab,
-        matches,
-        name: applicant.name || "No name",
-        email: applicant.email || "No email",
-      });
-
-      return matches;
-    }) || [];
+  // Filter applicants based on active tab and merge with persisted state
+  const filteredApplicants = job?.applicants?.length 
+    ? job.applicants
+        .map((applicant) => {
+          const persistedStatus = applicationState[`${job._id}_${applicant._id}`];
+          return {
+            ...applicant,
+            // Use persisted status if available, otherwise fallback to server status
+            status: persistedStatus || applicant.status,
+          };
+        })
+        .filter((applicant) => applicant.status === activeTab)
+    : [];
 
   console.log("Filtered Applicants:", {
     activeTab,
@@ -368,12 +408,15 @@ export default function CompaniesJobApplicationsPage({
   });
 
   const getTabCount = (status: ApplicationStatus) => {
+    if (!job?.applicants?.length) return 0;
     return (
-      job?.applicants?.filter(
+      job.applicants.filter(
         (applicant) => applicant.status === getStatusForTab(status)
       ).length || 0
     );
   };
+
+  const [isUpdating, setIsUpdating] = useState<Record<string, boolean>>({});
 
   const handleViewApplication = async (userId: string) => {
     try {
@@ -388,46 +431,53 @@ export default function CompaniesJobApplicationsPage({
     }
   };
 
-  const [isUpdating, setIsUpdating] = useState<Record<string, boolean>>({});
-
-  async function handleStatusUpdate(
+  // Handle status updates for applications
+  const handleStatusUpdate = async (
     applicantId: string,
     newStatus: ApplicationStatus
-  ) {
-    try {
-      setIsUpdating((prev) => ({ ...prev, [applicantId]: true }));
+  ) => {
+    if (!job) return;
 
-      const res = await fetch(`/api/gigs/${jobId}/applications`, {
-        method: "PATCH",
+    try {
+      // Update local state immediately for better UX
+      const updatedApplicants = job.applicants.map((applicant) =>
+        applicant._id === applicantId
+          ? { ...applicant, status: newStatus }
+          : applicant
+      );
+
+      setJob({
+        ...job,
+        applicants: updatedApplicants,
+      });
+
+      // Update application state in localStorage
+      setApplicationState((prev) => ({
+        ...prev,
+        [`${job._id}_${applicantId}`]: newStatus,
+      }));
+
+      // Send API request to update status
+      const response = await fetch(`/api/jobs/${job._id}/applications`, {
+        method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          userId: applicantId,
+          applicantId,
           status: newStatus,
         }),
       });
 
-      if (!res.ok) {
-        const errorData = await res.json().catch(() => ({}));
-        throw new Error(
-          errorData.message || `Failed to update status: ${res.statusText}`
-        );
+      if (!response.ok) {
+        console.error("Failed to update application status");
+        // Revert local state if API call fails
+        setJob(job);
       }
-
-      // Show success message
-      showToast(`Status updated to ${newStatus}`, "success");
-
-      // Refresh the job data to get updated applicant statuses
-      await fetchJob();
     } catch (error) {
-      console.error("Error updating applicant status:", error);
-      showToast(
-        error instanceof Error ? error.message : "Failed to update status",
-        "error"
-      );
-    } finally {
-      setIsUpdating((prev) => ({ ...prev, [applicantId]: false }));
+      console.error("Error updating application status:", error);
+      // Revert local state on error
+      setJob(job);
     }
   }
 
@@ -573,6 +623,7 @@ export default function CompaniesJobApplicationsPage({
     // Show the payment modal
     setShowPaymentModal(true);
   }
+
   const tabs = [
     { key: "applied" as const, label: "Applied" }, // more accurate labeling
     { key: "shortlisted" as const, label: "Shortlisted" },
@@ -584,7 +635,10 @@ export default function CompaniesJobApplicationsPage({
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen">
-        Loading...
+        <div className="animate-pulse flex flex-col items-center space-y-4">
+          <div className="w-12 h-12 bg-gray-200 rounded-full"></div>
+          <div className="w-32 h-4 bg-gray-200 rounded"></div>
+        </div>
       </div>
     );
   }
@@ -592,29 +646,80 @@ export default function CompaniesJobApplicationsPage({
   if (!job) {
     return (
       <div className="flex items-center justify-center h-screen">
-        Job not found
+        <div className="text-center">
+          <h2 className="text-2xl font-semibold text-gray-800 mb-2">Job Not Found</h2>
+          <p className="text-gray-600 mb-4">The job you're looking for doesn't exist or has been removed.</p>
+          <Link 
+            href="/companies/my-zigs" 
+            className="inline-flex items-center text-blue-600 hover:text-blue-800"
+          >
+            <ArrowLeft className="w-4 h-4 mr-1" />
+            Back to My Jobs
+          </Link>
+        </div>
       </div>
     );
   }
 
   return (
     <div className="min-h-screen bg-black text-white p-6">
-      <div className="mb-6">
-        <Link
-          href="/companies/my-zigs"
-          className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors mb-4"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          <span>Back</span>
-        </Link>
-      </div>
-
       <div className="max-w-2xl mx-auto">
+        <div className="mb-6">  
+          <Link
+            href="/companies/my-zigs"
+            className="inline-flex items-center gap-2 text-gray-400 hover:text-white transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span>Back</span>
+          </Link>
+        </div>
         <Card className="bg-white text-black rounded-xl shadow-lg">
           <CardContent className="p-6">
             <div className="mb-6">
-              <h2 className="text-xl font-bold mb-2">{job.gigTitle}</h2>
-              <p className="text-gray-700 leading-relaxed">{job.description}</p>
+              <div className="flex justify-between items-start">
+                <div>
+                  <h2 className="text-2xl font-bold text-gray-900">
+                    {job.title || 'Job Details'}
+                  </h2>
+                  <p className="text-lg font-medium text-gray-700">
+                    {job.company?.companyName || job.companyName || 'Company not specified'}
+                  </p>
+                  {(job.payment || job.stipend) && (
+                    <p className="text-green-600 font-medium mt-1">
+                      {job.stipend
+                        ? `Stipend: ₹${job.stipend}`
+                        : `Stipend: ₹${job.payment}`}
+                    </p>
+                  )}
+                </div>
+                <div className="bg-gray-100 p-3 rounded-lg">
+                  <p className="text-sm text-gray-600">
+                    <span className="font-medium">Posted:</span>{" "}
+                    {new Date(job.datePosted).toLocaleDateString()}
+                  </p>
+                  {job.openings && (
+                    <p className="text-sm text-gray-600">
+                      <span className="font-medium">Openings:</span> {job.openings}
+                    </p>
+                  )}
+                </div>
+              </div>
+              <div className="mt-4">
+                <h3 className="font-medium text-gray-900 mb-2">Job Description:</h3>
+                <p className="text-gray-700 whitespace-pre-line">{job.description}</p>
+              </div>
+              {job.skills && job.skills.length > 0 && (
+                <div className="mt-4">
+                  <h3 className="font-medium text-gray-900 mb-2">Skills Required:</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {job.skills.map((skill, index) => (
+                      <span key={index} className="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded">
+                        {skill}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
 
             <div className="flex items-center gap-6 mb-8">
@@ -654,7 +759,11 @@ export default function CompaniesJobApplicationsPage({
             </div>
 
             <div className="space-y-3 max-h-80 overflow-y-auto mb-6">
-              {filteredApplicants.length === 0 ? (
+              {!job ? (
+                <div className="text-center py-8 text-gray-500">
+                  Loading job details...
+                </div>
+              ) : filteredApplicants.length === 0 ? (
                 <div className="text-center py-8 text-gray-500">
                   No applicants in this category yet.
                 </div>

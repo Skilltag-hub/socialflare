@@ -19,6 +19,7 @@ export async function GET(
       )
     }
 
+    // First get the gig
     const gig = await db.collection("gigs").findOne({
       _id: new ObjectId(resolvedParams.gigId)
     })
@@ -30,14 +31,35 @@ export async function GET(
       )
     }
 
+    // If the gig has a companyId, fetch the company data
+    let company = null;
+    if (gig.companyId) {
+      company = await db.collection("companies").findOne({
+        _id: new ObjectId(gig.companyId)
+      });
+    }
+
     // Convert ObjectId to string and format the response
     const response = {
       ...gig,
       _id: gig._id.toString(),
       datePosted: gig.datePosted 
         ? new Date(gig.datePosted).toISOString() 
-        : new Date().toISOString()
+        : new Date().toISOString(),
+      // Handle special case where companyName is actually the job title
+      title: gig.title || gig.gigTitle || gig.companyName || "Untitled Gig",
+      gigTitle: gig.gigTitle || gig.title || gig.companyName || "Untitled Gig",
+      // Clear the companyName since it's actually the job title
+      companyName: company?.companyName || "",
+      // Include company data if available
+      company: company ? {
+        _id: company._id.toString(),
+        companyName: company.companyName,
+        logoUrl: company.logoUrl
+      } : null
     }
+    
+    console.log('Formatted gig response:', JSON.stringify(response, null, 2));
 
     return NextResponse.json({ gig: response })
   } catch (error) {

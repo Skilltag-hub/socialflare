@@ -104,19 +104,43 @@ export default function MyZigs() {
 
       // Transform the data to match the expected format
       let formattedJobs = gigs.map((job, index) => {
+        // Create a formatted job object that matches our frontend expectations
+        const jobTitle = job.gigTitle || job.title || "Untitled Gig";
+        
         const formattedJob = {
           _id: job._id?.toString() || `job-${Date.now()}-${index}`,
-          gigTitle: job.companyName || "Untitled Gig",
+          // Ensure we don't mix up title and company name
+          title: jobTitle,
+          gigTitle: jobTitle,
           description: job.description || "No description provided",
           datePosted: job.datePosted || new Date().toISOString(),
           status: job.status || "active",
+          // Company data
+          company: job.company || (job.companyId ? {
+            _id: job.companyId,
+            companyName: job.companyName,
+            logoUrl: job.companyLogo
+          } : null),
           companyName: job.companyName,
+          companyId: job.companyId || null,
+          companyLogo: job.companyLogo,
+          // Job details
           openings: job.openings || 1,
           payment: job.payment || "Not specified",
+          stipend: job.stipend,
           skills: Array.isArray(job.skills) ? job.skills : [],
           aboutCompany: job.aboutCompany || "",
-          companyId: job.companyId || null,
+          // Additional fields from the database
+          category: job.category,
+          duration: job.duration,
+          location: job.location,
+          requiredExperience: job.requiredExperience,
+          applicationDeadline: job.applicationDeadline,
+          // Include applications if they exist
+          applications: Array.isArray(job.applications) ? job.applications : []
         };
+        
+        console.log(`Formatted job ${index}:`, formattedJob);
         console.log(`Formatted job ${index}:`, formattedJob);
         return formattedJob;
       });
@@ -158,13 +182,30 @@ export default function MyZigs() {
     if (!jobIds || jobIds.length === 0) return {};
     
     try {
+      console.log('Fetching applications for job IDs:', jobIds);
       const response = await fetch(`/api/applications?jobIds=${jobIds.join(',')}`);
       if (!response.ok) {
-        throw new Error('Failed to fetch applications');
+        throw new Error(`Failed to fetch applications: ${response.status} ${response.statusText}`);
       }
       const data = await response.json();
-      // The API returns { applications: { [jobId]: [...] } }
-      return data.applications || {};
+      console.log('Applications API response:', data);
+      
+      // Handle different response formats
+      let appsData = {};
+      if (data.applications) {
+        // Format: { applications: { [jobId]: [...] } }
+        appsData = data.applications;
+      } else if (Array.isArray(data)) {
+        // Format: [{ jobId: '...', applications: [...] }]
+        data.forEach(item => {
+          if (item.jobId && Array.isArray(item.applications)) {
+            appsData[item.jobId] = item.applications;
+          }
+        });
+      }
+      
+      console.log('Processed applications data:', appsData);
+      return appsData;
     } catch (error) {
       console.error('Error fetching applications:', error);
       // Return an object with empty arrays for each job ID to prevent errors
@@ -431,17 +472,34 @@ export default function MyZigs() {
                 </Button>
               </div>
             ) : (
-              filteredJobs.map((job) => (
-                <JobCard
-                  key={job._id}
-                  job={job}
-                  applications={applications}
-                  handleEditJob={handleEditJob}
-                  handleDeleteJob={handleDeleteJob}
-                  markCompleted={markCompleted}
-                  isDeleting={isDeleting}
-                />
-              ))
+              filteredJobs.map((job) => {
+                // Ensure job has the correct company name structure
+                const jobWithCompany = {
+                  ...job,
+                  companyName: job.company?.companyName || job.company?.name || job.companyName,
+                  company: job.company || (job.companyId ? { _id: job.companyId, companyName: job.companyName } : null)
+                };
+                
+                // Debug log
+                console.log(`Rendering job ${job._id}:`, {
+                  job,
+                  applications: applications[job._id],
+                  companyName: jobWithCompany.companyName,
+                  company: jobWithCompany.company
+                });
+                
+                return (
+                  <JobCard
+                    key={job._id}
+                    job={jobWithCompany}
+                    applications={applications}
+                    handleEditJob={handleEditJob}
+                    handleDeleteJob={handleDeleteJob}
+                    markCompleted={markCompleted}
+                    isDeleting={isDeleting}
+                  />
+                );
+              })
             )}
           </div>
         </div>
