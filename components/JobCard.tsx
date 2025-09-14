@@ -40,17 +40,14 @@ interface JobCardProps {
     company?: Company | null;
     companyName?: string;
     stipend?: string;
-    applications?: Array<{_id: string}>; // For direct applications array
+    applications?: Array<{ _id: string }>; // for direct applications
     openings?: number;
   };
-  applications: Record<
-    string,
-    Array<{
-      _id: string;
-      applicantEmail: string;
-      status: string;
-    }>
-  >;
+  applications?: Array<{
+    _id: string;
+    applicantEmail: string;
+    status: string;
+  }>; // 🔹 now just an array, not a map
   handleEditJob: (job: any, e: React.MouseEvent) => void;
   handleDeleteJob: (jobId: string, e: React.MouseEvent) => void;
   markCompleted: (jobId: string, e: React.MouseEvent) => void;
@@ -62,7 +59,7 @@ import { useRouter } from "next/navigation";
 
 export default function JobCard({
   job,
-  applications = {},
+  applications = [],
   handleEditJob,
   handleDeleteJob,
   markCompleted,
@@ -71,6 +68,7 @@ export default function JobCard({
 }: JobCardProps) {
   const [companyData, setCompanyData] = useState<Company | null>(null);
   const [isLoadingCompany, setIsLoadingCompany] = useState(false);
+  const [fetchedAppCount, setFetchedAppCount] = useState<number | null>(null);
   const router = useRouter();
 
   // Fetch company data if we have companyId but no company object
@@ -85,7 +83,7 @@ export default function JobCard({
             setCompanyData(data.company || data);
           }
         } catch (error) {
-          console.error('Error fetching company:', error);
+          console.error("Error fetching company:", error);
         } finally {
           setIsLoadingCompany(false);
         }
@@ -97,39 +95,70 @@ export default function JobCard({
     fetchCompany();
   }, [job.companyId, job.company]);
 
-  // Get the number of applications for this job
-  const applicationCount = job.applications?.length || applications[job._id]?.length || 0;
+  // Fetch applications count from waitlist.gigs by job._id
+  useEffect(() => {
+    let isMounted = true;
+    const fetchAppCount = async () => {
+      try {
+        if (!job._id) return;
+        const res = await fetch(`/api/gigs/${job._id}`);
+        if (!res.ok) return;
+        const data = await res.json();
+        // Support different response shapes: { gig: { applications: [...] } } or direct
+        const gig = data.gig || data;
+        const count =
+          (Array.isArray(gig?.applications) ? gig.applications.length : null) ??
+          (Array.isArray(gig?.applicants) ? gig.applicants.length : 0);
+        if (isMounted) setFetchedAppCount(count);
+      } catch (e) {
+        // Silently ignore and fall back to props
+        if (isMounted) setFetchedAppCount(null);
+      }
+    };
+    fetchAppCount();
+    return () => {
+      isMounted = false;
+    };
+  }, [job._id]);
+
+  // Get the number of applications for this job, preferring fetched count
+  const applicationCount =
+    (typeof fetchedAppCount === "number" ? fetchedAppCount : null) ??
+    job.applications?.length ??
+    applications?.length ??
+    0;
+
   const handleViewApplications = (e: React.MouseEvent) => {
     e.stopPropagation();
     window.location.href = `/companies/job-applications/${job._id}`;
   };
 
-
   const handleCardClick = (e: React.MouseEvent) => {
     // Don't navigate if clicking on action buttons
-    if ((e.target as HTMLElement).closest('button, a')) {
+    if ((e.target as HTMLElement).closest("button, a")) {
       return;
     }
     router.push(`/companies/job-applications/${job._id}`);
   };
 
   return (
-    <div 
+    <div
       className="bg-white border border-gray-200 rounded-2xl shadow-sm hover:shadow-md transition-all duration-200 group cursor-pointer"
-      onClick={handleCardClick}>
+      onClick={handleCardClick}
+    >
       <div className="p-4">
         {/* Header Section */}
         <div className="mb-4">
           <div className="flex items-center gap-3 mb-2">
             {job.companyLogo && (
               <div className="w-8 h-8 rounded-full overflow-hidden bg-gray-100 flex-shrink-0">
-                <img 
-                  src={job.companyLogo} 
-                  alt={job.company?.companyName || 'Company logo'} 
+                <img
+                  src={job.companyLogo}
+                  alt={job.company?.companyName || "Company logo"}
                   className="w-full h-full object-cover"
                   onError={(e) => {
                     // Fallback to a placeholder if image fails to load
-                    e.currentTarget.src = '/default-company-logo.png';
+                    e.currentTarget.src = "/default-company-logo.png";
                   }}
                 />
               </div>
@@ -137,7 +166,7 @@ export default function JobCard({
             <div>
               <h3 className="text-lg font-semibold text-gray-900 line-clamp-1 group-hover:text-blue-600 transition-colors">
                 {/* Job title is stored in companyName field */}
-                {job.companyName || job.title || job.gigTitle || 'Untitled Gig'}
+                {job.companyName || job.title || job.gigTitle || "Untitled Gig"}
               </h3>
               {/* Company name is stored in the company document, fetched separately */}
               {isLoadingCompany ? (
@@ -172,7 +201,9 @@ export default function JobCard({
           <div className="mb-4">
             <div className="inline-flex items-center bg-green-50 border border-green-200 rounded-lg px-2.5 py-0.5">
               <span className="text-xs font-medium text-green-700">
-                {job.stipend ? `Stipend: ₹${job.stipend}` : `Payment: ₹${job.payment}`}
+                {job.stipend
+                  ? `Stipend: ₹${job.stipend}`
+                  : `Payment: ₹${job.payment}`}
               </span>
             </div>
           </div>
@@ -204,8 +235,11 @@ export default function JobCard({
           <div className="flex items-center gap-2">
             <Users className="w-3.5 h-3.5 text-purple-500" />
             <span className="font-medium">
-              {job.applications?.length || applications[job._id]?.length || 0} {job.applications?.length === 1 || applications[job._id]?.length === 1 ? 'Applicant' : 'Applicants'}
-              {job.openings ? ` • ${job.openings} opening${job.openings > 1 ? 's' : ''}` : ''}
+              {applicationCount}{" "}
+              {applicationCount === 1 ? "Applicant" : "Applicants"}
+              {job.openings
+                ? ` • ${job.openings} opening${job.openings > 1 ? "s" : ""}`
+                : ""}
             </span>
           </div>
           <div className="flex items-center gap-2">
@@ -274,7 +308,9 @@ export default function JobCard({
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <Button
-                      variant={job.status === "completed" ? "outline" : "default"}
+                      variant={
+                        job.status === "completed" ? "outline" : "default"
+                      }
                       size="sm"
                       className={`${
                         job.status === "completed"

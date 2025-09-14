@@ -106,7 +106,7 @@ export default function MyZigs() {
       let formattedJobs = gigs.map((job, index) => {
         // Create a formatted job object that matches our frontend expectations
         const jobTitle = job.gigTitle || job.title || "Untitled Gig";
-        
+
         const formattedJob = {
           _id: job._id?.toString() || `job-${Date.now()}-${index}`,
           // Ensure we don't mix up title and company name
@@ -116,11 +116,15 @@ export default function MyZigs() {
           datePosted: job.datePosted || new Date().toISOString(),
           status: job.status || "active",
           // Company data
-          company: job.company || (job.companyId ? {
-            _id: job.companyId,
-            companyName: job.companyName,
-            logoUrl: job.companyLogo
-          } : null),
+          company:
+            job.company ||
+            (job.companyId
+              ? {
+                  _id: job.companyId,
+                  companyName: job.companyName,
+                  logoUrl: job.companyLogo,
+                }
+              : null),
           companyName: job.companyName,
           companyId: job.companyId || null,
           companyLogo: job.companyLogo,
@@ -137,9 +141,9 @@ export default function MyZigs() {
           requiredExperience: job.requiredExperience,
           applicationDeadline: job.applicationDeadline,
           // Include applications if they exist
-          applications: Array.isArray(job.applications) ? job.applications : []
+          applications: Array.isArray(job.applications) ? job.applications : [],
         };
-        
+
         console.log(`Formatted job ${index}:`, formattedJob);
         console.log(`Formatted job ${index}:`, formattedJob);
         return formattedJob;
@@ -180,16 +184,20 @@ export default function MyZigs() {
   // Fetch applications for all jobs
   const fetchApplications = async (jobIds) => {
     if (!jobIds || jobIds.length === 0) return {};
-    
+
     try {
-      console.log('Fetching applications for job IDs:', jobIds);
-      const response = await fetch(`/api/applications?jobIds=${jobIds.join(',')}`);
+      console.log("Fetching applications for job IDs:", jobIds);
+      const response = await fetch(
+        `/api/applications?jobIds=${jobIds.join(",")}`
+      );
       if (!response.ok) {
-        throw new Error(`Failed to fetch applications: ${response.status} ${response.statusText}`);
+        throw new Error(
+          `Failed to fetch applications: ${response.status} ${response.statusText}`
+        );
       }
       const data = await response.json();
-      console.log('Applications API response:', data);
-      
+      console.log("Applications API response:", data);
+
       // Handle different response formats
       let appsData = {};
       if (data.applications) {
@@ -197,20 +205,20 @@ export default function MyZigs() {
         appsData = data.applications;
       } else if (Array.isArray(data)) {
         // Format: [{ jobId: '...', applications: [...] }]
-        data.forEach(item => {
+        data.forEach((item) => {
           if (item.jobId && Array.isArray(item.applications)) {
             appsData[item.jobId] = item.applications;
           }
         });
       }
-      
-      console.log('Processed applications data:', appsData);
+
+      console.log("Processed applications data:", appsData);
       return appsData;
     } catch (error) {
-      console.error('Error fetching applications:', error);
+      console.error("Error fetching applications:", error);
       // Return an object with empty arrays for each job ID to prevent errors
       const emptyApps = {};
-      jobIds.forEach(id => emptyApps[id] = []);
+      jobIds.forEach((id) => (emptyApps[id] = []));
       return emptyApps;
     }
   };
@@ -219,24 +227,24 @@ export default function MyZigs() {
   useEffect(() => {
     const updateJobsAndApplications = async () => {
       if (jobs.length > 0) {
-        const jobIds = jobs.map(job => job._id);
+        const jobIds = jobs.map((job) => job._id);
         const appsData = await fetchApplications(jobIds);
-        
+
         // Ensure we have an entry for each job, even if no applications
         const updatedApps = { ...applications };
-        jobIds.forEach(id => {
+        jobIds.forEach((id) => {
           if (!updatedApps[id]) {
             updatedApps[id] = [];
           }
         });
-        
+
         setApplications({
           ...updatedApps,
-          ...appsData
+          ...appsData,
         });
       }
     };
-    
+
     updateJobsAndApplications();
   }, [jobs]);
 
@@ -407,7 +415,7 @@ export default function MyZigs() {
                 className={`px-8 py-2 rounded-lg text-sm font-extralight transition-colors ${
                   activeFilter === "active"
                     ? "bg-black text-white hover:bg-gray-800 border-gray-600 hover:text-white"
-                    : "bg-transparent border-gray-600 text-gray-400 hover:bg-gray-800 hover:text-white"
+                    : "bg-transparent border-gray-600 text-black hover:bg-gray-800 hover:text-white"
                 }`}
               >
                 Active {counts.active}
@@ -418,7 +426,7 @@ export default function MyZigs() {
                 className={`px-8 py-2 rounded-lg text-sm font-extralight transition-colors ${
                   activeFilter === "completed"
                     ? "bg-black text-white hover:bg-gray-800 border-gray-600 hover:text-white"
-                    : "bg-transparent border-gray-600 text-gray-400 hover:bg-gray-800 hover:text-white"
+                    : "bg-transparent border-gray-600 text-black hover:bg-gray-800 hover:text-white"
                 }`}
               >
                 Completed {counts.completed}
@@ -476,23 +484,31 @@ export default function MyZigs() {
                 // Ensure job has the correct company name structure
                 const jobWithCompany = {
                   ...job,
-                  companyName: job.company?.companyName || job.company?.name || job.companyName,
-                  company: job.company || (job.companyId ? { _id: job.companyId, companyName: job.companyName } : null)
+                  companyName:
+                    job.company?.companyName ||
+                    job.company?.name ||
+                    job.companyName,
+                  company:
+                    job.company ||
+                    (job.companyId
+                      ? { _id: job.companyId, companyName: job.companyName }
+                      : null),
                 };
-                
+
                 // Debug log
                 console.log(`Rendering job ${job._id}:`, {
                   job,
-                  applications: applications[job._id],
+                  applications: job.applications,
                   companyName: jobWithCompany.companyName,
-                  company: jobWithCompany.company
+                  company: jobWithCompany.company,
                 });
-                
+                console.log("smack test", job);
+
                 return (
                   <JobCard
                     key={job._id}
                     job={jobWithCompany}
-                    applications={applications}
+                    applications={applications[job._id] || []}
                     handleEditJob={handleEditJob}
                     handleDeleteJob={handleDeleteJob}
                     markCompleted={markCompleted}

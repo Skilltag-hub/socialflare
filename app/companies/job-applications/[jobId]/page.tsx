@@ -88,17 +88,22 @@ export default function CompaniesJobApplicationsPage({
 }: {
   params: { jobId: string };
 }) {
-  const [activeTab, setActiveTab] = useState<ApplicationStatus>("pending");
+  const [activeTab, setActiveTab] = useState<ApplicationStatus>("applied");
   const [job, setJob] = useState<Job | null>(null);
   const [company, setCompany] = useState<Company | null>(null);
   const [loading, setLoading] = useState(true);
-  const [applicationState, setApplicationState] = useState<Record<string, ApplicationStatus>>({});
+  const [applicationState, setApplicationState] = useState<
+    Record<string, ApplicationStatus>
+  >({});
   const [userDataMap, setUserDataMap] = useState<
     Record<string, UserData | null>
   >({});
   const [jobId, setJobId] = useState<string | null>(null);
   const [showSubmissionModal, setShowSubmissionModal] = useState(false);
   const [selectedSubmission, setSelectedSubmission] = useState<any>(null);
+  // Track which tab initiated the submission view (to control actions inside modal)
+  const [submissionActionTab, setSubmissionActionTab] =
+    useState<ApplicationStatus | null>(null);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [selectedPayment, setSelectedPayment] = useState<{
     applicantId: string;
@@ -120,20 +125,178 @@ export default function CompaniesJobApplicationsPage({
     initializeParams();
   }, [params]);
 
+  // Centralized renderer for action buttons based on tab and applicant status
+  function renderActionButtons(applicant: Applicant) {
+    // In Applied tab, keep accepted/rejected visible but without actions
+    if (activeTab === "applied") {
+      if (["accepted", "rejected"].includes(applicant.status)) return null;
+      return (
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger>
+              <Button
+                onClick={() => handleStatusUpdate(applicant._id, "shortlisted")}
+                variant="outline"
+                className="bg-white hover:bg-yellow-500 text-yellow-500 hover:text-white transition-colors p-2 rounded-full"
+                aria-label="Shortlist"
+              >
+                <FunnelPlus className="w-5 h-5" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Shortlist</TooltipContent>
+          </Tooltip>
+          <Tooltip>
+            <TooltipTrigger>
+              <Button
+                onClick={() => handleStatusUpdate(applicant._id, "accepted")}
+                className="bg-white hover:bg-green-500 text-green-500 hover:text-white transition-colors p-2 rounded-full"
+                aria-label="Accept"
+              >
+                <Check className="w-5 h-5" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Accept</TooltipContent>
+          </Tooltip>
+          <Tooltip>
+            <TooltipTrigger>
+              <Button
+                onClick={() => handleStatusUpdate(applicant._id, "rejected")}
+                variant="outline"
+                className="bg-white hover:bg-red-500 text-red-500 hover:text-white transition-colors p-2 rounded-full"
+                aria-label="Reject"
+              >
+                <X className="w-5 h-5" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Reject</TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      );
+    }
+
+    // Accepted tab: view submission to accept/reject work
+    if (activeTab === "accepted" && applicant.status === "accepted") {
+      return (
+        <Button
+          variant="outline"
+          className="text-sm px-4 py-1 border-blue-300 text-blue-700 hover:bg-blue-50 bg-transparent"
+          onClick={() => {
+            setSubmissionActionTab("accepted");
+            handleViewSubmission(applicant._id);
+          }}
+        >
+          <Eye className="w-4 h-4 mr-2" />
+          View Submission
+        </Button>
+      );
+    }
+
+    // Completed tab: view submission and payment actions
+    if (activeTab === "completed") {
+      if (applicant.status === "completed") {
+        return (
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              className="text-sm px-3 py-1 border-blue-300 text-blue-700 hover:bg-blue-50 bg-transparent"
+              onClick={() => {
+                setSubmissionActionTab("completed");
+                handleViewSubmission(applicant._id);
+              }}
+            >
+              <Eye className="w-4 h-4 mr-1" />
+              View
+            </Button>
+          </div>
+        );
+      }
+      if (applicant.status === "withdrawal_requested") {
+        return (
+          <Button
+            variant="outline"
+            className="text-sm px-4 py-1 border-green-300 text-green-700 hover:bg-green-50 bg-transparent"
+            onClick={() => handleShowPaymentModal(applicant)}
+          >
+            <Send className="w-4 h-4 mr-2" />
+            Process Payment
+          </Button>
+        );
+      }
+      if (applicant.status === "withdrawal_processed") {
+        return (
+          <Button
+            variant="outline"
+            disabled
+            className="text-sm px-4 py-1 border-gray-300 text-gray-500 bg-gray-50"
+          >
+            <CheckCircle className="w-4 h-4 mr-2" />
+            Payment Processed
+          </Button>
+        );
+      }
+    }
+
+    // Default actions (e.g., in shortlisted tab)
+    return (
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger>
+            <Button
+              onClick={() => handleStatusUpdate(applicant._id, "shortlisted")}
+              variant="outline"
+              className="bg-white hover:bg-yellow-500 text-yellow-500 hover:text-white transition-colors p-2 rounded-full"
+              aria-label="Shortlist"
+            >
+              <FunnelPlus className="w-5 h-5" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>Shortlist</TooltipContent>
+        </Tooltip>
+        <Tooltip>
+          <TooltipTrigger>
+            <Button
+              onClick={() => handleStatusUpdate(applicant._id, "accepted")}
+              className="bg-white hover:bg-green-500 text-green-500 hover:text-white transition-colors p-2 rounded-full"
+              aria-label="Accept"
+            >
+              <Check className="w-5 h-5" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>Accept</TooltipContent>
+        </Tooltip>
+        <Tooltip>
+          <TooltipTrigger>
+            <Button
+              onClick={() => handleStatusUpdate(applicant._id, "rejected")}
+              variant="outline"
+              className="bg-white hover:bg-red-500 text-red-500 hover:text-white transition-colors p-2 rounded-full"
+              aria-label="Reject"
+            >
+              <X className="w-5 h-5" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>Reject</TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+    );
+  }
+
   // Define fetchJob outside of useEffect so it can be called from other functions
   const fetchCompanyDetails = async (companyId: string) => {
     if (!companyId) return null;
-    
+
     try {
       const res = await fetch(`/api/companies/${companyId}`);
       if (!res.ok) {
-        console.error(`Failed to fetch company details: ${res.status} ${res.statusText}`);
+        console.error(
+          `Failed to fetch company details: ${res.status} ${res.statusText}`
+        );
         return null;
       }
       const data = await res.json();
       return data.company || data; // Handle both { company: {...} } and direct response
     } catch (error) {
-      console.error('Error fetching company details:', error);
+      console.error("Error fetching company details:", error);
       return null;
     }
   };
@@ -148,19 +311,19 @@ export default function CompaniesJobApplicationsPage({
         throw new Error(`Failed to fetch job: ${res.status} ${res.statusText}`);
 
       const response = await res.json();
-      console.log('Raw API Response:', JSON.stringify(response, null, 2));
-      
+      console.log("Raw API Response:", JSON.stringify(response, null, 2));
+
       // The API now returns { gig: {...} } with company data included
       const gigData = response.gig || response;
-      console.log('Raw gig data:', JSON.stringify(gigData, null, 2));
-      
+      console.log("Raw gig data:", JSON.stringify(gigData, null, 2));
+
       // The API now handles the special case where companyName is the job title
       const jobTitle = gigData.title || gigData.gigTitle || "Untitled Gig";
-      console.log('Using job title:', jobTitle);
-      
+      console.log("Using job title:", jobTitle);
+
       // Log company data for debugging
-      console.log('Company data from API:', gigData.company);
-      console.log('Company name from API:', gigData.company?.companyName);
+      console.log("Company data from API:", gigData.company);
+      console.log("Company name from API:", gigData.company?.companyName);
 
       console.log("Raw API Response:", JSON.stringify(response, null, 2));
       console.log("Processed Gig Data:", JSON.stringify(gigData, null, 2));
@@ -310,9 +473,11 @@ export default function CompaniesJobApplicationsPage({
         // Log why applicants might be filtered out
         job.applicants.forEach((applicant) => {
           console.log(
-            `Applicant ${applicant._id} (${applicant.name || 'No name'}) status: ${
-              applicant.status
-            }, matches active tab: ${applicant.status === activeTab}`
+            `Applicant ${applicant._id} (${
+              applicant.name || "No name"
+            }) status: ${applicant.status}, matches active tab: ${
+              applicant.status === activeTab
+            }`
           );
         });
       } else {
@@ -382,17 +547,43 @@ export default function CompaniesJobApplicationsPage({
   };
 
   // Filter applicants based on active tab and merge with persisted state
-  const filteredApplicants = job?.applicants?.length 
+  const filteredApplicants = job?.applicants?.length
     ? job.applicants
         .map((applicant) => {
-          const persistedStatus = applicationState[`${job._id}_${applicant._id}`];
+          const persistedStatus =
+            applicationState[`${job._id}_${applicant._id}`];
           return {
             ...applicant,
             // Use persisted status if available, otherwise fallback to server status
             status: persistedStatus || applicant.status,
           };
         })
-        .filter((applicant) => applicant.status === activeTab)
+        .filter((applicant) => {
+          // Applied tab shows: applied, accepted, rejected applications
+          if (activeTab === "applied") {
+            return ["applied", "accepted", "rejected"].includes(
+              applicant.status
+            );
+          }
+          // Accepted tab shows only accepted applications
+          if (activeTab === "accepted") {
+            return applicant.status === "accepted";
+          }
+          // Completed tab shows: work_accepted, withdrawal_requested, withdrawal_processed
+          if (activeTab === "completed") {
+            return [
+              "work_accepted",
+              "withdrawal_requested",
+              "withdrawal_processed",
+            ].includes(applicant.status);
+          }
+          // Rejected tab shows only work_rejected applications
+          if (activeTab === "rejected") {
+            return applicant.status === "work_rejected";
+          }
+          // Default behavior: strict match
+          return applicant.status === activeTab;
+        })
     : [];
 
   console.log("Filtered Applicants:", {
@@ -409,11 +600,26 @@ export default function CompaniesJobApplicationsPage({
 
   const getTabCount = (status: ApplicationStatus) => {
     if (!job?.applicants?.length) return 0;
-    return (
-      job.applicants.filter(
-        (applicant) => applicant.status === getStatusForTab(status)
-      ).length || 0
-    );
+    // Mirror the same logic as filteredApplicants for accurate counts
+    if (status === "applied") {
+      return job.applicants.filter((a) =>
+        ["applied", "accepted", "rejected"].includes(a.status)
+      ).length;
+    }
+    if (status === "accepted") {
+      return job.applicants.filter((a) => a.status === "accepted").length;
+    }
+    if (status === "completed") {
+      return job.applicants.filter((a) =>
+        ["work_accepted", "withdrawal_requested", "withdrawal_processed"].includes(
+          a.status
+        )
+      ).length;
+    }
+    if (status === "rejected") {
+      return job.applicants.filter((a) => a.status === "work_rejected").length;
+    }
+    return job.applicants.filter((a) => a.status === status).length;
   };
 
   const [isUpdating, setIsUpdating] = useState<Record<string, boolean>>({});
@@ -436,9 +642,39 @@ export default function CompaniesJobApplicationsPage({
     applicantId: string,
     newStatus: ApplicationStatus
   ) => {
-    if (!job) return;
+    if (!job || !jobId) return;
+
+    const updateKey = `${job._id}_${applicantId}`;
+    setIsUpdating(prev => ({ ...prev, [updateKey]: true }));
 
     try {
+      console.log(`Updating applicant ${applicantId} to status ${newStatus}`);
+      
+      // Send API request to update status
+      const response = await fetch(`/api/gigs/${jobId}/applications`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          userId: applicantId,
+          status: newStatus,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        console.error("Failed to update application status:", errorData);
+        showToast(
+          errorData.error || "Failed to update application status", 
+          "error"
+        );
+        return;
+      }
+
+      // Show success message
+      showToast(`Application status updated to ${newStatus}`, "success");
+      
       // Update local state immediately for better UX
       const updatedApplicants = job.applicants.map((applicant) =>
         applicant._id === applicantId
@@ -451,35 +687,24 @@ export default function CompaniesJobApplicationsPage({
         applicants: updatedApplicants,
       });
 
-      // Update application state in localStorage
+      // Update application state in localStorage for persistence
       setApplicationState((prev) => ({
         ...prev,
         [`${job._id}_${applicantId}`]: newStatus,
       }));
 
-      // Send API request to update status
-      const response = await fetch(`/api/jobs/${job._id}/applications`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          applicantId,
-          status: newStatus,
-        }),
-      });
-
-      if (!response.ok) {
-        console.error("Failed to update application status");
-        // Revert local state if API call fails
-        setJob(job);
-      }
+      // Optionally refresh the job data to ensure consistency
+      setTimeout(() => {
+        fetchJob();
+      }, 500);
+      
     } catch (error) {
       console.error("Error updating application status:", error);
-      // Revert local state on error
-      setJob(job);
+      showToast("Failed to update application status", "error");
+    } finally {
+      setIsUpdating(prev => ({ ...prev, [updateKey]: false }));
     }
-  }
+  };
 
   async function handleViewSubmission(applicantId: string) {
     try {
@@ -625,11 +850,11 @@ export default function CompaniesJobApplicationsPage({
   }
 
   const tabs = [
-    { key: "applied" as const, label: "Applied" }, // more accurate labeling
+    { key: "applied" as const, label: "Applied" },
     { key: "shortlisted" as const, label: "Shortlisted" },
     { key: "accepted" as const, label: "Accepted" },
     { key: "rejected" as const, label: "Rejected" },
-    { key: "submitted" as const, label: "Submitted" },
+    { key: "completed" as const, label: "Completed" },
   ];
 
   if (loading) {
@@ -647,10 +872,14 @@ export default function CompaniesJobApplicationsPage({
     return (
       <div className="flex items-center justify-center h-screen">
         <div className="text-center">
-          <h2 className="text-2xl font-semibold text-gray-800 mb-2">Job Not Found</h2>
-          <p className="text-gray-600 mb-4">The job you're looking for doesn't exist or has been removed.</p>
-          <Link 
-            href="/companies/my-zigs" 
+          <h2 className="text-2xl font-semibold text-gray-800 mb-2">
+            Job Not Found
+          </h2>
+          <p className="text-gray-600 mb-4">
+            The job you're looking for doesn't exist or has been removed.
+          </p>
+          <Link
+            href="/companies/my-zigs"
             className="inline-flex items-center text-blue-600 hover:text-blue-800"
           >
             <ArrowLeft className="w-4 h-4 mr-1" />
@@ -664,7 +893,7 @@ export default function CompaniesJobApplicationsPage({
   return (
     <div className="min-h-screen bg-black text-white p-6">
       <div className="max-w-2xl mx-auto">
-        <div className="mb-6">  
+        <div className="mb-6">
           <Link
             href="/companies/my-zigs"
             className="inline-flex items-center gap-2 text-gray-400 hover:text-white transition-colors"
@@ -679,10 +908,12 @@ export default function CompaniesJobApplicationsPage({
               <div className="flex justify-between items-start">
                 <div>
                   <h2 className="text-2xl font-bold text-gray-900">
-                    {job.title || 'Job Details'}
+                    {job.title || "Job Details"}
                   </h2>
                   <p className="text-lg font-medium text-gray-700">
-                    {job.company?.companyName || job.companyName || 'Company not specified'}
+                    {job.company?.companyName ||
+                      job.companyName ||
+                      "Company not specified"}
                   </p>
                   {(job.payment || job.stipend) && (
                     <p className="text-green-600 font-medium mt-1">
@@ -699,21 +930,31 @@ export default function CompaniesJobApplicationsPage({
                   </p>
                   {job.openings && (
                     <p className="text-sm text-gray-600">
-                      <span className="font-medium">Openings:</span> {job.openings}
+                      <span className="font-medium">Openings:</span>{" "}
+                      {job.openings}
                     </p>
                   )}
                 </div>
               </div>
               <div className="mt-4">
-                <h3 className="font-medium text-gray-900 mb-2">Job Description:</h3>
-                <p className="text-gray-700 whitespace-pre-line">{job.description}</p>
+                <h3 className="font-medium text-gray-900 mb-2">
+                  Job Description:
+                </h3>
+                <p className="text-gray-700 whitespace-pre-line">
+                  {job.description}
+                </p>
               </div>
               {job.skills && job.skills.length > 0 && (
                 <div className="mt-4">
-                  <h3 className="font-medium text-gray-900 mb-2">Skills Required:</h3>
+                  <h3 className="font-medium text-gray-900 mb-2">
+                    Skills Required:
+                  </h3>
                   <div className="flex flex-wrap gap-2">
                     {job.skills.map((skill, index) => (
-                      <span key={index} className="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded">
+                      <span
+                        key={index}
+                        className="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded"
+                      >
                         {skill}
                       </span>
                     ))}
@@ -808,158 +1049,314 @@ export default function CompaniesJobApplicationsPage({
                           <h4 className="font-medium text-gray-900">
                             {displayName}
                           </h4>
-                          <p className="text-sm text-gray-500">
-                            Applied {appliedDate}
-                          </p>
+                          <div className="flex items-center gap-2">
+                            <p className="text-sm text-gray-500">
+                              Applied {appliedDate}
+                            </p>
+                            {/* Status chips for each tab */}
+                            {activeTab === "applied" && (
+                              <>
+                                {applicant.status === "rejected" && (
+                                  <span className="text-xs px-2 py-0.5 rounded-full bg-red-100 text-red-700 border border-red-200">
+                                    Rejected
+                                  </span>
+                                )}
+                                {applicant.status === "accepted" && (
+                                  <span className="text-xs px-2 py-0.5 rounded-full bg-green-100 text-green-700 border border-green-200">
+                                    Accepted
+                                  </span>
+                                )}
+                                {applicant.status === "applied" && (
+                                  <span className="text-xs px-2 py-0.5 rounded-full bg-purple-100 text-purple-700 border border-purple-200">
+                                    Applied
+                                  </span>
+                                )}
+                              </>
+                            )}
+                            {activeTab === "completed" && (
+                              <>
+                                {applicant.status === "work_accepted" && (
+                                  <span className="text-xs px-2 py-0.5 rounded-full bg-green-100 text-green-700 border border-green-200">
+                                    Work Accepted
+                                  </span>
+                                )}
+                                {applicant.status === "withdrawal_requested" && (
+                                  <span className="text-xs px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-700 border border-yellow-200">
+                                    Payment Requested
+                                  </span>
+                                )}
+                                {applicant.status === "withdrawal_processed" && (
+                                  <span className="text-xs px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 border border-blue-200">
+                                    Payment Processed
+                                  </span>
+                                )}
+                              </>
+                            )}
+                            {activeTab === "rejected" && applicant.status === "work_rejected" && (
+                              <span className="text-xs px-2 py-0.5 rounded-full bg-red-100 text-red-700 border border-red-200">
+                                Work Rejected
+                              </span>
+                            )}
+                            {activeTab === "shortlisted" && applicant.status === "shortlisted" && (
+                              <span className="text-xs px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-700 border border-yellow-200">
+                                Shortlisted
+                              </span>
+                            )}
+                          </div>
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
-                        <Button
-                          variant="outline"
-                          className="text-sm px-4 py-1 border-gray-300 text-gray-700 hover:bg-gray-50 bg-transparent"
-                          onClick={() => handleViewApplication(applicant._id)}
-                        >
-                          View Profile
-                        </Button>
-                        {/* Show different buttons based on application status */}
-                        {activeTab === "submitted" &&
-                        applicant.status === "completed" ? (
-                          <div className="flex gap-2">
-                            <Button
-                              variant="outline"
-                              className="text-sm px-3 py-1 border-blue-300 text-blue-700 hover:bg-blue-50 bg-transparent"
-                              onClick={() =>
-                                handleViewSubmission(applicant._id)
-                              }
-                            >
-                              <Eye className="w-4 h-4 mr-1" />
-                              View
-                            </Button>
-                            <TooltipProvider>
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <Button
-                                    onClick={() =>
-                                      handleStatusUpdate(
-                                        applicant._id,
-                                        "work_accepted"
-                                      )
-                                    }
-                                    className="bg-white hover:bg-green-500 text-green-500 hover:text-white transition-colors p-1.5 rounded-full"
-                                    aria-label="Accept Work"
-                                  >
-                                    <Check className="w-4 h-4" />
-                                  </Button>
-                                </TooltipTrigger>
-                                <TooltipContent>Accept Work</TooltipContent>
-                              </Tooltip>
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <Button
-                                    onClick={() =>
-                                      handleStatusUpdate(
-                                        applicant._id,
-                                        "work_rejected"
-                                      )
-                                    }
-                                    variant="outline"
-                                    className="bg-white hover:bg-red-500 text-red-500 hover:text-white transition-colors p-1.5 rounded-full"
-                                    aria-label="Reject Work"
-                                  >
-                                    <X className="w-4 h-4" />
-                                  </Button>
-                                </TooltipTrigger>
-                                <TooltipContent>Reject Work</TooltipContent>
-                              </Tooltip>
-                            </TooltipProvider>
-                          </div>
-                        ) : activeTab === "submitted" &&
-                          applicant.status === "withdrawal_requested" ? (
+                        {activeTab !== "accepted" && (
                           <Button
                             variant="outline"
-                            className="text-sm px-4 py-1 border-green-300 text-green-700 hover:bg-green-50 bg-transparent"
-                            onClick={() => handleShowPaymentModal(applicant)}
+                            className="text-sm px-4 py-1 border-gray-300 text-gray-700 hover:bg-gray-50 bg-transparent"
+                            onClick={() => handleViewApplication(applicant._id)}
                           >
-                            <Send className="w-4 h-4 mr-2" />
-                            Process Payment
+                            View Profile
                           </Button>
-                        ) : activeTab === "submitted" &&
-                          applicant.status === "withdrawal_processed" ? (
-                          <Button
-                            variant="outline"
-                            disabled
-                            className="text-sm px-4 py-1 border-gray-300 text-gray-500 bg-gray-50"
-                          >
-                            <CheckCircle className="w-4 h-4 mr-2" />
-                            Payment Processed
-                          </Button>
-                        ) : activeTab === "accepted" &&
-                          applicant.status === "accepted" ? (
-                          /* Show Send Task button for accepted applications */
-                          <Button
-                            variant="outline"
-                            className="text-sm px-4 py-1 border-green-300 text-green-700 hover:bg-green-50 bg-transparent"
-                            onClick={() => handleSendTask(applicant._id)}
-                          >
-                            <Send className="w-4 h-4 mr-2" />
-                            Send Task
-                          </Button>
+                        )}
+                        {/* Applied Tab: Accept/Reject applications only */}
+                        {activeTab === "applied" ? (
+                          <>
+                            {/* Only show shortlist/accept/reject buttons for applications with 'applied' status */}
+                            {applicant.status === "applied" && (
+                              <div className="flex gap-2">
+                                <TooltipProvider>
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <Button
+                                        onClick={() =>
+                                          handleStatusUpdate(
+                                            applicant._id,
+                                            "shortlisted"
+                                          )
+                                        }
+                                        variant="outline"
+                                        className="bg-white hover:bg-yellow-500 text-yellow-500 hover:text-white transition-colors p-1.5 rounded-full"
+                                        aria-label="Shortlist Application"
+                                        disabled={isUpdating[`${job._id}_${applicant._id}`]}
+                                      >
+                                        {isUpdating[`${job._id}_${applicant._id}`] ? (
+                                          <div className="w-4 h-4 animate-spin rounded-full border-2 border-current border-r-transparent" />
+                                        ) : (
+                                          <FunnelPlus className="w-4 h-4" />
+                                        )}
+                                      </Button>
+                                    </TooltipTrigger>
+                                    <TooltipContent>Shortlist Application</TooltipContent>
+                                  </Tooltip>
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <Button
+                                        onClick={() =>
+                                          handleStatusUpdate(
+                                            applicant._id,
+                                            "accepted"
+                                          )
+                                        }
+                                        className="bg-white hover:bg-green-500 text-green-500 hover:text-white transition-colors p-1.5 rounded-full"
+                                        aria-label="Accept Application"
+                                        disabled={isUpdating[`${job._id}_${applicant._id}`]}
+                                      >
+                                        {isUpdating[`${job._id}_${applicant._id}`] ? (
+                                          <div className="w-4 h-4 animate-spin rounded-full border-2 border-current border-r-transparent" />
+                                        ) : (
+                                          <Check className="w-4 h-4" />
+                                        )}
+                                      </Button>
+                                    </TooltipTrigger>
+                                    <TooltipContent>Accept Application</TooltipContent>
+                                  </Tooltip>
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <Button
+                                        onClick={() =>
+                                          handleStatusUpdate(
+                                            applicant._id,
+                                            "rejected"
+                                          )
+                                        }
+                                        variant="outline"
+                                        className="bg-white hover:bg-red-500 text-red-500 hover:text-white transition-colors p-1.5 rounded-full"
+                                        aria-label="Reject Application"
+                                        disabled={isUpdating[`${job._id}_${applicant._id}`]}
+                                      >
+                                        {isUpdating[`${job._id}_${applicant._id}`] ? (
+                                          <div className="w-4 h-4 animate-spin rounded-full border-2 border-current border-r-transparent" />
+                                        ) : (
+                                          <X className="w-4 h-4" />
+                                        )}
+                                      </Button>
+                                    </TooltipTrigger>
+                                    <TooltipContent>Reject Application</TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
+                              </div>
+                            )}
+                          </>
                         ) : (
-                          <TooltipProvider>
-                            <Tooltip>
-                              <TooltipTrigger>
+                          /* Other tabs with correct workflow */
+                          <>
+                            {/* Accepted Tab: View Submission, Accept Work, Reject Work */}
+                            {activeTab === "accepted" && applicant.status === "accepted" && (
+                              <div className="flex gap-2">
                                 <Button
-                                  onClick={() =>
-                                    handleStatusUpdate(
-                                      applicant._id,
-                                      "shortlisted"
-                                    )
-                                  }
                                   variant="outline"
-                                  className="bg-white hover:bg-yellow-500 text-yellow-500 hover:text-white transition-colors p-2 rounded-full"
-                                  aria-label="Shortlist"
+                                  className="text-sm px-3 py-1 border-blue-300 text-blue-700 hover:bg-blue-50 bg-transparent"
+                                  onClick={() => handleViewSubmission(applicant._id)}
                                 >
-                                  <FunnelPlus className="w-5 h-5" />
+                                  <Eye className="w-4 h-4 mr-1" />
+                                  View Submission
                                 </Button>
-                              </TooltipTrigger>
-                              <TooltipContent>Shortlist</TooltipContent>
-                            </Tooltip>
-                            <Tooltip>
-                              <TooltipTrigger>
-                                <Button
-                                  onClick={() =>
-                                    handleStatusUpdate(
-                                      applicant._id,
-                                      "accepted"
-                                    )
-                                  }
-                                  className="bg-white hover:bg-green-500 text-green-500 hover:text-white transition-colors p-2 rounded-full"
-                                  aria-label="Accept"
-                                >
-                                  <Check className="w-5 h-5" />
-                                </Button>
-                              </TooltipTrigger>
-                              <TooltipContent>Accept</TooltipContent>
-                            </Tooltip>
-                            <Tooltip>
-                              <TooltipTrigger>
-                                <Button
-                                  onClick={() =>
-                                    handleStatusUpdate(
-                                      applicant._id,
-                                      "rejected"
-                                    )
-                                  }
-                                  variant="outline"
-                                  className="bg-white hover:bg-red-500 text-red-500 hover:text-white transition-colors p-2 rounded-full"
-                                  aria-label="Reject"
-                                >
-                                  <X className="w-5 h-5" />
-                                </Button>
-                              </TooltipTrigger>
-                              <TooltipContent>Reject</TooltipContent>
-                            </Tooltip>
-                          </TooltipProvider>
+                                <TooltipProvider>
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <Button
+                                        onClick={() =>
+                                          handleStatusUpdate(
+                                            applicant._id,
+                                            "work_accepted"
+                                          )
+                                        }
+                                        className="bg-white hover:bg-green-500 text-green-500 hover:text-white transition-colors p-1.5 rounded-full"
+                                        aria-label="Accept Work"
+                                        disabled={isUpdating[`${job._id}_${applicant._id}`]}
+                                      >
+                                        {isUpdating[`${job._id}_${applicant._id}`] ? (
+                                          <div className="w-4 h-4 animate-spin rounded-full border-2 border-current border-r-transparent" />
+                                        ) : (
+                                          <Check className="w-4 h-4" />
+                                        )}
+                                      </Button>
+                                    </TooltipTrigger>
+                                    <TooltipContent>Accept Work</TooltipContent>
+                                  </Tooltip>
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <Button
+                                        onClick={() =>
+                                          handleStatusUpdate(
+                                            applicant._id,
+                                            "work_rejected"
+                                          )
+                                        }
+                                        variant="outline"
+                                        className="bg-white hover:bg-red-500 text-red-500 hover:text-white transition-colors p-1.5 rounded-full"
+                                        aria-label="Reject Work"
+                                        disabled={isUpdating[`${job._id}_${applicant._id}`]}
+                                      >
+                                        {isUpdating[`${job._id}_${applicant._id}`] ? (
+                                          <div className="w-4 h-4 animate-spin rounded-full border-2 border-current border-r-transparent" />
+                                        ) : (
+                                          <X className="w-4 h-4" />
+                                        )}
+                                      </Button>
+                                    </TooltipTrigger>
+                                    <TooltipContent>Reject Work</TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
+                              </div>
+                            )}
+                            
+                            {/* Completed Tab: View submission and payment processing */}
+                            {activeTab === "completed" && applicant.status === "work_accepted" && (
+                              <Button
+                                variant="outline"
+                                className="text-sm px-3 py-1 border-blue-300 text-blue-700 hover:bg-blue-50 bg-transparent"
+                                onClick={() => handleViewSubmission(applicant._id)}
+                              >
+                                <Eye className="w-4 h-4 mr-1" />
+                                View Submission
+                              </Button>
+                            )}
+                            
+                            {activeTab === "completed" && applicant.status === "withdrawal_requested" && (
+                              <Button
+                                variant="outline"
+                                className="text-sm px-4 py-1 border-green-300 text-green-700 hover:bg-green-50 bg-transparent"
+                                onClick={() => handleShowPaymentModal(applicant)}
+                              >
+                                <Send className="w-4 h-4 mr-2" />
+                                Process Payment
+                              </Button>
+                            )}
+                            
+                            {activeTab === "completed" && applicant.status === "withdrawal_processed" && (
+                              <Button
+                                variant="outline"
+                                disabled
+                                className="text-sm px-4 py-1 border-gray-300 text-gray-500 bg-gray-50"
+                              >
+                                <CheckCircle className="w-4 h-4 mr-2" />
+                                Payment Processed
+                              </Button>
+                            )}
+                            
+                            {/* Rejected Tab: Just view submission */}
+                            {activeTab === "rejected" && applicant.status === "work_rejected" && (
+                              <Button
+                                variant="outline"
+                                className="text-sm px-3 py-1 border-blue-300 text-blue-700 hover:bg-blue-50 bg-transparent"
+                                onClick={() => handleViewSubmission(applicant._id)}
+                              >
+                                <Eye className="w-4 h-4 mr-1" />
+                                View Submission
+                              </Button>
+                            )}
+                            
+                            {/* Shortlisted Tab */}
+                            {activeTab === "shortlisted" && applicant.status === "shortlisted" && (
+                              <div className="flex gap-2">
+                                <TooltipProvider>
+                                  <Tooltip>
+                                    <TooltipTrigger>
+                                      <Button
+                                        onClick={() =>
+                                          handleStatusUpdate(
+                                            applicant._id,
+                                            "accepted"
+                                          )
+                                        }
+                                        className="bg-white hover:bg-green-500 text-green-500 hover:text-white transition-colors p-2 rounded-full"
+                                        aria-label="Accept"
+                                        disabled={isUpdating[`${job._id}_${applicant._id}`]}
+                                      >
+                                        {isUpdating[`${job._id}_${applicant._id}`] ? (
+                                          <div className="w-5 h-5 animate-spin rounded-full border-2 border-current border-r-transparent" />
+                                        ) : (
+                                          <Check className="w-5 h-5" />
+                                        )}
+                                      </Button>
+                                    </TooltipTrigger>
+                                    <TooltipContent>Accept</TooltipContent>
+                                  </Tooltip>
+                                  <Tooltip>
+                                    <TooltipTrigger>
+                                      <Button
+                                        onClick={() =>
+                                          handleStatusUpdate(
+                                            applicant._id,
+                                            "rejected"
+                                          )
+                                        }
+                                        variant="outline"
+                                        className="bg-white hover:bg-red-500 text-red-500 hover:text-white transition-colors p-2 rounded-full"
+                                        aria-label="Reject"
+                                        disabled={isUpdating[`${job._id}_${applicant._id}`]}
+                                      >
+                                        {isUpdating[`${job._id}_${applicant._id}`] ? (
+                                          <div className="w-5 h-5 animate-spin rounded-full border-2 border-current border-r-transparent" />
+                                        ) : (
+                                          <X className="w-5 h-5" />
+                                        )}
+                                      </Button>
+                                    </TooltipTrigger>
+                                    <TooltipContent>Reject</TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
+                              </div>
+                            )}
+                          </>
                         )}
                       </div>
                     </div>
@@ -1128,6 +1525,39 @@ export default function CompaniesJobApplicationsPage({
             </div>
 
             <div className="flex justify-end mt-6">
+              {submissionActionTab === "accepted" && (
+                <div className="flex gap-3 mr-auto">
+                  <Button
+                    variant="outline"
+                    className="border-red-300 text-red-600 hover:bg-red-50"
+                    onClick={() => {
+                      if (selectedSubmission?.applicantId) {
+                        handleStatusUpdate(
+                          selectedSubmission.applicantId,
+                          "rejected"
+                        );
+                      }
+                      setShowSubmissionModal(false);
+                    }}
+                  >
+                    <X className="w-4 h-4 mr-2" /> Reject
+                  </Button>
+                  <Button
+                    className="bg-green-600 hover:bg-green-700 text-white"
+                    onClick={() => {
+                      if (selectedSubmission?.applicantId) {
+                        handleStatusUpdate(
+                          selectedSubmission.applicantId,
+                          "completed"
+                        );
+                      }
+                      setShowSubmissionModal(false);
+                    }}
+                  >
+                    <Check className="w-4 h-4 mr-2" /> Accept
+                  </Button>
+                </div>
+              )}
               <Button
                 onClick={() => setShowSubmissionModal(false)}
                 className="bg-gray-600 hover:bg-gray-700 text-white"
