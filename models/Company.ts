@@ -12,6 +12,7 @@ const companySchema = new mongoose.Schema({
   contactName: { type: String },
   businessEmail: { type: String },
   logoUrl: { type: String },
+  aboutCompany: { type: String },
   description: { type: String },
   website: { type: String },
   industry: { type: String },

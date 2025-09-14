@@ -228,6 +228,6 @@ export default function NotificationsPage() {
 
 // Map entities to deep links in your app
 function linkForEntity(entityType: string, entityId: string) {
-  if (entityType === "gigApplication") return `/gigs/applications/${entityId}`;
-  return "#";
+  if (entityType === "gigApplication") return `/zigs`;
+  return "/zigs";
 }

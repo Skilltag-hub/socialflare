@@ -381,14 +381,7 @@ export default function Component() {
 
           <div className="text-gray-700 text-sm h-[60px] overflow-hidden">
             <p className="leading-relaxed">
-              {truncateDescription(
-                gig.description || "No description available"
-              )}
-              {gig.description && gig.description.length > 100 && (
-                <span className="inline-flex items-center ml-1 bg-gray-100 text-gray-600 text-xs px-2 py-0.5 rounded-full">
-                  ...
-                </span>
-              )}
+                  {gig.gigTitle}
             </p>
           </div>
 

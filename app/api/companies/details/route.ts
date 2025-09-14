@@ -19,12 +19,13 @@ export async function PUT(request: Request) {
       companyWebsite,
       contactName,
       businessEmail,
+      aboutCompany,
       logoUrl,
       gstCertificate,
       cinDocument,
     } = data;
 
-    if (!companyName || !companyWebsite || !contactName || !businessEmail) {
+    if (!companyName || !companyWebsite || !contactName || !businessEmail || !aboutCompany) {
       return NextResponse.json(
         { error: "Missing required fields" },
         { status: 400 }
@@ -39,6 +40,7 @@ export async function PUT(request: Request) {
       companyWebsite,
       contactName,
       businessEmail,
+      aboutCompany,
       isOnboarded: true,
       updatedAt: new Date(),
       ...(logoUrl && { logoUrl }), // Only include logoUrl if provided

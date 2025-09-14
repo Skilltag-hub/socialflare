@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import Link from "next/link";
 
@@ -15,6 +16,7 @@ export default function CompaniesDetailsPage() {
   const [companyWebsite, setCompanyWebsite] = useState("");
   const [contactName, setContactName] = useState("");
   const [businessEmail, setBusinessEmail] = useState("");
+  const [aboutCompany, setAboutCompany] = useState("");
   const [logoUrl, setLogoUrl] = useState("");
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
@@ -159,12 +161,13 @@ export default function CompaniesDetailsPage() {
       companyWebsite: !normalizedWebsite,
       contactName: !contactName,
       businessEmail: !businessEmail,
+      aboutCompany: !aboutCompany,
       logoUrl: !logoUrl,
     };
     setErrors(req);
     const valid = Object.values(req).every((v) => v === false);
     if (!valid) {
-      setError("Please fill all required fields and upload a logo.");
+      setError("Please fill all required fields, provide company description, and upload a logo.");
       return;
     }
 
@@ -177,6 +180,7 @@ export default function CompaniesDetailsPage() {
           companyWebsite: normalizedWebsite,
           contactName,
           businessEmail,
+          aboutCompany,
           logoUrl,
           gstCertificate,
           cinDocument
@@ -286,6 +290,25 @@ export default function CompaniesDetailsPage() {
             />
             {errors.businessEmail && (
               <p className="text-xs text-red-600">Business email is required</p>
+            )}
+          </div>
+          <div className="space-y-2">
+            <Label
+              htmlFor="about-company"
+              className="text-sm font-medium text-gray-700"
+            >
+              About Company <span className="text-red-500">*</span>
+            </Label>
+            <Textarea
+              id="about-company"
+              placeholder="Brief description about your company..."
+              value={aboutCompany}
+              onChange={(e) => setAboutCompany(e.target.value)}
+              className={`w-full min-h-[80px] px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:border-transparent resize-none ${errors.aboutCompany ? "border-red-500 focus:ring-red-500" : "focus:ring-blue-500"}`}
+              required
+            />
+            {errors.aboutCompany && (
+              <p className="text-xs text-red-600">About company is required</p>
             )}
           </div>
           <div className="space-y-2">

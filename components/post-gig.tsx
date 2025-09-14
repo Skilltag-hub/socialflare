@@ -142,9 +142,10 @@ export default function PostGig() {
 
       // Format the data to match the API's expected format
       const gigData = {
-        companyName: company?.name || formData.gigTitle,
+        gigTitle: formData.gigTitle,
+        companyName: company?.companyName || "",
         companyLogo: company?.logoUrl || "",
-        aboutCompany: company?.about || formData.additionalRequirements,
+        aboutCompany: company?.aboutCompany || "",
         openings: parseInt(formData.numberOfPositions) || 1,
         description: formData.description,
         payment: formData.stipend,
@@ -156,6 +157,7 @@ export default function PostGig() {
         duration: formData.duration,
         location: formData.location,
         applicationDeadline: formData.applicationDeadline,
+        additionalRequirements: formData.additionalRequirements,
       };
 
       // Post job to MongoDB

@@ -218,7 +218,7 @@ export async function POST(req: Request) {
       // Fire notification for applied
       try {
         const _gigTitle =
-          (gig as any)?.companyName ?? (gig as any)?.name ?? "Gig";
+          (gig as any)?.companyName ?? "Unknown Company";
         await createNotification({
           userId: currentUser.email,
           type: "GIG_STATUS",
@@ -301,7 +301,7 @@ export async function POST(req: Request) {
 
     // Fire notification for applied
     try {
-      const gigTitle = (gig as any)?.title ?? (gig as any)?.name ?? "Gig";
+      const gigTitle = (gig as any)?.companyName ?? "Unknown Company";
       await createNotification({
         userId: currentUser.email,
         type: "GIG_STATUS",
@@ -444,7 +444,7 @@ export async function PUT(req: Request) {
 
     // Fire notification for status change
     try {
-      const gigTitle = (gig as any)?.title ?? (gig as any)?.name ?? "Gig";
+      const gigTitle = (gig as any)?.companyName ?? "Unknown Company";
       const statusTitle = String(status).replace(/_/g, " ");
       await createNotification({
         userId: currentUser.email,

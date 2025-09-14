@@ -9,11 +9,13 @@ type Gig = {
   companyId: string;
   companyName: string;
   companyLogo?: string;
+  gigTitle: string;
   openings: number;
   description: string;
   payment: string;
   skills: string[];
   aboutCompany: string;
+  additionalRequirements?: string;
   datePosted: Date;
   dateUpdated?: Date;
   status?: string;
@@ -48,11 +50,13 @@ export async function GET() {
         companyId: gig.companyId,
         companyName: gig.companyName,
         companyLogo: gig.companyLogo,
+        gigTitle: gig.gigTitle,
         openings: gig.openings,
         description: gig.description,
         payment: gig.payment,
         skills: gig.skills,
         aboutCompany: gig.aboutCompany,
+        additionalRequirements: gig.additionalRequirements,
         status: gig.status,
         category: gig.category,
         duration: gig.duration,
@@ -119,9 +123,9 @@ export async function POST(request: Request) {
     // Parse the request body
     const gigData = await request.json();
     // Validate required fields
-    if (!gigData.companyName || !gigData.description || !gigData.payment) {
+    if (!gigData.companyName || !gigData.gigTitle || !gigData.description || !gigData.payment) {
       return NextResponse.json(
-        { error: "Missing required fields" },
+        { error: "Missing required fields: companyName, gigTitle, description, and payment are required" },
         { status: 400 }
       );
     }
@@ -131,11 +135,13 @@ export async function POST(request: Request) {
       companyId: company._id.toString(),
       companyName: gigData.companyName,
       companyLogo: company.logoUrl || '',
+      gigTitle: gigData.gigTitle || '',
       openings: gigData.openings || 1,
       description: gigData.description,
       payment: gigData.payment,
       skills: Array.isArray(gigData.skills) ? gigData.skills : [],
       aboutCompany: gigData.aboutCompany || "",
+      additionalRequirements: gigData.additionalRequirements || '',
       datePosted: new Date(gigData.datePosted || Date.now()),
       status: "active", // Default status
       category: gigData.category,
@@ -154,11 +160,13 @@ export async function POST(request: Request) {
       companyId: newGig.companyId,
       companyName: newGig.companyName,
       companyLogo: newGig.companyLogo,
+      gigTitle: newGig.gigTitle,
       openings: newGig.openings,
       description: newGig.description,
       payment: newGig.payment,
       skills: newGig.skills,
       aboutCompany: newGig.aboutCompany,
+      additionalRequirements: newGig.additionalRequirements,
       status: newGig.status,
       category: newGig.category,
       duration: newGig.duration,
@@ -266,11 +274,13 @@ export async function PUT(request: Request) {
       companyId: updatedGig.companyId,
       companyName: updatedGig.companyName,
       companyLogo: updatedGig.companyLogo,
+      gigTitle: updatedGig.gigTitle,
       openings: updatedGig.openings,
       description: updatedGig.description,
       payment: updatedGig.payment,
       skills: updatedGig.skills,
       aboutCompany: updatedGig.aboutCompany,
+      additionalRequirements: updatedGig.additionalRequirements,
       status: updatedGig.status,
       category: updatedGig.category,
       duration: updatedGig.duration,

@@ -154,6 +154,7 @@ export default function Component() {
   const transformGigToJobCard = (gig: any) => ({
     id: gig._id,
     company: gig.companyName,
+    gigTitle: gig.gigTitle,
     companyLogo: gig.companyLogo,
     openings: `${gig.openings}`,
     timeAgo: getRelativeTime(gig.datePosted),
@@ -435,12 +436,7 @@ export default function Component() {
 
             <div className="text-gray-700 text-sm h-[60px] overflow-hidden">
               <p className="leading-relaxed">
-                {truncateDescription(job.description)}
-                {job.description && job.description.length > 100 && (
-                  <span className="inline-flex items-center ml-1 bg-gray-100 text-gray-600 text-xs px-2 py-0.5 rounded-full">
-                    ...
-                  </span>
-                )}
+                {job.gigTitle}
               </p>
             </div>
 
